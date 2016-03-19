@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Plan {
+public class Move {
 
-	public Plan() {
+	public Move() {
 		
 	}
 	
-	class SubPlan {
+	class Type {
 	
 	}
 }
