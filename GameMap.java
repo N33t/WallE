@@ -17,14 +17,14 @@ public class GameMap {
 
 	private static GameMap singleton = new GameMap( );
 
-	public boolean walls[][];
-	public char goals[][];
-	public char boxes[][];
-	public char agents[][];
-	public int agentsAmount;
+	public static boolean walls[][];
+	public static char goals[][];
+	public static char boxes[][];
+	public static char agents[][];
+	public static int agentsAmount;
 	public ArrayList<Goal> unsolvedGoals;
-	private int MAX_ROW;
-	private int MAX_COLUMN;
+	private static int MAX_ROW;
+	private static int MAX_COLUMN;
 
 	private GameMap() {
 		this.agentsAmount = 0;
@@ -39,13 +39,29 @@ public class GameMap {
 		throw new Exception( "GSCError: " + msg );
 	}
 
-	public int[] size() {
-		return new int[] {MAX_ROW, MAX_COLUMN};
+	public static int[] size() {
+		return new int[] {MAX_COLUMN, MAX_ROW};
 	}
 
 	public static Goal getUnsolvedGoal() {
 		Goal ret = new Goal(singleton.unsolvedGoals.get(0));
 		return ret;
+	}
+	
+	public static Boolean isCellFree(Position pos) {
+		return (boxes[pos.x][pos.y] == (char)0 && walls[pos.x][pos.y] == false);
+	}
+	
+	public static char BoxAt(Position pos) {
+		return (boxes[pos.x][pos.y]);
+	}
+	
+	public static char GoalAt(Position pos) {
+		return (goals[pos.x][pos.y]);
+	}
+	
+	public static char AgentAt(Position pos) {
+		return (agents[pos.x][pos.y]);
 	}
 
 	protected void read(BufferedReader serverMessages) throws Exception {
@@ -82,12 +98,14 @@ public class GameMap {
 
 		int cols = lines.get(0).length();
 		int rows = lines.size();
-		walls = new boolean[rows][cols];
-		goals = new char[rows][cols];
-		boxes = new char[rows][cols];
-		agents = new char[rows][cols];
-		for (int i = 0; i < rows; i++) {
+		walls = new boolean[cols][rows];
+		goals = new char[cols][rows];
+		boxes = new char[cols][rows];
+		agents = new char[cols][rows];
+		for (int i = 0; i < cols; i++) {
 			Arrays.fill(agents[i],(char) 0);
+			Arrays.fill(boxes[i],(char) 0);
+			Arrays.fill(goals[i],(char) 0);
 		}
 		MAX_ROW = rows;
 		MAX_COLUMN = cols;
@@ -101,14 +119,14 @@ public class GameMap {
 				char chr = line.charAt( i );
 
 				if ( '+' == chr ) { // Walls
-					walls[curLine][i] = true;
+					walls[i][curLine] = true;
 				} else if ( '0' <= chr && chr <= '9' ) { // Agents
-					agents[curLine][i] = chr;
+					agents[i][curLine] = chr;
 					agentsAmount++;
 				} else if ( 'A' <= chr && chr <= 'Z' ) { // Boxes
-					boxes[curLine][i] = chr;
+					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
-					goals[curLine][i] = chr;
+					goals[i][curLine] = chr;
 					unsolvedGoals.add(new Goal(chr, new Position(curLine,i)));
 				}
 			}

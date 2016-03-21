@@ -10,26 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import source.Position;
-
-
-public enum TypeNum {
-    NOP,
-	MOV,
-	PUS,
-	PUL,
-}
+import source.TypeNum;
 
 public class Type {
 	public TypeNum type;
 	public Position l1, l2, l3, l4;
 	
 	public Type(Position waitLocation) {
-		this.type = NOP;
+		this.type = TypeNum.NOP;
 		this.l1 = waitLocation;
 	}
 	
 	public Type(Position agentFrom, Position agentTo) {
-		this.type = MOV;
+		this.type = TypeNum.MOV;
 		this.l1 = agentFrom;
 		this.l2 = agentTo;
 	}

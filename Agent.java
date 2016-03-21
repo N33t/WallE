@@ -22,16 +22,111 @@ public class Agent implements Runnable {
 	}
 
 	public void run() {
+		Plan firstPlan;
 		Goal goal = GameMap.getUnsolvedGoal();
+		
+		Boolean boxFound = false;
 
-		//Find box that can be used
-		//ArrayList<Position> boxes = new ArrayList<Position>();
-		//for (int x = 0; x < theMap.size()[0]; x++) {
-		//		for (int y = 0; y < theMap.size()[1]; y++) {
-		//			
-		//	}
-		//}
+		//Find box that can be used (Currently only finds one.)
+		Position boxPosition = new Position(-1,-1);
+		for (int x = 0; x < GameMap.size()[0]; x++) {
+			for (int y = 0; y < GameMap.size()[1]; y++) {
+				 if (GameMap.BoxAt(new Position(x,y)) == Character.toUpperCase(goal.name)) {
+					boxPosition = new Position(x,y);
+					System.err.println("Box pos = (" + x + "," + y + ")");
+					boxFound = true;
+					break;
+				 }
+			}
+		}
+		
+		if (boxFound) {
+			// Create list of directions the box has to be moved in, in order to get to goal
+			// Will look something like [N, N, E, N, E, E, S]. It's a char list.
+			
+			// Create list of direction the agent has to move in order to get to an adjacent square to the box.
+			// Same structures as with box
+			
+				class PosNode {
+					public Position pos;
+					public ArrayList<Character> moves;
+					
+					//@Override
+					public Boolean equals(PosNode other) {
+						return (pos.x == other.pos.x && pos.y == other.pos.y);
+					}
+					
+					public PosNode(Position pos, ArrayList<Character> moves) {
+						this.pos = pos;
+						this.moves = moves;
+					}
+					
+					public PosNode(Position pos) {
+						this.pos = pos;
+						this.moves = new ArrayList<Character>();
+					}
+				}
 
+				//For now, do BFS
+				
+				ArrayList<PosNode> exploredPositions = new ArrayList<PosNode>();
+				ArrayList<PosNode> frontier = new ArrayList<PosNode>();
+				
+				frontier.add(new PosNode(position));
+				
+				ArrayList<Character> resultMoves = new ArrayList<Character>();
+				while (!frontier.isEmpty()) {
+					PosNode pos = frontier.remove(0);
+					System.err.println("Check node. Moves are = " + pos.moves + ", and position is (" + pos.pos.x + "," + pos.pos.y + ")");
+					ArrayList<Character> tmp;
+					exploredPositions.add(pos);
+					if (Math.abs(pos.pos.x - boxPosition.x) + Math.abs(pos.pos.y - boxPosition.y) <= 1) { //Next to box?
+						resultMoves = pos.moves;
+						break;
+					}
+					if (GameMap.isCellFree(new Position(pos.pos.x + 1, pos.pos.y)) && !exploredPositions.contains(new PosNode(new Position(pos.pos.x + 1, pos.pos.y)))) {
+						tmp = new ArrayList<Character>(); 
+						tmp.addAll(pos.moves);
+						tmp.add('E');
+						frontier.add(new PosNode(new Position(pos.pos.x + 1, pos.pos.y), tmp));
+					}
+					if (GameMap.isCellFree(new Position(pos.pos.x - 1, pos.pos.y)) && !exploredPositions.contains(new PosNode(new Position(pos.pos.x - 1, pos.pos.y)))) {
+						tmp = new ArrayList<Character>(); 
+						tmp.addAll(pos.moves);
+						tmp.add('W');
+						frontier.add(new PosNode(new Position(pos.pos.x - 1, pos.pos.y), tmp));
+					}
+					if (GameMap.isCellFree(new Position(pos.pos.x, pos.pos.y + 1)) && !exploredPositions.contains(new PosNode(new Position(pos.pos.x, pos.pos.y + 1)))) {
+						tmp = new ArrayList<Character>(); 
+						tmp.addAll(pos.moves);
+						tmp.add('S');
+						frontier.add(new PosNode(new Position(pos.pos.x, pos.pos.y + 1), tmp));
+					}
+					if (GameMap.isCellFree(new Position(pos.pos.x, pos.pos.y - 1)) && !exploredPositions.contains(new PosNode(new Position(pos.pos.x, pos.pos.y - 1)))) {
+						tmp = new ArrayList<Character>(); 
+						tmp.addAll(pos.moves);
+						tmp.add('N');
+						frontier.add(new PosNode(new Position(pos.pos.x, pos.pos.y - 1), tmp));
+					}
+				}
+				
+				System.err.println("result moves = " + resultMoves);
+			
+			// Convert agents path to a list of moves
+			
+			// Based on agents position next to box, convert box-path to a list of moves.
+				
+				
+				//////////////////////
+				//////////////////////TO DO: Implement heuristic og sorter Frontier baseret på den.
+				//////////////////////
+				
+				
+				// do same thing as above, but with all possible moves
+			
+		} else {
+			System.err.println("box not found");
+		}
 	}
 
 	//private int heuristic() {
