@@ -13,13 +13,13 @@ import source.Move;
 
 public class Plan {
 	
-	public ArrayList<Subplan> subplans;
+	public ArrayList<SubPlan> subplans;
 	
 	public Plan() {
-			subplans = new ArrayList<Subplan>();
+			subplans = new ArrayList<SubPlan>();
 	}
 	
-	public void addSubplan(Subplan subplan){
+	public void addSubplan(SubPlan subplan){
 		this.subplans.add(subplan);
 	}
 	

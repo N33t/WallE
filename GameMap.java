@@ -54,14 +54,14 @@ public class GameMap {
 				* Adds moves to the HashMap
 				* These moves represents cells occupied by the agents or boxes to the time
 				*/
-				if(move.type == TypeNum.NOP){
+				if(move.type.type == TypeNum.NOP){
 					timeController.get(time).put(move.type.l1, move);
 				}
-				else if(move.type == TypeNum.MOV){
+				else if(move.type.type == TypeNum.MOV){
 					timeController.get(time).put(move.type.l1, move);
 					timeController.get(time).put(move.type.l2, move);
 				}
-				else if(move.type == TypeNum.PUS || move.type == TypeNum.PUL){
+				else if(move.type.type == TypeNum.PUS || move.type.type == TypeNum.PUL){
 					timeController.get(time).put(move.type.l1, move);
 					timeController.get(time).put(move.type.l2, move);
 					timeController.get(time).put(move.type.l3, move);
@@ -96,8 +96,6 @@ public class GameMap {
 		}
 		return -1;
 	}
-	
-	public requestChangeToTime()
 
 	public static GameMap getInstance( ) {
       return singleton;
