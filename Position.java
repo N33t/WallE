@@ -26,4 +26,15 @@ public class Position {
 		this.x = x;
 		this.y = y;
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		Position ptr = (Position) other;
+		return (this.x == ptr.x && this.y == ptr.y);
+	}
+	
+	public boolean nextTo(Position other) {
+		//Are the two positions neighbours?
+		return this.x == other.x ? Math.abs(this.y - other.y) <= 1 : this.y == other.y ? Math.abs(this.x - other.x) <= 1 : false ;
+	}
 }
