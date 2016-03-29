@@ -12,15 +12,21 @@ import java.util.List;
 import source.Move;
 
 public class Plan {
-
+	
+	public ArrayList<Subplan> subplans;
+	
 	public Plan() {
-		
+			subplans = new ArrayList<Subplan>();
+	}
+	
+	public void addSubplan(Subplan subplan){
+		this.subplans.add(subplan);
 	}
 	
 	class SubPlan {
 		//Bounding box defined by
 		public int top, right, bottom, left;
-		ArrayList<Move> moves;
+		public ArrayList<Move> moves;
 		public int start, stop;
 		
 		public SubPlan(int n, int e, int s, int w, ArrayList<Move> mvs) {

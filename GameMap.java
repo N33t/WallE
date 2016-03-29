@@ -12,9 +12,12 @@ import java.util.Arrays;
 
 import source.Goal;
 import source.Position;
+import source.Plan;
+import source.TypeNum;
+
 
 public class GameMap {
-
+	
 	private static GameMap singleton = new GameMap( );
 
 	public static boolean walls[][];
@@ -25,11 +28,76 @@ public class GameMap {
 	public ArrayList<Goal> unsolvedGoals;
 	private static int MAX_ROW;
 	private static int MAX_COLUMN;
-
+	
+	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
+	private static ArrayList<Map<Position, Move>> timeController;
+	
 	private GameMap() {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
+		this.timeController = new ArrayList<Map<Position, Move>>();
 	}
+	
+	//Adds plan to the timeController
+	public void addPlanToController(Plan plan)
+	{
+		int time = 0;
+		for(int i = 0; i < plan.subplans.size(); i++){
+			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
+				
+				if(time >= timeController.size())
+					timeController.add(new HashMap<Position, Move>());
+				
+				Move move = plan.subplans.get(i).moves.get(x);
+				
+				/*
+				* Adds moves to the HashMap
+				* These moves represents cells occupied by the agents or boxes to the time
+				*/
+				if(move.type == TypeNum.NOP){
+					timeController.get(time).put(move.type.l1, move);
+				}
+				else if(move.type == TypeNum.MOV){
+					timeController.get(time).put(move.type.l1, move);
+					timeController.get(time).put(move.type.l2, move);
+				}
+				else if(move.type == TypeNum.PUS || move.type == TypeNum.PUL){
+					timeController.get(time).put(move.type.l1, move);
+					timeController.get(time).put(move.type.l2, move);
+					timeController.get(time).put(move.type.l3, move);
+					timeController.get(time).put(move.type.l4, move);
+				}
+				
+				
+				time++;
+			}			
+		}
+	}
+	
+	//Request position lookup
+	public boolean isPositionOccupiedToTime(Position p, int t){
+		Move m = timeController.get(t).get(p);
+		if(m == null)
+			return false;
+		return true;
+	}
+	
+	//Returns time until cell is free
+	//return -1 if the cell will never be free
+	public int cellFreeIn(int currentTime, Position pos){
+
+		int time = 0;
+		for(int t = currentTime; t < timeController.size(); t++){
+			
+			if(isPositionOccupiedToTime(pos, t))
+				return time;
+			
+			time++;
+		}
+		return -1;
+	}
+	
+	public requestChangeToTime()
 
 	public static GameMap getInstance( ) {
       return singleton;
