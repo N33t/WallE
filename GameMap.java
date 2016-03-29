@@ -127,7 +127,7 @@ public class GameMap {
 					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
-					unsolvedGoals.add(new Goal(chr, new Position(curLine,i)));
+					unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
 				}
 			}
 			curLine++;
