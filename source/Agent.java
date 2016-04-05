@@ -15,7 +15,7 @@ import source.*;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// TO DO: 
-//Include check for previous plans)
+//Include check for previous plans) - Done
 //Add support for no-operation 
 //Right now it chooses first box it finds. Choose "best" box instead (based on heuristic).
 //Make plan based on resultant moves - Done

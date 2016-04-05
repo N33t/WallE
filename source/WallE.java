@@ -53,6 +53,8 @@ public class WallE {
 		}
 
 		System.out.println( "[Move(E)]" );
+		System.out.flush();
+		System.out.println( "[Move(E)]" );
 		String response = serverMessages.readLine();
 	}
 }
