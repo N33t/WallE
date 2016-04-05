@@ -6,17 +6,14 @@
 AI Programming Project.
 
 Current implementation goals :-
-
-	-> Move Class
-		-> Move to string function (Nikolaj)
 		
 	-> Plan Maker
 		-> Re-planner
 		-> Add support for NoOp action.
 		-> Agent chooses first box it finds. Choose best box instead.
-	
-	-> GameMap 
-		-> Convert plans to output
+		
+	-> Main (plan-maker?)
+		-> Make plans until entire level is solved. Don't just create one.
 		
 ------------------How to run
 
