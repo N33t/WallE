@@ -102,15 +102,7 @@ public class GameMap {
 	}
 
 	public static void printMasterPlan()
-	{
-		/*
-		*	TEST CODE
-		*/ 
-		int fail = 0;
-		/*
-		*	TEST CODE
-		*/ 
-		
+	{	
 		boolean done = false;
 		int count = 0;
 		int time = 0;
@@ -133,9 +125,8 @@ public class GameMap {
 				/*
 				*	TEST CODE
 				*/ 
-				if(fail > 100000)
+				if(time > 100000)
 					System.error.println("Print master plan stuck in loop");
-				fail++;
 				/*
 				*	TEST CODE
 				*/ 
