@@ -76,6 +76,8 @@ public class GameMap {
 	
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
+		if(t > timeController.Size())
+			return true;
 		Move m = timeController.get(t).get(p);
 		if(m == null)
 			return false;
