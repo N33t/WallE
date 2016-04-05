@@ -106,8 +106,7 @@ public class GameMap {
 		boolean done = false;
 		int count = 0;
 		int time = 0;
-		
-		string cmd;
+		string cmd = "";
 		
 		while(!done){
 			count = 0;

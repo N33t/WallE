@@ -24,13 +24,13 @@ public class Plan {
 	}
 	
 	//Get move to the time t
-	public move getMoveToTime(time t){ 
+	public Move getMoveToTime(int t){ 
 		int time = 0;
 		for(int i = 0; i < subplans.size(); i++){
-			if((subplans.get(i).size() + time) > t){
+			if((subplans.get(i).moves.size() + time) > t){
 				return subplans.get(i).moves.get(t - time);
 			}else{
-				time += subplans.get(i).size();
+				time += subplans.get(i).moves.size();
 			}
 		}	
 		return null;	
