@@ -26,7 +26,7 @@ public class Plan {
 	class SubPlan {
 		//Bounding box defined by
 		public int top, right, bottom, left;
-		public ArrayList<Move> moves;
+		public ArrayList<Move> moves = new ArrayList<Move>();
 		public int start, stop;
 		
 		public SubPlan(int n, int e, int s, int w, ArrayList<Move> mvs) {
@@ -34,9 +34,7 @@ public class Plan {
 			this.right = e;
 			this.bottom = s;
 			this.left = w;
-			for(int i = 0; i < mvs.size(); i++) {
-				moves.add(moves.get(i));
-			}
+			moves.addAll(mvs);
 			start = moves.get(0).time;
 			stop = moves.get(moves.size()-1).time;
 		}

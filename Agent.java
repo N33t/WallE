@@ -18,10 +18,10 @@ import source.*;
 //Include check for previous plans)
 //Add support for no-operation 
 //Right now it chooses first box it finds. Choose "best" box instead (based on heuristic).
-//Make plan based on resultant moves
+//Make plan based on resultant moves - Done
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-public class Agent implements Runnable {
+public class Agent {
 	private int id;
 	private Position position;
 
@@ -39,7 +39,7 @@ public class Agent implements Runnable {
 	///////////////////////////////////////////////////////////// Classes and their comparators
 	private class PosNode {
 		public Position pos;
-		public ArrayList<Character> moves;
+		public ArrayList<Type> moves;
 		private Position boxPos;
 		
 		@Override
@@ -48,7 +48,7 @@ public class Agent implements Runnable {
 			return (pos.x == ptr.pos.x && pos.y == ptr.pos.y);
 		}
 		
-		public PosNode(Position pos, ArrayList<Character> moves, Position boxPos) {
+		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos) {
 			this.pos = pos;
 			this.moves = moves;
 			this.boxPos = boxPos;
@@ -56,13 +56,13 @@ public class Agent implements Runnable {
 		
 		public PosNode(Position pos, Position boxPos) {
 			this.pos = pos;
-			this.moves = new ArrayList<Character>();
+			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 		}
 		
 		public PosNode(Position pos) {
 			this.pos = pos;
-			this.moves = new ArrayList<Character>();
+			this.moves = new ArrayList<Type>();
 		}
 	}
 	
@@ -77,7 +77,7 @@ public class Agent implements Runnable {
 	private class PosBoxNode {
 		public Position pos;
 		public Position boxPos;
-		public ArrayList<String> moves;
+		public ArrayList<Type> moves;
 		private Position goalPos;
 		
 		@Override
@@ -86,7 +86,7 @@ public class Agent implements Runnable {
 			return (this.pos.x == ptr.pos.x && this.pos.y == ptr.pos.y && this.boxPos.x == ptr.boxPos.x && this.boxPos.y == ptr.boxPos.y );
 		}
 		
-		public PosBoxNode(Position pos, ArrayList<String> moves, Position boxPos, Position goalPos) {
+		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos) {
 			this.pos = pos;
 			this.moves = moves;
 			this.boxPos = boxPos;
@@ -95,14 +95,14 @@ public class Agent implements Runnable {
 		
 		public PosBoxNode(Position pos, Position boxPos, Position goalPos) {
 			this.pos = pos;
-			this.moves = new ArrayList<String>();
+			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 			this.goalPos = goalPos;
 		}
 		
 		public PosBoxNode(Position pos, Position boxPos) {
 			this.pos = pos;
-			this.moves = new ArrayList<String>();
+			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 		}
 	}
@@ -148,37 +148,40 @@ public class Agent implements Runnable {
 	}
 	
 	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir) {
-		ArrayList<Character> tmp = new ArrayList<Character>(); 
+		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		if (isLegalMove(node.pos, dir)) {
 			tmp.addAll(node.moves);
-			tmp.add(dir);
-			frontier.add(new PosNode(newPosInDirection(node.pos, dir), tmp, node.boxPos));
+			Position newPos = newPosInDirection(node.pos, dir);
+			tmp.add(new Type(node.pos, newPos));
+			frontier.add(new PosNode(newPos, tmp, node.boxPos));
 		}
 		return frontier;
 	}
 	
 	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir) {
-		ArrayList<String> tmp = new ArrayList<String>(); 
+		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		if (isLegalPush(node.pos, node.boxPos, dir)) {
 			tmp.addAll(node.moves);
-			tmp.add("push" + dir);
-			frontier.add(new PosBoxNode(node.boxPos, tmp, newPosInDirection(node.boxPos, dir), node.goalPos));
+			Position newPos = newPosInDirection(node.boxPos, dir);
+			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS));
+			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos));
 		}
 		return frontier;
 	}
 	
 	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir) {
-		ArrayList<String> tmp = new ArrayList<String>(); 
+		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		if (isLegalPull(node.pos, node.boxPos, dir)) {
 			tmp.addAll(node.moves);
-			tmp.add("pull" + dir);
-			frontier.add(new PosBoxNode(newPosInDirection(node.pos, dir), tmp, node.pos, node.goalPos));
+			Position newPos = newPosInDirection(node.pos, dir);
+			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL));
+			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos));
 		}
 		return frontier;
 	}
 	
 	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node) {
-		ArrayList<Character> tmp;
+		//ArrayList<Character> tmp;
 		frontier = makeMove(frontier, node, 'E');
 		frontier = makeMove(frontier, node, 'W');
 		frontier = makeMove(frontier, node, 'S');
@@ -198,9 +201,22 @@ public class Agent implements Runnable {
 		return boxFrontier;
 	}
 	
+	private int largest(int a, int b, int c, int d) {
+		int one = (a > b) ? a : b;
+		int two = (c > d) ? c : d;
+		return (one > two) ? one : two;
+	}
+	
+	private int smallest(int a, int b, int c, int d) {
+		int one = (a < b) ? a : b;
+		int two = (c < d) ? c : d;
+		return (one < two) ? one : two;
+	}
+	
 	///////////////////////////////////////////////////////////// The function that executes it all!
-	public void run() {
+	public Plan createPlan() {
 		final Goal goal = GameMap.getUnsolvedGoal();
+		Plan thePlan = new Plan();
 		
 		Boolean boxFound = false;
 
@@ -223,7 +239,7 @@ public class Agent implements Runnable {
 			//Find path to box
 				TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 				Position agentEndPosition = new Position(-1,-1);
-				ArrayList<Character> resultMoves = new ArrayList<Character>();
+				ArrayList<Type> resultMoves = new ArrayList<Type>();
 				frontier.add(new PosNode(position, boxPosition));
 				while (!frontier.isEmpty()) {
 					PosNode node = frontier.pollFirst();
@@ -236,11 +252,11 @@ public class Agent implements Runnable {
 					frontier = moveExplore(frontier, node);
 				}
 				
-				System.err.println("result moves = " + resultMoves);
+				//System.err.println("result moves = " + resultMoves);
 			
 			//Find path that moves box on top of goal. (We assume we are next to box initially).				
 				TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
-				ArrayList<String> resultBoxMoves = new ArrayList<String>();
+				ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 				
 				boxFrontier.add(new PosBoxNode(agentEndPosition, boxPosition, goal.pos));
 				
@@ -253,12 +269,68 @@ public class Agent implements Runnable {
 					boxFrontier = moveBoxExplore(boxFrontier, node);
 				}
 				
-				System.err.println("result box moves = " + resultBoxMoves);
+				//System.err.println("result box moves = " + resultBoxMoves);
 				
-			// TODO: Create plan based on the resulting moves
+			//Create list of moves for creating plan. Also create bounds
+				int time = 0;
+				ArrayList<Move> moves = new ArrayList<Move>();
+				ArrayList<Move> boxMoves = new ArrayList<Move>();
+				int moveN = -1;
+				int moveS = Integer.MAX_VALUE;
+				int moveE = -1;
+				int moveW = Integer.MAX_VALUE;
+				int boxMoveN = -1;
+				int boxMoveS = Integer.MAX_VALUE;
+				int boxMoveE = -1;
+				int boxMoveW = Integer.MAX_VALUE;
+				for (Type typ : resultMoves) { 
+					Move mov = new Move(time, typ);
+					
+					if (typ.type == TypeNum.MOV) {
+						moveN = (typ.l1.y > typ.l2.y) ? (typ.l1.y > moveN) ? typ.l1.y : moveN : (typ.l2.y > moveN) ? typ.l2.y : moveN ;
+						moveS = (typ.l1.y < typ.l2.y) ? (typ.l1.y < moveS) ? typ.l1.y : moveS : (typ.l2.y < moveS) ? typ.l2.y : moveS ;
+						moveE = (typ.l1.x > typ.l2.x) ? (typ.l1.x > moveE) ? typ.l1.x : moveE : (typ.l2.x > moveE) ? typ.l2.x : moveE ;
+						moveW = (typ.l1.x < typ.l2.x) ? (typ.l1.x < moveW) ? typ.l1.x : moveW : (typ.l2.x < moveW) ? typ.l2.x : moveW ;
+					}
+					
+					moves.add(mov);
+					time++;
+				}
+				time = 0;
+				System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
+				
+				for (Type typ : resultBoxMoves) { 
+					Move mov = new Move(time, typ);
+					
+					if (typ.type == TypeNum.PUS || typ.type == TypeNum.PUL) {
+						int largestY = largest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
+						int largestX = largest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
+						int smallestY = smallest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
+						int smallestX = smallest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
+						boxMoveN =  largestY > boxMoveN ? largestY : boxMoveN;
+						boxMoveS =  smallestY < boxMoveS ? smallestY : boxMoveS;
+						boxMoveE =  largestX > boxMoveE ? largestX : boxMoveE;
+						boxMoveW =  smallestX < boxMoveW ? smallestX : boxMoveS;
+					}
+					
+					boxMoves.add(mov);
+					time++;
+				}
+				
+				System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
+				System.err.println("Sizes: m = " + moves.size() + ", bm = " + boxMoves.size());
+			
+			//Create Plan
+				Plan.SubPlan partOne = thePlan.new SubPlan(moveN, moveE, moveS, moveW, moves);
+				Plan.SubPlan partTwo = thePlan.new SubPlan(boxMoveN, boxMoveE, boxMoveS, boxMoveW, boxMoves);
+				
+				thePlan.addSubplan(partOne);
+				thePlan.addSubplan(partTwo);
 			
 		} else {
 			System.err.println("box not found");
 		}
+		
+		return thePlan;
 	}
 }
