@@ -8,15 +8,30 @@ AI Programming Project.
 Current implementation goals :-
 		
 	-> Plan Maker
+		-> More intelligent (Nikolaj)
+			-> Add possibility for all types of jobs
 		-> Re-planner
-		-> Add support for NoOp action.
-		-> Agent chooses first box it finds. Choose best box instead.
+		-> Add support for NoOp action. (Nikolaj)
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
+		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?)
 		
 	-> GameMap
-		-> Update readMap function to support colors
+		-> Update readMap function to support colors (Djoni)
+		-> Remake goals to jobs (Samuel)
+			-> Create job data structure
+			-> Create data structure for holding jobs
+				-> Heuristic for agents. Give most appropriate job to agent
+			-> Pre-condition, post-condition
+		-> Function to delete plans
+	
+	-> Conflicts
+		-> Conflict Resolution (Flowchart) (Carl)
+		-> Detection (how? Where? - Hard conflict detection while building plan)
+		
+	-> Bug fixes
+		-> Map with more than 1 agent makes WallE say that there are 0 agents on the map. Fix (Nikolaj)
 		
 ------------------How to run
 
