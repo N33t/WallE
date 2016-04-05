@@ -32,6 +32,14 @@ The path to the level can be changed for different levels.
 The code in quotation marks should be the code for running WallE. You may need to specify a path depending on where it is located.
 
 
+--------------Conflicts
+---Hard conflicts
+- Box in the way
+- Agent in the way
+- Effect of plan destroys pre-condition of other plan
+
+---Soft conflicts
+- Delays
 
 ---------------- Formating for outputting of comands
 They are executed step by step. All agents need to make a move in a step
