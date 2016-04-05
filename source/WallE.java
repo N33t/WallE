@@ -52,9 +52,10 @@ public class WallE {
 			GameMap.addPlanToController(agents.get(i).createPlan());
 		}
 
-		System.out.println( "[Move(E)]" );
-		System.out.flush();
-		System.out.println( "[NoOp]" );
+		GameMap.printMasterPlan();
+		//System.out.println( "[Move(E)]" );
+		//System.out.flush();
+		//System.out.println( "[NoOp]" );
 		String response = serverMessages.readLine();
 	}
 }

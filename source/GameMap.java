@@ -37,6 +37,7 @@ public class GameMap {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
 		this.timeController = new ArrayList<Map<Position, Move>>();
+		this.plans = new ArrayList<Plan>();
 	}
 	
 	//Adds plan to the timeController
@@ -108,12 +109,12 @@ public class GameMap {
 		int time = 0;
 		
 		while(!done){
-			for(int t = 0; t < plans.Size(); t++){
+			for(int t = 0; t < plans.size(); t++){
 				count = 0;
 				
 				Move m = plans.get(t).getMoveToTime(time);
 				if(m != null)
-					System.out.println(m.toString());
+					System.out.println("[" + m.toString() + "]");
 				else
 					count++;
 				
@@ -126,7 +127,7 @@ public class GameMap {
 				*	TEST CODE
 				*/ 
 				if(time > 100000)
-					System.error.println("Print master plan stuck in loop");
+					System.err.println("Print master plan stuck in loop");
 				/*
 				*	TEST CODE
 				*/ 
