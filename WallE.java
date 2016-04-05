@@ -44,11 +44,9 @@ public class WallE {
 		}
 		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
 		System.err.println("We have " + agents.size() + " agents.");
-		//Get plans
-		ArrayList<Plan> Plans = new ArrayList<Plan>();
+		//Start agents
 		for (int i = 0; i < agents.size(); i++) {
-			//new Thread(agents.get(i)).start();
-			Plans.add(agents.get(i).createPlan());
+			new Thread(agents.get(i)).start();
 		}
 
 		System.out.println( "[Move(E)]" );
