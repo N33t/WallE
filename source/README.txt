@@ -15,6 +15,9 @@ Current implementation goals :-
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
 		
+	-> GameMap
+		-> Update readMap function to support colors
+		
 ------------------How to run
 
 1. Compile java code
