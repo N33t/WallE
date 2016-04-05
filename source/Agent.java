@@ -15,7 +15,7 @@ import source.*;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// TO DO: 
-//Include check for previous plans)
+//Include check for previous plans) - Done
 //Add support for no-operation 
 //Right now it chooses first box it finds. Choose "best" box instead (based on heuristic).
 //Make plan based on resultant moves - Done
@@ -132,72 +132,94 @@ public class Agent {
 		return newPos;
 	}
 	
-	private boolean isLegalMove(Position pos, char dir) {
+	private boolean isLegalMove(Position pos, char dir, int time) {
 		Position newPos = newPosInDirection(pos, dir);
-		return GameMap.isCellFree(newPos);
+		return GameMap.isCellFree(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
-	private boolean isLegalPush(Position agentPos, Position boxPos, char dir) {
+	private boolean isLegalPush(Position agentPos, Position boxPos, char dir, int time) {
 		Position newPos = newPosInDirection(boxPos, dir);
-		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos);
+		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
-	private boolean isLegalPull(Position agentPos, Position boxPos, char dir) {
+	private boolean isLegalPull(Position agentPos, Position boxPos, char dir, int time) {
 		Position newPos = newPosInDirection(agentPos, dir);
-		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos);
+		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
-	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir) {
+	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir, int time) {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
-		if (isLegalMove(node.pos, dir)) {
+		if (isLegalMove(node.pos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.pos, dir);
-			tmp.add(new Type(node.pos, newPos));
+			tmp.add(new Type(node.pos, newPos, dir));
 			frontier.add(new PosNode(newPos, tmp, node.boxPos));
 		}
 		return frontier;
 	}
 	
-	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir) {
+	private char positionsToDir(Position p1, Position p2) {
+		char rtn = 0;
+		if (heuristic(p1,p2) <= 1) {
+			if (p1.x - p2.x == 0) {
+				if (p1.y - p2.y == 1) {
+					rtn = 'N';
+				} else {
+					rtn = 'S';
+				}
+			} else if (p1.x - p2.x == 1) {
+				rtn = 'W';
+			} else {
+				rtn = 'E';
+			}
+		} else {
+			System.err.println("positionsToDir failed. Positions are not neighbours");
+		}
+		return rtn;
+	}
+	
+	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
-		if (isLegalPush(node.pos, node.boxPos, dir)) {
+		if (isLegalPush(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.boxPos, dir);
-			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS));
+			char agentDir = positionsToDir(node.pos, node.boxPos); 
+			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS, agentDir, dir));
 			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos));
 		}
 		return frontier;
 	}
 	
-	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir) {
+	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
-		if (isLegalPull(node.pos, node.boxPos, dir)) {
+		if (isLegalPull(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.pos, dir);
-			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL));
+			char boxDir = positionsToDir(node.boxPos, node.pos);
+			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
 			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos));
 		}
 		return frontier;
 	}
 	
-	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node) {
+	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node, int time) {
 		//ArrayList<Character> tmp;
-		frontier = makeMove(frontier, node, 'E');
-		frontier = makeMove(frontier, node, 'W');
-		frontier = makeMove(frontier, node, 'S');
-		frontier = makeMove(frontier, node, 'N');
+		frontier = makeMove(frontier, node, 'E', time);
+		frontier = makeMove(frontier, node, 'W', time);
+		frontier = makeMove(frontier, node, 'S', time);
+		frontier = makeMove(frontier, node, 'N', time);
 		return frontier;
 	}
 
-	private TreeSet<PosBoxNode> moveBoxExplore(TreeSet<PosBoxNode> boxFrontier, PosBoxNode node) {
-		boxFrontier = makePush(boxFrontier, node, 'E');
-		boxFrontier = makePush(boxFrontier, node, 'W');
-		boxFrontier = makePush(boxFrontier, node, 'S');
-		boxFrontier = makePush(boxFrontier, node, 'N');
-		boxFrontier = makePull(boxFrontier, node, 'E');
-		boxFrontier = makePull(boxFrontier, node, 'W');
-		boxFrontier = makePull(boxFrontier, node, 'S');
-		boxFrontier = makePull(boxFrontier, node, 'N');
+	private TreeSet<PosBoxNode> moveBoxExplore(TreeSet<PosBoxNode> boxFrontier, PosBoxNode node, int time) {
+		boxFrontier = makePush(boxFrontier, node, 'E', time);
+		boxFrontier = makePush(boxFrontier, node, 'W', time);
+		boxFrontier = makePush(boxFrontier, node, 'S', time);
+		boxFrontier = makePush(boxFrontier, node, 'N', time);
+		boxFrontier = makePull(boxFrontier, node, 'E', time);
+		boxFrontier = makePull(boxFrontier, node, 'W', time);
+		boxFrontier = makePull(boxFrontier, node, 'S', time);
+		boxFrontier = makePull(boxFrontier, node, 'N', time);
 		return boxFrontier;
 	}
 	
@@ -237,6 +259,7 @@ public class Agent {
 		
 		if (boxFound) {
 			//Find path to box
+				int planTime = 1;
 				TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 				Position agentEndPosition = new Position(-1,-1);
 				ArrayList<Type> resultMoves = new ArrayList<Type>();
@@ -249,11 +272,14 @@ public class Agent {
 						agentEndPosition = node.pos;
 						break;
 					}
-					frontier = moveExplore(frontier, node);
+					frontier = moveExplore(frontier, node, planTime);
+					planTime++;
 				}
 				
-				//System.err.println("result moves = " + resultMoves);
-			
+				if (frontier.isEmpty()) {
+					System.err.println("Can't move box to goal!");
+				}
+				
 			//Find path that moves box on top of goal. (We assume we are next to box initially).				
 				TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
 				ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
@@ -266,13 +292,15 @@ public class Agent {
 						resultBoxMoves = node.moves;
 						break;
 					}
-					boxFrontier = moveBoxExplore(boxFrontier, node);
+					boxFrontier = moveBoxExplore(boxFrontier, node, planTime);
 				}
 				
-				//System.err.println("result box moves = " + resultBoxMoves);
+				if (boxFrontier.isEmpty()) {
+					System.err.println("Can't move box to goal!");
+				}
 				
 			//Create list of moves for creating plan. Also create bounds
-				int time = 0;
+				int movTime = 0;
 				ArrayList<Move> moves = new ArrayList<Move>();
 				ArrayList<Move> boxMoves = new ArrayList<Move>();
 				int moveN = -1;
@@ -284,7 +312,7 @@ public class Agent {
 				int boxMoveE = -1;
 				int boxMoveW = Integer.MAX_VALUE;
 				for (Type typ : resultMoves) { 
-					Move mov = new Move(time, typ);
+					Move mov = new Move(movTime, typ);
 					
 					if (typ.type == TypeNum.MOV) {
 						moveN = (typ.l1.y > typ.l2.y) ? (typ.l1.y > moveN) ? typ.l1.y : moveN : (typ.l2.y > moveN) ? typ.l2.y : moveN ;
@@ -294,13 +322,13 @@ public class Agent {
 					}
 					
 					moves.add(mov);
-					time++;
+					movTime++;
 				}
-				time = 0;
+				movTime = 0;
 				System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
 				
 				for (Type typ : resultBoxMoves) { 
-					Move mov = new Move(time, typ);
+					Move mov = new Move(movTime, typ);
 					
 					if (typ.type == TypeNum.PUS || typ.type == TypeNum.PUL) {
 						int largestY = largest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
@@ -314,7 +342,7 @@ public class Agent {
 					}
 					
 					boxMoves.add(mov);
-					time++;
+					movTime++;
 				}
 				
 				System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
