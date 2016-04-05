@@ -107,32 +107,45 @@ public class GameMap {
 		int count = 0;
 		int time = 0;
 		
+		string cmd;
+		
 		while(!done){
+			count = 0;
+			cmd = "[";
+			
 			for(int t = 0; t < plans.Size(); t++){
-				count = 0;
 				
 				Move m = plans.get(t).getMoveToTime(time);
 				if(m != null)
-					System.out.println(m.toString());
+					cmd += (m.toString() + ",");
 				else
-					count++;
-				
-				if(count >= plans.size())
-					done = true;
-				
-				time++;
-				
-				/*
-				*	TEST CODE
-				*/ 
-				if(time > 100000)
-					System.error.println("Print master plan stuck in loop");
-				/*
-				*	TEST CODE
-				*/ 
-				
+					count++;	
 			}
+			
+			cmd = removeLastChar(cmd);
+			cmd += "]";
+			System.out.println(cmd);
+			System.out.flush();
+			
+			if(count >= plans.size())
+					done = true;
+			time++;
+			/*
+			*	TEST CODE
+			*/ 
+			if(time > 100000)
+				System.error.println("Print master plan stuck in loop");
+			/*
+			*	TEST CODE
+			*/ 
 		}
+	}
+	
+	public String removeLastChar(String s) {
+		if (s == null || s.length() == 0) {
+			return s;
+		}
+		return s.substring(0, s.length()-1);
 	}
 	
 	public static GameMap getInstance( ) {
