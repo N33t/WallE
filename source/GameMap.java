@@ -39,7 +39,7 @@ public class GameMap {
 	}
 	
 	//Adds plan to the timeController
-	public void addPlanToController(Plan plan)
+	public static void addPlanToController(Plan plan)
 	{
 		int time = 0;
 		for(int i = 0; i < plan.subplans.size(); i++){
@@ -75,7 +75,7 @@ public class GameMap {
 	}
 	
 	//Request position lookup
-	public boolean isPositionOccupiedToTime(Position p, int t){
+	public static boolean isPositionOccupiedToTime(Position p, int t){
 		Move m = timeController.get(t).get(p);
 		if(m == null)
 			return false;
@@ -84,8 +84,8 @@ public class GameMap {
 	
 	//Returns time until cell is free
 	//return -1 if the cell will never be free
-	public int cellFreeIn(int currentTime, Position pos){
-
+	public static int cellFreeIn(int currentTime, Position pos){
+	
 		int time = 0;
 		for(int t = currentTime; t < timeController.size(); t++){
 			
