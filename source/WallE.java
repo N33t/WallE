@@ -54,7 +54,7 @@ public class WallE {
 
 		System.out.println( "[Move(E)]" );
 		System.out.flush();
-		System.out.println( "[Move(E)]" );
+		System.out.println( "[NoOp]" );
 		String response = serverMessages.readLine();
 	}
 }

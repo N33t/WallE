@@ -21,4 +21,18 @@ public class Move {
 		this.time = t;
 		this.type = tp;
 	}
+	
+	public String toString(){
+		String rtn = "";
+		if (type.type == TypeNum.MOV) {
+			rtn = "Move(" + type.agentDir + ")";
+		} else if (type.type == TypeNum.PUL) {
+			rtn = "Pull(" + type.agentDir + "," + type.boxDir + ")";
+		} else if (type.type == TypeNum.PUS) {
+			rtn = "Push(" + type.agentDir + "," + type.boxDir + ")";
+		} else {
+			rtn = "NoOp";
+		}		
+		return rtn;
+	}
 }

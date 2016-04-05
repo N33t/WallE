@@ -152,10 +152,30 @@ public class Agent {
 		if (isLegalMove(node.pos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.pos, dir);
-			tmp.add(new Type(node.pos, newPos));
+			tmp.add(new Type(node.pos, newPos, dir));
 			frontier.add(new PosNode(newPos, tmp, node.boxPos));
 		}
 		return frontier;
+	}
+	
+	private char positionsToDir(Position p1, Position p2) {
+		char rtn = 0;
+		if (heuristic(p1,p2) <= 1) {
+			if (p1.x - p2.x == 0) {
+				if (p1.y - p2.y == 1) {
+					rtn = 'N';
+				} else {
+					rtn = 'S';
+				}
+			} else if (p1.x - p2.x == 1) {
+				rtn = 'W';
+			} else {
+				rtn = 'E';
+			}
+		} else {
+			System.err.println("positionsToDir failed. Positions are not neighbours");
+		}
+		return rtn;
 	}
 	
 	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) {
@@ -163,7 +183,8 @@ public class Agent {
 		if (isLegalPush(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.boxPos, dir);
-			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS));
+			char agentDir = positionsToDir(node.pos, node.boxPos); 
+			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS, agentDir, dir));
 			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos));
 		}
 		return frontier;
@@ -174,7 +195,8 @@ public class Agent {
 		if (isLegalPull(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
 			Position newPos = newPosInDirection(node.pos, dir);
-			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL));
+			char boxDir = positionsToDir(node.boxPos, node.pos);
+			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
 			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos));
 		}
 		return frontier;

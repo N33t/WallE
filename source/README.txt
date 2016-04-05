@@ -12,7 +12,8 @@ Current implementation goals :-
 		
 	-> Plan Maker
 		-> Re-planner
-		-> add support for NoOp action.
+		-> Add support for NoOp action.
+		-> Agent chooses first box it finds. Choose best box instead.
 	
 	-> GameMap 
 		-> Convert plans to output
@@ -48,5 +49,8 @@ System.out.println("[Move(E), Push(E,E)]");
 System.out.flush();
 
 This code executes two steps, with each agent taking an action in each step.
+
+For any Push action, the first direction boxes position relative to the agent. The second direction is the direction it pushes the box in. (ie. Push(E,S). The box is located east of the agent and it pushes the box south)
+For any pull action, the first direction is direction the agent moves, the second direction is the boxes position relative to the agent. (ie. Pull(S,E). The box is located to the east of the agent and the agent moves south)
 
 
