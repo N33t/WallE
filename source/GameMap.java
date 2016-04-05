@@ -31,6 +31,7 @@ public class GameMap {
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	private static ArrayList<Map<Position, Move>> timeController;
+	private static ArrayList<Plan> plans;
 	
 	private GameMap() {
 		this.agentsAmount = 0;
@@ -41,6 +42,7 @@ public class GameMap {
 	//Adds plan to the timeController
 	public static void addPlanToController(Plan plan)
 	{
+		plans.add(plan);
 		int time = 0;
 		for(int i = 0; i < plan.subplans.size(); i++){
 			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
@@ -99,6 +101,49 @@ public class GameMap {
 		return -1;
 	}
 
+	public static void printMasterPlan()
+	{
+		/*
+		*	TEST CODE
+		*/ 
+		int fail = 0;
+		/*
+		*	TEST CODE
+		*/ 
+		
+		boolean done = false;
+		int count = 0;
+		int time = 0;
+		
+		while(!done){
+			for(int t = 0; t < plans.Size(); t++){
+				count = 0;
+				
+				Move m = plans.get(t).getMoveToTime(time);
+				if(m != null)
+					System.out.println(m.toString());
+				else
+					count++;
+				
+				if(count >= plans.size())
+					done = true;
+				
+				time++;
+				
+				/*
+				*	TEST CODE
+				*/ 
+				if(fail > 100000)
+					System.error.println("Print master plan stuck in loop");
+				fail++;
+				/*
+				*	TEST CODE
+				*/ 
+				
+			}
+		}
+	}
+	
 	public static GameMap getInstance( ) {
       return singleton;
    	}

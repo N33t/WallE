@@ -23,6 +23,19 @@ public class Plan {
 		this.subplans.add(subplan);
 	}
 	
+	//Get move to the time t
+	public move getMoveToTime(time t){ 
+		int time = 0;
+		for(int i = 0; i < subplans.size(); i++){
+			if((subplans.get(i).size() + time) > t){
+				return subplans.get(i).moves.get(t - time);
+			}else{
+				time += subplans.get(i).size();
+			}
+		}	
+		return null;	
+	}
+	
 	class SubPlan {
 		//Bounding box defined by
 		public int top, right, bottom, left;
