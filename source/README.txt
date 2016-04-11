@@ -11,7 +11,6 @@ Current implementation goals :-
 		-> More intelligent (Nikolaj)
 			-> Add possibility for all types of jobs
 		-> Re-planner
-		-> Add support for NoOp action. (Nikolaj)
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
@@ -32,6 +31,8 @@ Current implementation goals :-
 		
 	-> Bug fixes
 		-> Map with more than 1 agent makes WallE say that there are 0 agents on the map. Fix (Nikolaj)
+			It's a problem with GameMap.getUnsolvedGoal();
+			Not fixed, since it will be changed to job anyway.
 		
 ------------------How to run
 

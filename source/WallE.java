@@ -47,6 +47,7 @@ public class WallE {
 		//Get plans
 		//ArrayList<Plan> Plans = new ArrayList<Plan>();
 		for (int i = 0; i < agents.size(); i++) {
+		//While (GameMap.jobs.size() > 0) {
 			//new Thread(agents.get(i)).start();
 			//Plans.add(agents.get(i).createPlan());
 			GameMap.addPlanToController(agents.get(i).createPlan());

@@ -36,6 +36,10 @@ public class Agent {
 		return Math.sqrt(a + b);
 	}
 	
+	private static void error( String msg ) throws Exception {
+		throw new Exception( "GSCError: " + msg );
+	}
+	
 	///////////////////////////////////////////////////////////// Classes and their comparators
 	private class PosNode {
 		public Position pos;
@@ -116,7 +120,7 @@ public class Agent {
 	}
 	
 	///////////////////////////////////////////////////////////// Private functions
-	private Position newPosInDirection(Position pos, char dir) {
+	private Position newPosInDirection(Position pos, char dir) throws Exception {
 		Position newPos = new Position(-1, -1);;
 		if (dir == 'E') {
 			newPos = new Position(pos.x + 1, pos.y);
@@ -127,38 +131,13 @@ public class Agent {
 		} else if (dir == 'N') {
 			newPos = new Position(pos.x, pos.y - 1);
 		} else {
-			System.err.println("newPosInDirection failed. Wrong direction. Given: '" + dir + "'");
+			
+			error("newPosInDirection failed. Wrong direction. Given: '" + dir + "'");
 		}
 		return newPos;
 	}
 	
-	private boolean isLegalMove(Position pos, char dir, int time) {
-		Position newPos = newPosInDirection(pos, dir);
-		return GameMap.isCellFree(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
-	}
-	
-	private boolean isLegalPush(Position agentPos, Position boxPos, char dir, int time) {
-		Position newPos = newPosInDirection(boxPos, dir);
-		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
-	}
-	
-	private boolean isLegalPull(Position agentPos, Position boxPos, char dir, int time) {
-		Position newPos = newPosInDirection(agentPos, dir);
-		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
-	}
-	
-	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir, int time) {
-		ArrayList<Type> tmp = new ArrayList<Type>(); 
-		if (isLegalMove(node.pos, dir, time)) {
-			tmp.addAll(node.moves);
-			Position newPos = newPosInDirection(node.pos, dir);
-			tmp.add(new Type(node.pos, newPos, dir));
-			frontier.add(new PosNode(newPos, tmp, node.boxPos));
-		}
-		return frontier;
-	}
-	
-	private char positionsToDir(Position p1, Position p2) {
+	private char positionsToDir(Position p1, Position p2) throws Exception {
 		char rtn = 0;
 		if (heuristic(p1,p2) <= 1) {
 			if (p1.x - p2.x == 0) {
@@ -173,12 +152,39 @@ public class Agent {
 				rtn = 'E';
 			}
 		} else {
-			System.err.println("positionsToDir failed. Positions are not neighbours");
+			error("positionsToDir failed. Positions are not neighbours");
 		}
 		return rtn;
 	}
 	
-	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) {
+	private boolean isLegalMove(Position pos, char dir, int time) throws Exception {
+		Position newPos = newPosInDirection(pos, dir);
+		return GameMap.isCellFree(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+	}
+	
+	private boolean isLegalPush(Position agentPos, Position boxPos, char dir, int time) throws Exception {
+		Position newPos = newPosInDirection(boxPos, dir);
+		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+	}
+	
+	private boolean isLegalPull(Position agentPos, Position boxPos, char dir, int time) throws Exception {
+		Position newPos = newPosInDirection(agentPos, dir);
+		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+	}
+	
+	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir, int time) throws Exception {
+		ArrayList<Type> tmp = new ArrayList<Type>(); 
+		if (isLegalMove(node.pos, dir, time)) {
+			tmp.addAll(node.moves);
+			Position newPos = newPosInDirection(node.pos, dir);
+			tmp.add(new Type(node.pos, newPos, dir));
+			frontier.add(new PosNode(newPos, tmp, node.boxPos));
+		}
+		frontier.add(new PosNode(node.pos, node.moves, node.boxPos));
+		return frontier;
+	}
+	
+	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		if (isLegalPush(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
@@ -187,10 +193,11 @@ public class Agent {
 			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS, agentDir, dir));
 			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos));
 		}
+		frontier.add(new PosBoxNode(node.pos, node.moves, node.boxPos, node.goalPos)); //NoOp action
 		return frontier;
 	}
 	
-	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) {
+	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		if (isLegalPull(node.pos, node.boxPos, dir, time)) {
 			tmp.addAll(node.moves);
@@ -199,10 +206,11 @@ public class Agent {
 			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
 			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos));
 		}
+		frontier.add(new PosBoxNode(node.pos, node.moves, node.boxPos, node.goalPos)); //NoOp action
 		return frontier;
 	}
 	
-	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node, int time) {
+	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node, int time) throws Exception {
 		//ArrayList<Character> tmp;
 		frontier = makeMove(frontier, node, 'E', time);
 		frontier = makeMove(frontier, node, 'W', time);
@@ -211,7 +219,7 @@ public class Agent {
 		return frontier;
 	}
 
-	private TreeSet<PosBoxNode> moveBoxExplore(TreeSet<PosBoxNode> boxFrontier, PosBoxNode node, int time) {
+	private TreeSet<PosBoxNode> moveBoxExplore(TreeSet<PosBoxNode> boxFrontier, PosBoxNode node, int time) throws Exception {
 		boxFrontier = makePush(boxFrontier, node, 'E', time);
 		boxFrontier = makePush(boxFrontier, node, 'W', time);
 		boxFrontier = makePush(boxFrontier, node, 'S', time);
@@ -236,14 +244,15 @@ public class Agent {
 	}
 	
 	///////////////////////////////////////////////////////////// The function that executes it all!
-	public Plan createPlan() {
+	public Plan createPlan() throws Exception {
 		final Goal goal = GameMap.getUnsolvedGoal();
+		//final Job job = GameMap.getJob();
 		Plan thePlan = new Plan();
 		
 		Boolean boxFound = false;
 
 		System.err.println("Goal pos = (" + goal.pos.x + "," + goal.pos.y + ")");
-		
+		//if (job.type == boxToGoal) {
 		//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
 		Position boxPosition = new Position(-1,-1);
 		for (int x = 0; x < GameMap.size()[0]; x++) {
@@ -277,7 +286,7 @@ public class Agent {
 				}
 				
 				if (frontier.isEmpty()) {
-					System.err.println("Can't move box to goal!");
+					System.err.println("Can't move to box!");
 				}
 				
 			//Find path that moves box on top of goal. (We assume we are next to box initially).				
@@ -297,6 +306,10 @@ public class Agent {
 				
 				if (boxFrontier.isEmpty()) {
 					System.err.println("Can't move box to goal!");
+					//TODO: Submit job to be done. Move box out of the way.
+						//Find position of box to move
+							//What if there are more than one box?
+								//Choose first one since it was encountered first = best heuristic
 				}
 				
 			//Create list of moves for creating plan. Also create bounds
@@ -358,7 +371,14 @@ public class Agent {
 		} else {
 			System.err.println("box not found");
 		}
-		
+		System.err.println("Returning plan");
 		return thePlan;
+		//} else if (job.type == assist) {
+			//This is given to the agent if it needs to move a box out of the way for another agent. That is, an agent is stuck behind a box and cannot move.
+			//It is given a box and another plan. It should find a position close to the box that is not on the other agents plan.
+			//final Position boxPosition; //The box to move
+			
+			//Path to box
+		//}
 	}
 }
