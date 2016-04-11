@@ -373,12 +373,27 @@ public class Agent {
 		}
 		System.err.println("Returning plan");
 		return thePlan;
-		//} else if (job.type == assist) {
+		//} else if (job.type == assistMoveBox) {
 			//This is given to the agent if it needs to move a box out of the way for another agent. That is, an agent is stuck behind a box and cannot move.
 			//It is given a box and another plan. It should find a position close to the box that is not on the other agents plan.
 			//final Position boxPosition; //The box to move
+			//Position goalPosition //The position we want to move the box to
+			//Figure out what desired position we want to move it to
+			
+			//Find path to box
+			
+			//Move box to desired position
 			
 			//Path to box
+		//} else if (job.type == assistMove) {
+			//Agent is in the way and needs to move out of the way
+			//Position desiredPosition;
+			//Find our desired position
+			
+			//Path to the position
+			
+			//Find a 
+			
 		//}
 	}
 }
