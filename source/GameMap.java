@@ -30,7 +30,7 @@ public class GameMap {
 	private static int MAX_COLUMN;
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
-	private static ArrayList<Map<Position, Move>> timeController;
+	public static ArrayList<Map<Position, Move>> timeController;
 	private static ArrayList<Plan> plans;
 	
 	public static JobManager jobManager = new JobManager();
@@ -82,10 +82,17 @@ public class GameMap {
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
 		if(t > timeController.size())
-			return true;
+			return false;
 		Move m;
 		try {
 			m = timeController.get(t).get(p);
+			//Object[] poses = timeController.get(t).keySet().toArray();
+			//for (int i = 0; i < poses.length; i++) {
+			//	if (poses[i].equals(p)) {
+			//		return true;
+			//	}
+			//}
+			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
 		} catch (java.lang.IndexOutOfBoundsException e) {
 			return false;
 		}

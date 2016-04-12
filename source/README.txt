@@ -17,22 +17,14 @@ Current implementation goals :-
 		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?)
 		
 	-> GameMap
-		-> Update readMap function to support colors (Djoni)
-		-> Remake goals to jobs (Samuel)
-			-> Create job data structure
-			-> Create data structure for holding jobs
-				-> Heuristic for agents. Give most appropriate job to agent
+		-> jobs
+			-> Heuristic for agents. Give most appropriate job to agent
 			-> Pre-condition, post-condition
 		-> Function to delete plans
 	
 	-> Conflicts
 		-> Conflict Resolution (Flowchart) (Carl)
 		-> Detection (how? Where? - Hard conflict detection while building plan)
-		
-	-> Bug fixes
-		-> Map with more than 1 agent makes WallE say that there are 0 agents on the map. Fix (Nikolaj)
-			It's a problem with GameMap.getUnsolvedGoal();
-			Not fixed, since it will be changed to job anyway.
 		
 ------------------How to run
 

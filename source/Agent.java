@@ -33,7 +33,7 @@ public class Agent {
 	public double heuristic(Position one, Position two, int time) {
 		double a = Math.pow(Math.abs(one.x - two.x),2);
 		double b = Math.pow(Math.abs(one.y - two.y),2);
-		return Math.sqrt(a + b);
+		return Math.sqrt(a + b) + time;
 	}
 	
 	public double eucledian(Position one, Position two) {
@@ -52,6 +52,7 @@ public class Agent {
 		public ArrayList<Type> moves;
 		private Position boxPos;
 		public int time;
+		public ArrayList<Position> explored;
 		
 		@Override
 		public boolean equals(Object other) {
@@ -59,11 +60,25 @@ public class Agent {
 			return (pos.x == ptr.pos.x && pos.y == ptr.pos.y);
 		}
 		
+		public String toString() {
+			String str = "Pos = (" + pos.x + "," + pos.y + "), time = " + time;
+			return str;
+		}
+		
+		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos, int time, ArrayList<Position> explored) {
+			this.pos = pos;
+			this.moves = moves;
+			this.boxPos = boxPos;
+			this.time = time;
+			this.explored = explored;
+		}
+		
 		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos, int time) {
 			this.pos = pos;
 			this.moves = moves;
 			this.boxPos = boxPos;
 			this.time = time;
+			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos) {
@@ -71,6 +86,23 @@ public class Agent {
 			this.moves = moves;
 			this.boxPos = boxPos;
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
+		}
+		
+		public PosNode(Position pos, Position boxPos, ArrayList<Position> explored) {
+			this.pos = pos;
+			this.moves = new ArrayList<Type>();
+			this.boxPos = boxPos;
+			this.time = 0;
+			this.explored = explored;
+		}
+		
+		public PosNode(Position pos, Position boxPos, ArrayList<Position> explored, int time) {
+			this.pos = pos;
+			this.moves = new ArrayList<Type>();
+			this.boxPos = boxPos;
+			this.time = time;
+			this.explored = explored;
 		}
 		
 		public PosNode(Position pos, Position boxPos) {
@@ -78,12 +110,14 @@ public class Agent {
 			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosNode(Position pos) {
 			this.pos = pos;
 			this.moves = new ArrayList<Type>();
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
 		}
 	}
 	
@@ -101,11 +135,21 @@ public class Agent {
 		public ArrayList<Type> moves;
 		private Position goalPos;
 		public int time;
+		public ArrayList<Position> explored;
 		
 		@Override
 		public boolean equals(Object other) {
 			PosBoxNode ptr = (PosBoxNode) other;
 			return (this.pos.x == ptr.pos.x && this.pos.y == ptr.pos.y && this.boxPos.x == ptr.boxPos.x && this.boxPos.y == ptr.boxPos.y );
+		}
+		
+		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos, int time, ArrayList<Position> explored) {
+			this.pos = pos;
+			this.moves = moves;
+			this.boxPos = boxPos;
+			this.goalPos = goalPos;
+			this.time = time;
+			this.explored = explored;
 		}
 		
 		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos, int time) {
@@ -114,6 +158,7 @@ public class Agent {
 			this.boxPos = boxPos;
 			this.goalPos = goalPos;
 			this.time = time;
+			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos) {
@@ -122,6 +167,7 @@ public class Agent {
 			this.boxPos = boxPos;
 			this.goalPos = goalPos;
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosBoxNode(Position pos, Position boxPos, Position goalPos) {
@@ -130,6 +176,7 @@ public class Agent {
 			this.boxPos = boxPos;
 			this.goalPos = goalPos;
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosBoxNode(Position pos, Position boxPos) {
@@ -137,6 +184,7 @@ public class Agent {
 			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 			this.time = 0;
+			this.explored = new ArrayList<Position>();
 		}
 	}
 	
@@ -188,67 +236,79 @@ public class Agent {
 	
 	private boolean isLegalMove(Position pos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(pos, dir);
-		return GameMap.isCellFree(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+		//if (id == 1) {
+		//	if(GameMap.isPositionOccupiedToTime(newPos, time)) System.err.println("Occupied");
+		//	System.err.println("pos=" + newPos.toString() + ", time = " + (time));
+		//	if(time < GameMap.timeController.size()) System.err.println(GameMap.timeController.get(time));
+		//}
+		return GameMap.isCellFree(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
 	private boolean isLegalPush(Position agentPos, Position boxPos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(boxPos, dir);
-		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+		return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
 	private boolean isLegalPull(Position agentPos, Position boxPos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(agentPos, dir);
-		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && GameMap.isPositionOccupiedToTime(newPos, time);
+		return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
 	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
-		if (isLegalMove(node.pos, dir, time)) {
+		ArrayList<Position> tmp2 = new ArrayList<Position>();
+		Position newPos = newPosInDirection(node.pos, dir);
+		tmp2.addAll(node.explored);
+		tmp2.add(newPos);
+		if (isLegalMove(node.pos, dir, time) && !node.explored.contains(newPos)) {
+			//System.err.println("newPos = (" + newPos.x + "," + newPos.y + "), dir = " + dir);
+			//System.err.println("newHValues = " + heuristic(newPos, new Position(10, 1), time));
 			tmp.addAll(node.moves);
-			Position newPos = newPosInDirection(node.pos, dir);
 			tmp.add(new Type(node.pos, newPos, dir));
-			frontier.add(new PosNode(newPos, tmp, node.boxPos, time));
+			//if (time == 1) {
+			//	System.err.println("pos=" + node.pos + "dir=" + dir);
+			//}
+			frontier.add(new PosNode(newPos, tmp, node.boxPos, time+1, tmp2));
 		}
-		frontier.add(new PosNode(node.pos, node.moves, node.boxPos, time));
 		return frontier;
 	}
 	
 	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
+		ArrayList<Position> tmp2 = new ArrayList<Position>();
 		Position newPos = newPosInDirection(node.boxPos, dir);
-		if (isLegalPush(node.pos, node.boxPos, dir, time)) {
+		tmp2.addAll(node.explored);
+		tmp2.add(newPos);
+		if (isLegalPush(node.pos, node.boxPos, dir, time) && !node.explored.contains(newPos)) {
 			tmp.addAll(node.moves);
 			char agentDir = positionsToDir(node.pos, node.boxPos); 
 			tmp.add(new Type(node.pos, node.boxPos, node.boxPos, newPos, TypeNum.PUS, agentDir, dir));
-			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos, time));
+			frontier.add(new PosBoxNode(node.boxPos, tmp, newPos, node.goalPos, time, tmp2));
 		}
-		//if (!GameMap.isPositionOccupiedToTime(newPos, time)) {
-			frontier.add(new PosBoxNode(node.pos, node.moves, node.boxPos, node.goalPos, time)); //NoOp action
-		//}
 		return frontier;
 	}
 	
 	private TreeSet<PosBoxNode> makePull(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
+		ArrayList<Position> tmp2 = new ArrayList<Position>();
 		Position newPos = newPosInDirection(node.pos, dir);
-		if (isLegalPull(node.pos, node.boxPos, dir, time)) {
+		tmp2.addAll(node.explored);
+		tmp2.add(newPos);
+		if (isLegalPull(node.pos, node.boxPos, dir, time) && !node.explored.contains(newPos)) {
 			tmp.addAll(node.moves);
 			char boxDir = positionsToDir(node.pos, node.boxPos);
 			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
-			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos, time));
+			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos, time, tmp2));
 		}
-		//if (!GameMap.isPositionOccupiedToTime(newPos, time)) {
-			frontier.add(new PosBoxNode(node.pos, node.moves, node.boxPos, node.goalPos, time)); //NoOp action
-		//}
 		return frontier;
 	}
 	
-	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node, int time) throws Exception {
+	private TreeSet<PosNode> moveExplore(TreeSet<PosNode> frontier, PosNode node) throws Exception {
 		//ArrayList<Character> tmp;
-		frontier = makeMove(frontier, node, 'E', time);
-		frontier = makeMove(frontier, node, 'W', time);
-		frontier = makeMove(frontier, node, 'S', time);
-		frontier = makeMove(frontier, node, 'N', time);
+		frontier = makeMove(frontier, node, 'E', node.time);
+		frontier = makeMove(frontier, node, 'W', node.time);
+		frontier = makeMove(frontier, node, 'S', node.time);
+		frontier = makeMove(frontier, node, 'N', node.time);
 		return frontier;
 	}
 
@@ -261,6 +321,7 @@ public class Agent {
 		boxFrontier = makePull(boxFrontier, node, 'W', time);
 		boxFrontier = makePull(boxFrontier, node, 'S', time);
 		boxFrontier = makePull(boxFrontier, node, 'N', time);
+		//boxFrontier.add(new PosBoxNode(node.pos, node.moves, node.boxPos, node.goalPos, time, node.explored)); //NoOp action
 		return boxFrontier;
 	}
 	
@@ -284,6 +345,19 @@ public class Agent {
 		
 		Boolean boxFound = false;
 
+		if (id == 1) {
+			for(int i = 0; i < GameMap.timeController.size(); i++) {
+				//System.err.println("Time: " + i + " ; " + GameMap.timeController.get(i));
+				//System.err.println(i);
+			}
+			//System.err.println(GameMap.timeController.get(0).keySet());
+			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0]);
+			//System.err.println(GameMap.timeController.get(0).keySet().contains(GameMap.timeController.get(0).keySet().toArray()[0]));
+			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
+			//System.err.println(GameMap.timeController.get(0).keySet().contains(new Position(8,1)));
+			//System.err.println(GameMap.timeController.get(0).containsKey(new Position(8,1)));
+		}
+		
 		System.err.println("Goal pos = (" + job.jobPos.x + "," + job.jobPos.y + ")");
 		if (job.jobType == 'g') {
 			//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
@@ -301,23 +375,44 @@ public class Agent {
 			
 			if (boxFound) {
 				//Find path to box
-					int planTime = 1;
 					TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
+					//ArrayList<PosNode> frontier = new ArrayList<PosNode>();
 					//TreeSet<PosNode> exploredNodes = new TreeSet< PosNode >(new PosNodeComp());;
 					Position agentEndPosition = new Position(-1,-1);
 					ArrayList<Type> resultMoves = new ArrayList<Type>();
-					frontier.add(new PosNode(position, boxPosition));
+					ArrayList<Position> ex = new ArrayList<Position>();
+					ex.add(position);
+					frontier.add(new PosNode(position, boxPosition, ex, 0));
+					int kal = 0;
 					while (!frontier.isEmpty()) {
+						//System.err.println(frontier.toString());
 						PosNode node = frontier.pollFirst();
-						//System.err.println("Check node. Moves are = " + node.moves + ", and position is (" + node.pos.x + "," + node.pos.y + ")");
+						//PosNode node = frontier.get(0);
+						//for (int i = 0; i < frontier.size(); i++) {
+						//	if (heuristic(frontier.get(i).pos.x, frontier.get(i).pox.y, planTime) < heuristic(node.pos.x, node.pox.y, planTime)) {
+						//		node = frontier.get(i);
+						//	}
+						//}
+						if (id == 1) {
+							System.err.println("Check node. Position is (" + node.pos.x + "," + node.pos.y + "), hvalue = (" + heuristic(node.pos,job.jobPos,node.time) + ") time=" + node.time);
+						}
+						//for(int i = 0; i < node.explored.size(); i++) System.err.println(node.explored.get(i).x + "," + node.explored.get(i).y);
 						if (node.pos.nextTo(boxPosition)) { //Next to box?
+							System.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
+							System.err.println("Box!");
 							resultMoves = node.moves;
 							agentEndPosition = node.pos;
 							break;
 						}
 						
-						frontier = moveExplore(frontier, node, planTime);
-						planTime++;
+						frontier = moveExplore(frontier, node);
+						if (node.pos == position) {
+							ArrayList<Type> tmp = new ArrayList<Type>();
+							tmp.addAll(node.moves);
+							tmp.add(new Type(node.pos));
+							frontier.add(new PosNode(node.pos, tmp, node.boxPos, node.time+1, node.explored));
+						}
+						kal++;
 					}
 					
 					if (frontier.isEmpty()) {
@@ -336,7 +431,7 @@ public class Agent {
 							resultBoxMoves = node.moves;
 							break;
 						}
-						boxFrontier = moveBoxExplore(boxFrontier, node, planTime);
+						boxFrontier = moveBoxExplore(boxFrontier, node, node.time);
 					}
 					
 					if (boxFrontier.isEmpty()) {
