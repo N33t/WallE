@@ -431,4 +431,7 @@ public class Agent {
 		System.err.println("Returning plan");
 		return thePlan;
 	}
+
+	public void deletePlan(Plan p){}
+	
 }
