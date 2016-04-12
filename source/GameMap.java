@@ -263,7 +263,7 @@ public class GameMap {
 					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
-					jobManager.addJobToQueue(jobManager.new Job(0,'g', new Position(i, curLine), chr)); //TODO fix priority and char?
+					jobManager.addJobToQueue(jobManager.new Job(0,COMPLETE_TASK, new Position(i, curLine), chr)); //TODO fix priority and char?
 					//unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
 				}
 			}
