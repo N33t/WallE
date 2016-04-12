@@ -173,7 +173,7 @@ public class GameMap {
 		Map< Character, String > colors = new HashMap< Character, String >();
 		String line, color;
 
-		int colorLines = 0, levelLines = 0;
+		int /*colorLines = 0,*/ levelLines = 0;
 
 		// Read lines specifying colors
 		while ( ( line = serverMessages.readLine() ).matches( "^[a-z]+:\\s*[0-9A-Z](,\\s*[0-9A-Z])*\\s*$" ) ) {
@@ -184,13 +184,13 @@ public class GameMap {
 			for ( String id : colonSplit[1].split( "," ) ) {
 				colors.put( id.trim().charAt( 0 ), color );
 			}
-			colorLines++;
+			//colorLines++;
 		}
-		
+/*		
 		if ( colorLines > 0 ) {
 			error( "Box colors not supported" );
 		}
-
+*/
 		ArrayList<String> lines = new ArrayList<String>();
 		lines.add(new String(line));
 		String curLineStr = "empty";
