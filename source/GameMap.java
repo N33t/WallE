@@ -73,12 +73,10 @@ public class GameMap {
 					timeController.get(time).put(move.type.l4, move);
 				}
 				
-				
-				time++;
-				
-				evaluatePlans(plans);
+				time++;	
 			}			
 		}
+		evaluatePlans(plans);
 	}
 	
 	
