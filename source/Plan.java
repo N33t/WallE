@@ -61,6 +61,5 @@ public class Plan {
 			start = moves.get(0).time;
 			stop = moves.get(moves.size()-1).time;
 		}
-		
 	}
 }

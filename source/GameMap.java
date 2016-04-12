@@ -18,7 +18,7 @@ import source.TypeNum;
 
 public class GameMap {
 	
-	private static GameMap singleton = new GameMap( );
+	private static GameMap singleton = null;
 
 	public static boolean walls[][];
 	public static char goals[][];
@@ -163,7 +163,10 @@ public class GameMap {
 	}
 	
 	public static GameMap getInstance( ) {
-      return singleton;
+		if(instance == null) {
+	         instance = new ClassicSingleton();
+	      }
+	      return instance;
    	}
 
 	private static void error( String msg ) throws Exception {
