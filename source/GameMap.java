@@ -75,8 +75,15 @@ public class GameMap {
 				
 				
 				time++;
+				
+				evaluatePlans(plans);
 			}			
 		}
+	}
+	
+	
+	public void evaluatePlans(ArrayList<Plan> plans){
+		//Set score for plans
 	}
 	
 	//Request position lookup
