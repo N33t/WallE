@@ -92,6 +92,5 @@ public class JobManager {
 				return 1;
 			return 0;
 		}
-	}
-	
+	}	
 }
