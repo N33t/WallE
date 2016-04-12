@@ -84,6 +84,9 @@ public class GameMap {
 	
 	public void evaluatePlans(ArrayList<Plan> plans){
 		//Set score for plans
+		for(Plan p : plans){
+			
+		}
 	}
 	
 	//Request position lookup
