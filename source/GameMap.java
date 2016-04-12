@@ -80,10 +80,13 @@ public class GameMap {
 	}
 	
 	
-	public void evaluatePlans(ArrayList<Plan> plans){
+	public static void evaluatePlans(ArrayList<Plan> plans){
 		//Set score for plans
 		for(Plan p : plans){
-			
+			if(plans.size() == 1){
+				p.setScore = 1;
+				break;
+			}
 		}
 	}
 	
@@ -171,10 +174,10 @@ public class GameMap {
 	}
 	
 	public static GameMap getInstance( ) {
-		if(instance == null) {
-	         instance = new ClassicSingleton();
+		if(singleton == null) {
+	         singleton = new GameMap();
 	      }
-	      return instance;
+	      return singleton;
    	}
 
 	private static void error( String msg ) throws Exception {
