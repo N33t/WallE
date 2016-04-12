@@ -63,7 +63,7 @@ public class JobManager {
 			return Priority;
 		}
 		
-		public char getJobType(){
+		public enum getJobType(){
 			return jobType;
 		}
 		
