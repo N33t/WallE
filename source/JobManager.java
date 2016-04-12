@@ -32,34 +32,35 @@ public class JobManager {
 		public static final int LOW_PRIORITY = 1;
 		public static final int MID_PRIORITY = 2;
 		public static final int HIGH_PRIORITY = 3;
-		
+		public char jobType;
+		/*	
 		public enum jobType {
 			MOVE_SELF_OUT_OF_THE_WAY, 
 			MOVE_BOX_OUT_OF_THE_WAY,
 			COMPLETE_TASK
 		};
-		
+		*/
 		public Position jobPos = null;
 		public Position jobPos2 = null;
 		
 		public char goal = 0;
 		
-		public Job(int Priority, jobType jt, Position p1){
+		public Job(int Priority, char jobType, Position p1){
 			this.Priority = Priority;
-			this.jobType = jt;
+			//this.jobType = jt;
 			this.jobPos = p1;
 		}
 		
-		public Job(int Priority, jobType jt, Position p1, char goal){
+		public Job(int Priority, char jobType, Position p1, char goal){
 			this.Priority = Priority;
-			this.jobType = jt;
+			//this.jobType = jt;
 			this.jobPos = p1;
 			this.goal = goal;
 		}
 		
-		public Job(int Priority, jobType jt, Position p1, Position p2){
+		public Job(int Priority, char jobType, Position p1, Position p2){
 			this.Priority = Priority;
-			this.jobType = jt;
+			//this.jobType = jt;
 			this.jobPos = p1;
 			this.jobPos2 = p2;
 		}
@@ -68,7 +69,7 @@ public class JobManager {
 			return Priority;
 		}
 		
-		public jobType getJobType(){
+		public char getJobType(){
 			return this.jobType;
 		}
 		
@@ -76,8 +77,8 @@ public class JobManager {
 			this.Priority = Priority;
 		}
 		
-		public void setJobType(jobType jt){
-			this.jobType = jt;
+		public void setJobType(char jobType){
+			//this.jobType = jt;
 		}
 	}
 	
