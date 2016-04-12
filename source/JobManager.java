@@ -28,27 +28,31 @@ public class JobManager {
 	class Job {
 		
 		private int Priority = 0;
-		public char jobType = 'n';
+		public enum jobType {
+			MOVE_SELF_OUT_OF_THE_WAY, 
+			MOVE_BOX_OUT_OF_THE_WAY,
+			COMPLETE_TASK
+		}
 		
 		public Position jobPos = null;
 		public Position jobPos2 = null;
 		
 		public char goal = 0;
 		
-		public Job(int Priority, char jobType, Position p1){
+		public Job(int Priority, enum jobType, Position p1){
 			this.Priority = Priority;
 			this.jobType = jobType;
 			this.jobPos = p1;
 		}
 		
-		public Job(int Priority, char jobType, Position p1, char goal){
+		public Job(int Priority, enum jobType, Position p1, char goal){
 			this.Priority = Priority;
 			this.jobType = jobType;
 			this.jobPos = p1;
 			this.goal = goal;
 		}
 		
-		public Job(int Priority, char jobType, Position p1, Position p2){
+		public Job(int Priority, enum jobType, Position p1, Position p2){
 			this.Priority = Priority;
 			this.jobType = jobType;
 			this.jobPos = p1;
@@ -67,7 +71,7 @@ public class JobManager {
 			this.Priority = Priority;
 		}
 		
-		public void setJobType(char jobType){
+		public void setJobType(enum jobType){
 			this.jobType = jobType;
 		}
 	}
