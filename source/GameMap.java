@@ -33,6 +33,8 @@ public class GameMap {
 	private static ArrayList<Map<Position, Move>> timeController;
 	private static ArrayList<Plan> plans;
 	
+	public static JobManager jobManager = new JobManager();
+	
 	private GameMap() {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
@@ -81,7 +83,12 @@ public class GameMap {
 	public static boolean isPositionOccupiedToTime(Position p, int t){
 		if(t > timeController.size())
 			return true;
-		Move m = timeController.get(t).get(p);
+		Move m;
+		try {
+			m = timeController.get(t).get(p);
+		} catch (java.lang.IndexOutOfBoundsException e) {
+			return false;
+		}
 		if(m == null)
 			return false;
 		return true;
@@ -117,16 +124,23 @@ public class GameMap {
 				
 				Move m = plans.get(t).getMoveToTime(time);
 				if(m != null)
-					cmd += (m.toString() + ",");
-				else
-					count++;	
+					cmd += (m.toString());
+				else {
+					cmd += "NoOp";
+					count++;
+				}
+				cmd += ",";
 			}
 			
 			cmd = removeLastChar(cmd);
 			cmd += "]";
-			System.out.println(cmd);
-			System.out.flush();
-			
+			if (cmd.length() == 1) {
+				done = true;
+			} else {
+				System.err.println(cmd);
+				System.out.println(cmd);
+				System.out.flush();
+			}
 			if(count >= plans.size())
 					done = true;
 			time++;
@@ -246,7 +260,8 @@ public class GameMap {
 					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
-					unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
+					jobManager.addJobToQueue(jobManager.new Job(0,'g', new Position(i, curLine), chr)); //TODO fix priority and char?
+					//unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
 				}
 			}
 			curLine++;

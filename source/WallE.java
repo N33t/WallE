@@ -56,7 +56,8 @@ public class WallE {
 		GameMap.printMasterPlan();
 		//System.out.println( "[Move(E)]" );
 		//System.out.flush();
-		//System.out.println( "[NoOp]" );
+		//System.out.println( "[Pull(W,E)]" );
+		//System.out.flush();
 		String response = serverMessages.readLine();
 	}
 }
