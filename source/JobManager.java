@@ -28,6 +28,11 @@ public class JobManager {
 	class Job {
 		
 		private int Priority = 0;
+		
+		public static final int LOW_PRIORITY = 1;
+		public static final int MID_PRIORITY = 2;
+		public static final int HIGH_PRIORITY = 3;
+		
 		public enum jobType {
 			MOVE_SELF_OUT_OF_THE_WAY, 
 			MOVE_BOX_OUT_OF_THE_WAY,
