@@ -11,20 +11,25 @@ Current implementation goals :-
 		-> More intelligent (Nikolaj)
 			-> Add possibility for all types of jobs
 		-> Re-planner
+		-> Clean up (Nikolaj)
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
-		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?)
+		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?) (Djoni)
 		
 	-> GameMap
 		-> jobs
 			-> Heuristic for agents. Give most appropriate job to agent
 			-> Pre-condition, post-condition
 		-> Function to delete plans
+		-> Analyse map to figure out where to "store" agents and boxes if they are not needed (Samuel)
 	
 	-> Conflicts
 		-> Conflict Resolution (Flowchart) (Carl)
 		-> Detection (how? Where? - Hard conflict detection while building plan)
+		
+	-> bug fixes
+		-> Right next to box initially gived problem (Nikolaj)
 		
 ------------------How to run
 
