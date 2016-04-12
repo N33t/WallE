@@ -37,7 +37,7 @@ public class GameMap {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
 		this.timeController = new ArrayList<Map<Position, Move>>();
-		this.plans = new ArrayList<Plan>();
+		plans = new ArrayList<Plan>();
 	}
 	
 	//Adds plan to the timeController
@@ -107,33 +107,45 @@ public class GameMap {
 		boolean done = false;
 		int count = 0;
 		int time = 0;
+		String cmd = "";
 		
 		while(!done){
+			count = 0;
+			cmd = "[";
+			
 			for(int t = 0; t < plans.size(); t++){
-				count = 0;
 				
 				Move m = plans.get(t).getMoveToTime(time);
 				if(m != null)
-					System.out.println("[" + m.toString() + "]");
+					cmd += (m.toString() + ",");
 				else
-					count++;
-				
-				if(count >= plans.size())
-					done = true;
-				
-				time++;
-				
-				/*
-				*	TEST CODE
-				*/ 
-				if(time > 100000)
-					System.err.println("Print master plan stuck in loop");
-				/*
-				*	TEST CODE
-				*/ 
-				
+					count++;	
 			}
+			
+			cmd = removeLastChar(cmd);
+			cmd += "]";
+			System.out.println(cmd);
+			System.out.flush();
+			
+			if(count >= plans.size())
+					done = true;
+			time++;
+			/*
+			*	TEST CODE
+			*/ 
+			if(time > 100000)
+				System.err.println("Print master plan stuck in loop");
+			/*
+			*	TEST CODE
+			*/ 
 		}
+	}
+	
+	public static String removeLastChar(String s) {
+		if (s == null || s.length() == 0) {
+			return s;
+		}
+		return s.substring(0, s.length()-1);
 	}
 	
 	public static GameMap getInstance( ) {
@@ -153,7 +165,10 @@ public class GameMap {
 		return ret;
 	}
 	
-	public static Boolean isCellFree(Position pos) {
+	public static Boolean isCellFree(Position pos) throws Exception {
+		if (pos.x == -1 || pos.y == -1) { 
+			error("GameMap.isCellFree: input position was -1!"); 
+		}
 		return (boxes[pos.x][pos.y] == (char)0 && walls[pos.x][pos.y] == false);
 	}
 	
@@ -222,7 +237,6 @@ public class GameMap {
 		while ( !line.equals( "" ) ) {
 			for ( int i = 0; i < line.length(); i++ ) {
 				char chr = line.charAt( i );
-
 				if ( '+' == chr ) { // Walls
 					walls[i][curLine] = true;
 				} else if ( '0' <= chr && chr <= '9' ) { // Agents

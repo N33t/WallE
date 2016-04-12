@@ -6,17 +6,33 @@
 AI Programming Project.
 
 Current implementation goals :-
-
-	-> Move Class
-		-> Move to string function (Nikolaj)
 		
 	-> Plan Maker
+		-> More intelligent (Nikolaj)
+			-> Add possibility for all types of jobs
 		-> Re-planner
-		-> Add support for NoOp action.
-		-> Agent chooses first box it finds. Choose best box instead.
+		
+	-> Main (plan-maker?)
+		-> Make plans until entire level is solved. Don't just create one.
+		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?)
+		
+	-> GameMap
+		-> Update readMap function to support colors (Djoni)
+		-> Remake goals to jobs (Samuel)
+			-> Create job data structure
+			-> Create data structure for holding jobs
+				-> Heuristic for agents. Give most appropriate job to agent
+			-> Pre-condition, post-condition
+		-> Function to delete plans
 	
-	-> GameMap 
-		-> Convert plans to output
+	-> Conflicts
+		-> Conflict Resolution (Flowchart) (Carl)
+		-> Detection (how? Where? - Hard conflict detection while building plan)
+		
+	-> Bug fixes
+		-> Map with more than 1 agent makes WallE say that there are 0 agents on the map. Fix (Nikolaj)
+			It's a problem with GameMap.getUnsolvedGoal();
+			Not fixed, since it will be changed to job anyway.
 		
 ------------------How to run
 
@@ -32,6 +48,14 @@ The path to the level can be changed for different levels.
 The code in quotation marks should be the code for running WallE. You may need to specify a path depending on where it is located.
 
 
+--------------Conflicts
+---Hard conflicts
+- Box in the way
+- Agent in the way
+- Effect of plan destroys pre-condition of other plan
+
+---Soft conflicts
+- Delays
 
 ---------------- Formating for outputting of comands
 They are executed step by step. All agents need to make a move in a step
