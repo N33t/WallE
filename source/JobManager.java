@@ -28,8 +28,18 @@ public class JobManager {
 	class Job {
 		
 		private int Priority = 0;
-		public char jobType = 'n';
 		
+		public static final int LOW_PRIORITY = 1;
+		public static final int MID_PRIORITY = 2;
+		public static final int HIGH_PRIORITY = 3;
+		public char jobType;
+		/*	
+		public enum jobType {
+			MOVE_SELF_OUT_OF_THE_WAY, 
+			MOVE_BOX_OUT_OF_THE_WAY,
+			COMPLETE_TASK
+		};
+		*/
 		public Position jobPos = null;
 		public Position jobPos2 = null;
 		
@@ -60,7 +70,7 @@ public class JobManager {
 		}
 		
 		public char getJobType(){
-			return jobType;
+			return this.jobType;
 		}
 		
 		public void setPriority(int Priority){
@@ -83,6 +93,5 @@ public class JobManager {
 				return 1;
 			return 0;
 		}
-	}
-	
+	}	
 }

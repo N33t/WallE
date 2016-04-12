@@ -18,7 +18,7 @@ import source.TypeNum;
 
 public class GameMap {
 	
-	private static GameMap singleton = new GameMap( );
+	private static GameMap singleton = null;
 
 	public static boolean walls[][];
 	public static char goals[][];
@@ -73,9 +73,20 @@ public class GameMap {
 					timeController.get(time).put(move.type.l4, move);
 				}
 				
-				
-				time++;
+				time++;	
 			}			
+		}
+		evaluatePlans(plans);
+	}
+	
+	
+	public static void evaluatePlans(ArrayList<Plan> plans){
+		//Set score for plans
+		for(Plan p : plans){
+			if(plans.size() == 1){
+				//p.setScore = 1;
+				break;
+			}
 		}
 	}
 	
@@ -170,7 +181,10 @@ public class GameMap {
 	}
 	
 	public static GameMap getInstance( ) {
-      return singleton;
+		if(singleton == null) {
+	         singleton = new GameMap();
+	      }
+	      return singleton;
    	}
 
 	private static void error( String msg ) throws Exception {
