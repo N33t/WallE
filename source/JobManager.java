@@ -47,20 +47,20 @@ public class JobManager {
 		
 		public Job(int Priority, char jobType, Position p1){
 			this.Priority = Priority;
-			//this.jobType = jt;
+			this.jobType = jobType;
 			this.jobPos = p1;
 		}
 		
 		public Job(int Priority, char jobType, Position p1, char goal){
 			this.Priority = Priority;
-			//this.jobType = jt;
+			this.jobType = jobType;
 			this.jobPos = p1;
 			this.goal = goal;
 		}
 		
 		public Job(int Priority, char jobType, Position p1, Position p2){
 			this.Priority = Priority;
-			//this.jobType = jt;
+			this.jobType = jobType;
 			this.jobPos = p1;
 			this.jobPos2 = p2;
 		}
@@ -78,7 +78,7 @@ public class JobManager {
 		}
 		
 		public void setJobType(char jobType){
-			//this.jobType = jt;
+			this.jobType = jobType;
 		}
 	}
 	
