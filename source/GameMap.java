@@ -83,13 +83,15 @@ public class GameMap {
 	
 	public static void evaluatePlans(ArrayList<Plan> plans){
 		//Set score for plans
-		for(Plan p : plans){
+		for(int i = 0; i < plans.size() -1; i++){
 			if(plans.size() == 1){
-				p.setScore(1);
+				plans.get(i).setScore(1);
 				break;
-			}
-		}
-	}
+			}else{
+				
+			}//end else
+		}//end for
+	}//end method evaluatePlans
 	
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
