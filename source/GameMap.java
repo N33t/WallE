@@ -88,7 +88,12 @@ public class GameMap {
 				plans.get(i).setScore(1);
 				break;
 			}else{
-				
+				for(int j = 0; j < plans.size() -1; j++){
+					if(j==i){
+						continue;
+						
+					}//end if
+				}//end for
 			}//end else
 		}//end for
 	}//end method evaluatePlans
