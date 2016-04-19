@@ -81,7 +81,6 @@ public class GameMap {
 		evaluatePlans(plans);
 	}
 	
-	
 	public static void evaluatePlans(ArrayList<Plan> plans){
 		//Set score for plans
 		for(int i = 0; i < plans.size() -1; i++){
@@ -94,7 +93,9 @@ public class GameMap {
 						continue;
 					}//end if
 					if(comparePlans(plans.get(i),plans.get(j)) > 0){
-						Collections.swap(plans, i, j);
+						//TODO check what kind of jobs i and j are
+						//Collections.swap(plans, i, j);
+						//updateTimeController();
 					}//end if
 				}//end for
 			}//end else
@@ -104,6 +105,8 @@ public class GameMap {
 	public static int comparePlans(Plan a, Plan b){
 		return a.subplans.size() - b.subplans.size();
 	}//end method comparePlans
+	
+	public static void updateTimeController(){}//end method updateTimeController
 	
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
