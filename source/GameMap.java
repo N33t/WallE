@@ -85,7 +85,7 @@ public class GameMap {
 		//Set score for plans
 		for(Plan p : plans){
 			if(plans.size() == 1){
-				//p.setScore = 1;
+				p.setScore(1);
 				break;
 			}
 		}
