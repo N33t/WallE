@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.*;
 
 import source.Goal;
 import source.Position;
@@ -91,12 +92,18 @@ public class GameMap {
 				for(int j = 0; j < plans.size() -1; j++){
 					if(j==i){
 						continue;
-						
+					}//end if
+					if(comparePlans(plans.get(i),plans.get(j)) > 0){
+						Collections.swap(plans, i, j);
 					}//end if
 				}//end for
 			}//end else
 		}//end for
 	}//end method evaluatePlans
+	
+	public static int comparePlans(Plan a, Plan b){
+		return a.subplans.size() - b.subplans.size();
+	}//end method comparePlans
 	
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
