@@ -97,6 +97,14 @@ public class Agent {
 			this.explored = explored;
 		}
 		
+		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos, ArrayList<Position> explored) {
+			this.pos = pos;
+			this.moves = moves;
+			this.boxPos = boxPos;
+			this.time = 0;
+			this.explored = explored;
+		}
+		
 		public PosNode(Position pos, Position boxPos, ArrayList<Position> explored, int time) {
 			this.pos = pos;
 			this.moves = new ArrayList<Type>();
@@ -273,6 +281,21 @@ public class Agent {
 		return frontier;
 	}
 	
+	private TreeSet<PosNode> initialMove(TreeSet<PosNode> frontier, PosNode node, char dir) throws Exception {
+		Position newPos = newPosInDirection(node.pos, dir);
+		if ((GameMap.isCellFree(newPos) || GameMap.boxes[newPos.x][newPos.y] != (char)0) && !node.explored.contains(newPos)) {
+			//System.err.println("pos = " + newPos + ", box = " + GameMap.boxes[newPos.x][newPos.y] );
+			ArrayList<Type> tmp = new ArrayList<Type>(); 
+			ArrayList<Position> tmp2 = new ArrayList<Position>();
+			tmp2.addAll(node.explored);
+			tmp2.add(newPos);
+			tmp.addAll(node.moves);
+			tmp.add(new Type(node.pos, newPos, dir));
+			frontier.add(new PosNode(newPos, tmp, node.boxPos, tmp2));
+		}
+		return frontier;
+	}
+	
 	private TreeSet<PosBoxNode> makePush(TreeSet<PosBoxNode> frontier, PosBoxNode node, char dir, int time) throws Exception {
 		ArrayList<Type> tmp = new ArrayList<Type>(); 
 		ArrayList<Position> tmp2 = new ArrayList<Position>();
@@ -300,6 +323,14 @@ public class Agent {
 			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
 			frontier.add(new PosBoxNode(newPos, tmp, node.pos, node.goalPos, time, tmp2));
 		}
+		return frontier;
+	}
+	
+	private TreeSet<PosNode> initialExplore(TreeSet<PosNode> frontier, PosNode node) throws Exception {
+		frontier = initialMove(frontier, node, 'E');
+		frontier = initialMove(frontier, node, 'W');
+		frontier = initialMove(frontier, node, 'S');
+		frontier = initialMove(frontier, node, 'N');
 		return frontier;
 	}
 	
@@ -340,193 +371,225 @@ public class Agent {
 	///////////////////////////////////////////////////////////// The function that executes it all!
 	public Plan createPlan() throws Exception {
 		//final Goal goal = GameMap.getUnsolvedGoal();
-		final JobManager.Job job = GameMap.jobManager.getPriorityJob();
+		final JobManager.Job job = GameMap.jobManager.getPriorityJob(id);
 		Plan thePlan = new Plan();
-		
-		Boolean boxFound = false;
-
-		if (id == 1) {
-			for(int i = 0; i < GameMap.timeController.size(); i++) {
-				//System.err.println("Time: " + i + " ; " + GameMap.timeController.get(i));
-				//System.err.println(i);
-			}
-			//System.err.println(GameMap.timeController.get(0).keySet());
-			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0]);
-			//System.err.println(GameMap.timeController.get(0).keySet().contains(GameMap.timeController.get(0).keySet().toArray()[0]));
-			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
-			//System.err.println(GameMap.timeController.get(0).keySet().contains(new Position(8,1)));
-			//System.err.println(GameMap.timeController.get(0).containsKey(new Position(8,1)));
-		}
-		
-		System.err.println("Goal pos = (" + job.jobPos.x + "," + job.jobPos.y + ")");
-		if (job.jobType == 'g') {
-			//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
-			Position boxPosition = new Position(-1,-1);
-			for (int x = 0; x < GameMap.size()[0]; x++) {
-				for (int y = 0; y < GameMap.size()[1]; y++) {
-					 if (GameMap.BoxAt(new Position(x,y)) == Character.toUpperCase(job.goal)) {
-						boxPosition = new Position(x,y);
-						System.err.println("Box pos = (" + x + "," + y + ")");
-						boxFound = true;
-						break;
-					 }
+		if (job != null) {
+			
+			Boolean boxFound = false;
+			
+			String preCColor = "";
+			
+			System.err.println("Goal pos = (" + job.jobPos.x + "," + job.jobPos.y + ")");
+			if (job.jobType == 'g') {
+				//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
+				Position boxPosition = new Position(-1,-1);
+				for (int x = 0; x < GameMap.size()[0]; x++) {
+					for (int y = 0; y < GameMap.size()[1]; y++) {
+						 if (GameMap.BoxAt(new Position(x,y)) == Character.toUpperCase(job.goal)) {
+							//System.err.println("box color = " + GameMap.colors.get(Character.toUpperCase(job.goal)) + ", agent color = " + color );
+							if (GameMap.colors.get(Character.toUpperCase(job.goal)) == GameMap.colors.get((char)('0' + id))) {
+								boxPosition = new Position(x,y);
+								System.err.println("Box pos = (" + x + "," + y + ")");
+								boxFound = true;
+								break;
+							} else {
+								preCColor = GameMap.colors.get(Character.toUpperCase(job.goal));
+							}
+						 }
+					}
 				}
-			}
-			
-			if (boxFound) {
+				
+				if (boxFound) {
+					//Figure out if there is a path to the box. Record all positions / paths blocked by boxes.
+					// If we cannot find a path to our box, create job for alle the boxes that blocked paths.
+						TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
+						Position agentEndPosition = new Position(-1,-1);
+						ArrayList<Type> resultInitialMoves = new ArrayList<Type>();
+						ArrayList<Position> ex = new ArrayList<Position>();
+						ArrayList<Position> boxJobs = new ArrayList<Position>(); // List of boxes encountered. Might need to create jobs for them.
+						ex.add(position);
+						frontier.add(new PosNode(position, boxPosition, ex, 0));
+						while (!frontier.isEmpty()) {
+							PosNode node = frontier.pollFirst();
+							if (node.pos.nextTo(boxPosition)) { //Next to box?
+								resultInitialMoves = node.moves;
+								agentEndPosition = node.pos;
+								break;
+							}
+							//System.err.println((GameMap.boxes[node.pos.x][node.pos.y] == 0));
+							//System.err.println("Box on (" + node.pos + ")?" + (char) (GameMap.boxes[node.pos.x][node.pos.y]));
+							if (GameMap.boxes[node.pos.x][node.pos.y] == 0) {
+								frontier = initialExplore(frontier, node);
+							} else if (GameMap.cellFreeIn(0, node.pos) == -1) {
+								//System.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
+								//System.err.println("box for job found");
+								boxJobs.add(node.pos);
+							}
+						}
+						
+						if (resultInitialMoves.isEmpty() && agentEndPosition.equals(new Position(-1,-1))) {
+							System.err.println("Can't initially move to box!");
+							//Create Precondition.
+							PreCondition preC;
+							ArrayList<JobManager.Job> preCJobs = new ArrayList<JobManager.Job>();
+							for (int i = 0; i < boxJobs.size(); i++) {
+								JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', new Position(boxJobs.get(i).x, boxJobs.get(i).y), GameMap.colors.get(GameMap.boxes[boxJobs.get(i).x][boxJobs.get(i).y]));
+								preCJobs.add(theJob); //TODO: Fix priority and char?
+								System.err.println("col " + theJob.color);
+							}
+							//System.err.println("preCJobs = " + preCJobs.size());
+							preC = new PreCondition(preCJobs, id);
+							job.preConds.add(preC);
+							return thePlan;
+						}
+				
+					//Do the actual pathing
+
+					//Find path to box
+						frontier.clear();
+						ex.clear();
+						ArrayList<Type> resultMoves = new ArrayList<Type>();
+						//ArrayList<Position> ex = new ArrayList<Position>();
+						ex.add(position);
+						frontier.add(new PosNode(position, boxPosition, ex, 0));
+						while (!frontier.isEmpty()) {
+							PosNode node = frontier.pollFirst();
+							//if (id == 1) {
+							//	System.err.println("Check node. Position is (" + node.pos.x + "," + node.pos.y + "), hvalue = (" + heuristic(node.pos,job.jobPos,node.time) + ") time=" + node.time);
+							//}
+							if (node.pos.nextTo(boxPosition)) { //Next to box?
+								System.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
+								System.err.println("Box!");
+								resultMoves = node.moves;
+								agentEndPosition = node.pos;
+								break;
+							}
+							
+							frontier = moveExplore(frontier, node);
+							if (node.pos == position) {
+								ArrayList<Type> tmp = new ArrayList<Type>();
+								tmp.addAll(node.moves);
+								tmp.add(new Type(node.pos));
+								frontier.add(new PosNode(node.pos, tmp, node.boxPos, node.time+1, node.explored));
+							}
+						}
+						
+						if (resultMoves.isEmpty() && agentEndPosition.equals(new Position(-1,-1))) {
+							System.err.println("Can't move to box!");
+						}
+						
+					//Find path that moves box on top of goal. (We assume we are next to box initially).
+					//TODO: Do the same "initial path" thing to figure out if we need to create jobs.
+						TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
+						ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
+						
+						boxFrontier.add(new PosBoxNode(agentEndPosition, boxPosition, job.jobPos));
+						
+						while (!boxFrontier.isEmpty()) {
+							PosBoxNode node = boxFrontier.pollFirst();
+							if (node.boxPos.equals(job.jobPos)) { //On goal?
+								resultBoxMoves = node.moves;
+								break;
+							}
+							boxFrontier = moveBoxExplore(boxFrontier, node, node.time);
+						}
+						
+						if (resultBoxMoves.isEmpty() && !boxPosition.equals(job.jobPos)) {
+							System.err.println("Can't move box to goal!");
+						}
+						
+					//Create list of moves for creating plan. Also create bounds
+						int movTime = 0;
+						ArrayList<Move> moves = new ArrayList<Move>();
+						ArrayList<Move> boxMoves = new ArrayList<Move>();
+						int moveN = -1;
+						int moveS = Integer.MAX_VALUE;
+						int moveE = -1;
+						int moveW = Integer.MAX_VALUE;
+						int boxMoveN = -1;
+						int boxMoveS = Integer.MAX_VALUE;
+						int boxMoveE = -1;
+						int boxMoveW = Integer.MAX_VALUE;
+						for (Type typ : resultMoves) { 
+							Move mov = new Move(movTime, typ);
+							
+							if (typ.type == TypeNum.MOV) {
+								moveN = (typ.l1.y > typ.l2.y) ? (typ.l1.y > moveN) ? typ.l1.y : moveN : (typ.l2.y > moveN) ? typ.l2.y : moveN ;
+								moveS = (typ.l1.y < typ.l2.y) ? (typ.l1.y < moveS) ? typ.l1.y : moveS : (typ.l2.y < moveS) ? typ.l2.y : moveS ;
+								moveE = (typ.l1.x > typ.l2.x) ? (typ.l1.x > moveE) ? typ.l1.x : moveE : (typ.l2.x > moveE) ? typ.l2.x : moveE ;
+								moveW = (typ.l1.x < typ.l2.x) ? (typ.l1.x < moveW) ? typ.l1.x : moveW : (typ.l2.x < moveW) ? typ.l2.x : moveW ;
+							}
+							
+							moves.add(mov);
+							movTime++;
+						}
+						movTime = 0;
+						System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
+						
+						for (Type typ : resultBoxMoves) { 
+							Move mov = new Move(movTime, typ);
+							
+							if (typ.type == TypeNum.PUS || typ.type == TypeNum.PUL) {
+								int largestY = largest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
+								int largestX = largest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
+								int smallestY = smallest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
+								int smallestX = smallest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
+								boxMoveN =  largestY > boxMoveN ? largestY : boxMoveN;
+								boxMoveS =  smallestY < boxMoveS ? smallestY : boxMoveS;
+								boxMoveE =  largestX > boxMoveE ? largestX : boxMoveE;
+								boxMoveW =  smallestX < boxMoveW ? smallestX : boxMoveS;
+							}
+							
+							boxMoves.add(mov);
+							movTime++;
+						}
+						
+						System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
+						System.err.println("Sizes: m = " + moves.size() + ", bm = " + boxMoves.size());
+					
+					//Create Plan
+						Plan.SubPlan partOne = thePlan.new SubPlan(moveN, moveE, moveS, moveW, moves);
+						Plan.SubPlan partTwo = thePlan.new SubPlan(boxMoveN, boxMoveE, boxMoveS, boxMoveW, boxMoves);
+						
+						thePlan.addSubplan(partOne);
+						thePlan.addSubplan(partTwo);
+					
+					System.err.println("Returning goal-plan");
+					job.solved = true;
+					
+				} else {
+					System.err.println("box not found");
+				}
+			} else if (job.jobType == 'b') {
+				error("Job type move-box not supported yet!");
+				//This is given to the agent if it needs to move a box out of the way for another agent. That is, an agent is stuck behind a box and cannot move.
+				//It is given a box and another plan. It should find a position close to the box that is not on the other agents plan.
+				//final Position boxPosition; //The box to move
+				//Position goalPosition //The position we want to move the box to
+				//Figure out what desired position we want to move it to
+				
 				//Find path to box
-					TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
-					//ArrayList<PosNode> frontier = new ArrayList<PosNode>();
-					//TreeSet<PosNode> exploredNodes = new TreeSet< PosNode >(new PosNodeComp());;
-					Position agentEndPosition = new Position(-1,-1);
-					ArrayList<Type> resultMoves = new ArrayList<Type>();
-					ArrayList<Position> ex = new ArrayList<Position>();
-					ex.add(position);
-					frontier.add(new PosNode(position, boxPosition, ex, 0));
-					int kal = 0;
-					while (!frontier.isEmpty()) {
-						//System.err.println(frontier.toString());
-						PosNode node = frontier.pollFirst();
-						//PosNode node = frontier.get(0);
-						//for (int i = 0; i < frontier.size(); i++) {
-						//	if (heuristic(frontier.get(i).pos.x, frontier.get(i).pox.y, planTime) < heuristic(node.pos.x, node.pox.y, planTime)) {
-						//		node = frontier.get(i);
-						//	}
-						//}
-						if (id == 1) {
-							System.err.println("Check node. Position is (" + node.pos.x + "," + node.pos.y + "), hvalue = (" + heuristic(node.pos,job.jobPos,node.time) + ") time=" + node.time);
-						}
-						//for(int i = 0; i < node.explored.size(); i++) System.err.println(node.explored.get(i).x + "," + node.explored.get(i).y);
-						if (node.pos.nextTo(boxPosition)) { //Next to box?
-							System.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
-							System.err.println("Box!");
-							resultMoves = node.moves;
-							agentEndPosition = node.pos;
-							break;
-						}
-						
-						frontier = moveExplore(frontier, node);
-						if (node.pos == position) {
-							ArrayList<Type> tmp = new ArrayList<Type>();
-							tmp.addAll(node.moves);
-							tmp.add(new Type(node.pos));
-							frontier.add(new PosNode(node.pos, tmp, node.boxPos, node.time+1, node.explored));
-						}
-						kal++;
-					}
-					
-					if (frontier.isEmpty()) {
-						System.err.println("Can't move to box!");
-					}
-					
-				//Find path that moves box on top of goal. (We assume we are next to box initially).				
-					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
-					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
-					
-					boxFrontier.add(new PosBoxNode(agentEndPosition, boxPosition, job.jobPos));
-					
-					while (!boxFrontier.isEmpty()) {
-						PosBoxNode node = boxFrontier.pollFirst();
-						if (node.boxPos.equals(job.jobPos)) { //On goal?
-							resultBoxMoves = node.moves;
-							break;
-						}
-						boxFrontier = moveBoxExplore(boxFrontier, node, node.time);
-					}
-					
-					if (boxFrontier.isEmpty()) {
-						System.err.println("Can't move box to goal!");
-						//TODO: Submit job to be done. Move box out of the way.
-							//Find position of box to move
-								//What if there are more than one box?
-									//Choose first one since it was encountered first = best heuristic
-					}
-					
-				//Create list of moves for creating plan. Also create bounds
-					int movTime = 0;
-					ArrayList<Move> moves = new ArrayList<Move>();
-					ArrayList<Move> boxMoves = new ArrayList<Move>();
-					int moveN = -1;
-					int moveS = Integer.MAX_VALUE;
-					int moveE = -1;
-					int moveW = Integer.MAX_VALUE;
-					int boxMoveN = -1;
-					int boxMoveS = Integer.MAX_VALUE;
-					int boxMoveE = -1;
-					int boxMoveW = Integer.MAX_VALUE;
-					for (Type typ : resultMoves) { 
-						Move mov = new Move(movTime, typ);
-						
-						if (typ.type == TypeNum.MOV) {
-							moveN = (typ.l1.y > typ.l2.y) ? (typ.l1.y > moveN) ? typ.l1.y : moveN : (typ.l2.y > moveN) ? typ.l2.y : moveN ;
-							moveS = (typ.l1.y < typ.l2.y) ? (typ.l1.y < moveS) ? typ.l1.y : moveS : (typ.l2.y < moveS) ? typ.l2.y : moveS ;
-							moveE = (typ.l1.x > typ.l2.x) ? (typ.l1.x > moveE) ? typ.l1.x : moveE : (typ.l2.x > moveE) ? typ.l2.x : moveE ;
-							moveW = (typ.l1.x < typ.l2.x) ? (typ.l1.x < moveW) ? typ.l1.x : moveW : (typ.l2.x < moveW) ? typ.l2.x : moveW ;
-						}
-						
-						moves.add(mov);
-						movTime++;
-					}
-					movTime = 0;
-					System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
-					
-					for (Type typ : resultBoxMoves) { 
-						Move mov = new Move(movTime, typ);
-						
-						if (typ.type == TypeNum.PUS || typ.type == TypeNum.PUL) {
-							int largestY = largest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
-							int largestX = largest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
-							int smallestY = smallest(typ.l1.y, typ.l2.y, typ.l3.y, typ.l4.y);
-							int smallestX = smallest(typ.l1.x, typ.l2.x, typ.l3.x, typ.l4.x);
-							boxMoveN =  largestY > boxMoveN ? largestY : boxMoveN;
-							boxMoveS =  smallestY < boxMoveS ? smallestY : boxMoveS;
-							boxMoveE =  largestX > boxMoveE ? largestX : boxMoveE;
-							boxMoveW =  smallestX < boxMoveW ? smallestX : boxMoveS;
-						}
-						
-						boxMoves.add(mov);
-						movTime++;
-					}
-					
-					System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
-					System.err.println("Sizes: m = " + moves.size() + ", bm = " + boxMoves.size());
 				
-				//Create Plan
-					Plan.SubPlan partOne = thePlan.new SubPlan(moveN, moveE, moveS, moveW, moves);
-					Plan.SubPlan partTwo = thePlan.new SubPlan(boxMoveN, boxMoveE, boxMoveS, boxMoveW, boxMoves);
-					
-					thePlan.addSubplan(partOne);
-					thePlan.addSubplan(partTwo);
+				//Move box to desired position
 				
-			} else {
-				System.err.println("box not found");
+				//Path to box
+			//} else if (job.type == assistMove) {
+				//Agent is in the way and needs to move out of the way
+				//Position desiredPosition;
+				//Find our desired position
+				
+				//Path to the position
+				
+				//Find a 
+				
 			}
-		} //else if (job.type == assistMoveBox) {
-			//This is given to the agent if it needs to move a box out of the way for another agent. That is, an agent is stuck behind a box and cannot move.
-			//It is given a box and another plan. It should find a position close to the box that is not on the other agents plan.
-			//final Position boxPosition; //The box to move
-			//Position goalPosition //The position we want to move the box to
-			//Figure out what desired position we want to move it to
-			
-			//Find path to box
-			
-			//Move box to desired position
-			
-			//Path to box
-		//} else if (job.type == assistMove) {
-			//Agent is in the way and needs to move out of the way
-			//Position desiredPosition;
-			//Find our desired position
-			
-			//Path to the position
-			
-			//Find a 
-			
-		//}
-		System.err.println("Returning plan");
+		} else {
+			//error("Recieved null job");
+			System.err.println("Null job");
+		}
 		return thePlan;
 	}
 
-	public void deletePlan(Plan p){}
+	public void deletePlan(Plan p){} //TODO: Why is this here...?
 	
 }

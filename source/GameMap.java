@@ -28,6 +28,7 @@ public class GameMap {
 	public ArrayList<Goal> unsolvedGoals;
 	private static int MAX_ROW;
 	private static int MAX_COLUMN;
+	public static Map< Character, String > colors = new HashMap< Character, String >();
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	public static ArrayList<Map<Position, Move>> timeController;
@@ -220,7 +221,6 @@ public class GameMap {
 	}
 
 	protected void read(BufferedReader serverMessages) throws Exception {
-		Map< Character, String > colors = new HashMap< Character, String >();
 		String line, color;
 
 		int /*colorLines = 0,*/ levelLines = 0;
@@ -281,8 +281,8 @@ public class GameMap {
 					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
-					jobManager.addJobToQueue(jobManager.new Job(0,'g', new Position(i, curLine), chr)); //TODO fix priority and char?
-					//unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
+					JobManager.Job job = jobManager.new Job(0,'g', new Position(i, curLine), chr, colors.get(Character.toUpperCase(chr)));
+					jobManager.addJobToQueue(job); //TODO fix priority and char?
 				}
 			}
 			curLine++;

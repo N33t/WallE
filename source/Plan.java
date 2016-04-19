@@ -58,8 +58,8 @@ public class Plan {
 			this.bottom = s;
 			this.left = w;
 			moves.addAll(mvs);
-			start = moves.get(0).time;
-			stop = moves.get(moves.size()-1).time;
+			start = (moves.isEmpty()) ? -1 : moves.get(0).time;
+			stop = (moves.isEmpty()) ? -1 : moves.get(moves.size()-1).time;
 		}
 	}
 }

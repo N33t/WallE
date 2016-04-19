@@ -28,8 +28,8 @@ Current implementation goals :-
 		-> Conflict Resolution (Flowchart) (Carl)
 		-> Detection (how? Where? - Hard conflict detection while building plan)
 		
-	-> bug fixes
-		-> Right next to box initially gived problem (Nikolaj)
+	-> Colors
+		-> When creating agents in WallE.java, add their color, so they know what color they are themselves.
 		
 ------------------How to run
 
