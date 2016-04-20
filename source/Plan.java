@@ -14,6 +14,7 @@ import source.Move;
 public class Plan {
 	
 	private int score;
+	public int id; //The id of the agent that this plan belongs to.
 	
 	public int getScore(){
 		return this.score;

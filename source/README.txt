@@ -23,6 +23,7 @@ Current implementation goals :-
 			-> Pre-condition, post-condition
 		-> Function to delete plans
 		-> Analyse map to figure out where to "store" agents and boxes if they are not needed (Samuel)
+		-> When printing plans, print them for each agent. Currently, it assumes each agent submits at most one plan. That is wrong, fix.
 	
 	-> Conflicts
 		-> Conflict Resolution (Flowchart) (Carl)

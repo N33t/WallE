@@ -19,14 +19,21 @@ public class JobManager {
 	
 	private static boolean agentFulfillsPreConditions(Job job, int agentID) {
 		//Correct color
-		System.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
+		//System.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
 		boolean color = job.color == GameMap.colors.get((char)(agentID + '0'));
 		for (int i = 0; i < job.preConds.size(); i++) {
 			PreCondition preC = job.preConds.get(i);
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				if (preC.agentID == agentID) {
-					return false;
+					System.err.println("Going to for loop");
+					for (int k = 0; k < preC.jobs.size(); k++) {
+						if (!preC.jobs.get(i).solved) {
+							System.err.println("Returning False");
+							return false;
+						}
+					}
+					System.err.println("Ended for loop");
 				}
 			}
 		}
@@ -34,7 +41,7 @@ public class JobManager {
 	}
 	
 	private static Job preCondJob(Job job, int agentID) {
-		System.err.println(agentID + " preconds? " + agentFulfillsPreConditions(job, agentID));
+		//System.err.println(agentID + " preconds? " + agentFulfillsPreConditions(job, agentID));
 		//System.err.println(job);
 		if (!job.solved && agentFulfillsPreConditions(job, agentID)) {
 			return job;
@@ -45,7 +52,7 @@ public class JobManager {
 			//System.err.println("size = " + preC.jobs.size());
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				returnedJob = preCondJob(preC.jobs.get(j), agentID);
-				System.err.println("ReturnedJob = " + returnedJob);
+				//System.err.println("ReturnedJob = " + returnedJob);
 				if (returnedJob != null) return returnedJob;
 			}
 		}
@@ -91,6 +98,7 @@ public class JobManager {
 		*/
 		public Position jobPos = null;
 		public Position jobPos2 = null;
+		ArrayList<Position> path = new ArrayList<Position>(); // Used for box-move jobs. If such a job is submitted, the agent picking up the job must know what path to move the box away from.
 		
 		public char goal = 0;
 		
@@ -98,12 +106,13 @@ public class JobManager {
 		
 		public boolean solved = false;
 		
-		public Job(int Priority, char jobType, Position p1, String color){
+		public Job(int Priority, char jobType, Position p1, String color, ArrayList<Position> path){
 			this.Priority = Priority;
 			this.jobType = jobType;
 			this.jobPos = p1;
 			preConds = new ArrayList<PreCondition>();
 			this.color = color;
+			this.path = path;
 		}
 		
 		public Job(int Priority, char jobType, Position p1, ArrayList<PreCondition> preConds, String color){

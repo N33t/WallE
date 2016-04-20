@@ -78,7 +78,7 @@ public class GameMap {
 				time++;	
 			}			
 		}
-		evaluatePlans(plans);
+		//evaluatePlans(plans);
 	}
 	
 	
