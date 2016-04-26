@@ -290,8 +290,12 @@ public class GameMap {
 			lines.add(new String(curLineStr));
 			levelLines++;
 		}
+		int cols = 0;
+		for(int i = 0; i < lines.size(); i++)
+		{
+			if(lines.get(i).length() > cols) cols = lines.get(i).length();
 
-		int cols = lines.get(0).length();
+		}
 		int rows = lines.size();
 		walls = new boolean[cols][rows];
 		goals = new char[cols][rows];
