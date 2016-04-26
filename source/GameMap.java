@@ -31,6 +31,12 @@ public class GameMap {
 	private static int MAX_COLUMN;
 	public static Map< Character, String > colors = new HashMap< Character, String >();
 	
+	//public static ArrayList<ArrayList<Position>> boxPositionsFrom = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<ArrayList<Position>> boxPositions = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<Character> boxCharacters = new ArrayList<Character>();
+	
+	//public static Map< int , Map<Position, char>>
+	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	public static ArrayList<Map<Position, Move>> timeController;
 	public static ArrayList<ArrayList<Plan>> plans;
@@ -56,7 +62,7 @@ public class GameMap {
 					timeController.add(new HashMap<Position, Move>());
 				
 				Move move = plan.subplans.get(i).moves.get(x);
-				System.err.println(move);
+				//System.err.println(move);
 				/*
 				* Adds moves to the HashMap
 				* These moves represents cells occupied by the agents or boxes to the time
@@ -74,10 +80,25 @@ public class GameMap {
 					timeController.get(time).put(move.type.l3, move);
 					timeController.get(time).put(move.type.l4, move);
 				}
+				for (int j = 0; j < boxPositions.size(); j++) {
+					//System.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositions.get(j).get(boxPositions.get(j).size()-1));
+					
+					if (move.type.l3 != null && move.type.l4 != null && boxPositions.get(j).get(boxPositions.get(j).size()-1).equals(move.type.l3)) {
+						//boxPositions.get(j).add(move.type.l3);
+						boxPositions.get(j).add(move.type.l4);
+						//System.err.println("Box moved to" + move.type.l4);
+					} else {
+						boxPositions.get(j).add(boxPositions.get(j).get(boxPositions.get(j).size()-1));
+						//boxPositions.get(j).add(boxPositions.get(j).get(boxPositions.get(j).size()-1));
+					}
+				}
 				
 				time++;	
 			}			
 		}
+		//for (int k = 0; k < boxPositions.get(1).size(); k++) {
+		//	System.err.println("box B. time=" + k + ", " + boxPositions.get(1).get(k));
+		//}
 		//evaluatePlans(plans);
 	}
 	
@@ -199,7 +220,7 @@ public class GameMap {
 			{
 				if(plans.get(t).size() > currentPlan[t] && plans.get(t).get(currentPlan[t]).subplans.get(plans.get(t).get(currentPlan[t]).subplans.size()-1).stop < time)
 				{
-					System.err.println("Finished a plan");
+					//System.err.println("Finished a plan");
 					currentPlan[t]++;	
 				}
 			}
@@ -250,6 +271,18 @@ public class GameMap {
 	
 	public static char BoxAt(Position pos) {
 		return (boxes[pos.x][pos.y]);
+	}
+	
+	public static char boxAtTime(Position pos, int time){
+		//returns the character of the box at a time position to a given time.
+		if (time == 0) return BoxAt(pos);
+		for (int i = 0; i < boxPositions.size(); i++) {
+			//System.err.println("boxAtTime. time=" + time + ", pos=" + pos + ", return = " + boxPositions.get(i).get(time));
+			if (pos.equals(boxPositions.get(i).get(time+1))) {
+				return boxCharacters.get(i);
+			}
+		}
+		return 0;
 	}
 	
 	public static char GoalAt(Position pos) {
@@ -319,6 +352,10 @@ public class GameMap {
 					agentsAmount++;
 				} else if ( 'A' <= chr && chr <= 'Z' ) { // Boxes
 					boxes[i][curLine] = chr;
+					ArrayList<Position> posList = new ArrayList<Position>();
+					posList.add(new Position(i,curLine));
+					boxPositions.add(posList);
+					boxCharacters.add(chr);
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
 					JobManager.Job job = jobManager.new Job(0,'g', new Position(i, curLine), chr, colors.get(Character.toUpperCase(chr)));

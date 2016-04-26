@@ -14,6 +14,10 @@ import source.TypeNum;
 
 public class Type {
 	public TypeNum type;
+	//l1 is agents position FROM
+	//l2 is agents position TO
+	//l3 is boxes position FROM
+	//l4 is boxes position TO
 	public Position l1, l2, l3, l4;
 	public char agentDir;
 	public char boxDir;

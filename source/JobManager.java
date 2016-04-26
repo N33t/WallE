@@ -26,14 +26,14 @@ public class JobManager {
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				if (preC.agentID == agentID) {
-					System.err.println("Going to for loop");
+					//System.err.println("Going to for loop");
 					for (int k = 0; k < preC.jobs.size(); k++) {
 						if (!preC.jobs.get(i).solved) {
-							System.err.println("Returning False");
+							//System.err.println("Returning False");
 							return false;
 						}
 					}
-					System.err.println("Ended for loop");
+					//System.err.println("Ended for loop");
 				}
 			}
 		}

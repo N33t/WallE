@@ -66,5 +66,6 @@ public class Plan {
 			start = (moves.isEmpty()) ? -1 : moves.get(0).time;
 			stop = (moves.isEmpty()) ? -1 : moves.get(moves.size()-1).time;
 		}
+		
 	}
 }

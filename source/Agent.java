@@ -370,7 +370,7 @@ public class Agent {
 	}
 	
 	private Plan buildPlan(ArrayList<Type> resultMoves, ArrayList<Type> resultBoxMoves) {
-		//int movTime = 0;
+		Plan thePlan = new Plan();
 		ArrayList<Move> moves = new ArrayList<Move>();
 		ArrayList<Move> boxMoves = new ArrayList<Move>();
 		int moveN = -1;
@@ -392,12 +392,15 @@ public class Agent {
 			}
 			
 			moves.add(mov);
-			//movTime++;
 			time++;
 		}
-		//movTime = 0;
-		System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
+		//System.err.println("Move Bounds (N,S,E,W) = (" + moveN + ", " + moveS + ", " + moveE + ", " + moveW + ")");
 		
+		if (!moves.isEmpty()) {
+			Plan.SubPlan partOne = thePlan.new SubPlan(moveN, moveE, moveS, moveW, moves);
+			System.err.print("Move time = (" + partOne.start + "," + partOne.stop + "),");
+			thePlan.addSubplan(partOne);
+		}
 		for (Type typ : resultBoxMoves) { 
 			Move mov = new Move(time, typ);
 			
@@ -415,17 +418,16 @@ public class Agent {
 			boxMoves.add(mov);
 			time++;
 		}
+		//System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
 		
-		System.err.println("boxMove Bounds (N,S,E,W) = (" + boxMoveN + ", " + boxMoveS + ", " + boxMoveE + ", " + boxMoveW + ")");
+		if (!boxMoves.isEmpty()) {
+			Plan.SubPlan partTwo = thePlan.new SubPlan(boxMoveN, boxMoveE, boxMoveS, boxMoveW, boxMoves);
+			System.err.println("boxMove time= (" + partTwo.start + "," + partTwo.stop + ")");
+			thePlan.addSubplan(partTwo);
+		}
+		
 		System.err.println("Sizes: m = " + moves.size() + ", bm = " + boxMoves.size());
-	
-		//Create Plan
-		Plan thePlan = new Plan();
-		Plan.SubPlan partOne = thePlan.new SubPlan(moveN, moveE, moveS, moveW, moves);
-		Plan.SubPlan partTwo = thePlan.new SubPlan(boxMoveN, boxMoveE, boxMoveS, boxMoveW, boxMoves);
 		
-		thePlan.addSubplan(partOne);
-		thePlan.addSubplan(partTwo);
 		thePlan.id = id;
 		return thePlan;
 	}
@@ -435,8 +437,8 @@ public class Agent {
 		//final Goal goal = GameMap.getUnsolvedGoal();
 		final JobManager.Job job = GameMap.jobManager.getPriorityJob(id);
 		int startTime = 0;
-		System.err.println(GameMap.plans.get(id).size());
-		if(GameMap.plans.get(id).size() > 0) startTime = GameMap.plans.get(id).get(GameMap.plans.get(id).size() - 1).end;
+		//System.err.println(GameMap.plans.get(id).size());
+		if(GameMap.plans.get(id).size() > 0) startTime = GameMap.plans.get(id).get(GameMap.plans.get(id).size() - 1).end + 1;
 		Plan thePlan = new Plan();
 		if (job != null) {
 			
@@ -448,9 +450,11 @@ public class Agent {
 			if (job.jobType == 'g') {
 				//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
 				Position boxPosition = new Position(-1,-1);
+				System.err.println("Agent Job Start time= " + startTime);
 				for (int x = 0; x < GameMap.size()[0]; x++) {
 					for (int y = 0; y < GameMap.size()[1]; y++) {
-						 if (GameMap.BoxAt(new Position(x,y)) == Character.toUpperCase(job.goal)) {
+						//System.err.println("pos=" + new Position(x,y) + "GM= " + GameMap.boxAtTime(new Position(x,y), startTime));
+						if (GameMap.boxAtTime(new Position(x,y), startTime) == Character.toUpperCase(job.goal)) {
 							//System.err.println("box color = " + GameMap.colors.get(Character.toUpperCase(job.goal)) + ", agent color = " + color );
 							if (GameMap.colors.get(Character.toUpperCase(job.goal)) == GameMap.colors.get((char)('0' + id))) {
 								boxPosition = new Position(x,y);
@@ -460,7 +464,7 @@ public class Agent {
 							} else {
 								preCColor = GameMap.colors.get(Character.toUpperCase(job.goal));
 							}
-						 }
+						}
 					}
 				}
 				
@@ -477,7 +481,7 @@ public class Agent {
 						while (!frontier.isEmpty()) {
 							PosNode node = frontier.pollFirst();
 							if (node.pos.nextTo(boxPosition)) { //Next to box?
-								System.err.println("job: g, agent pathed to box");
+								//System.err.println("job: g, agent pathed to box");
 								resultInitialMoves = node.moves;
 								agentEndPosition = node.pos;
 								endNode = node;
@@ -485,7 +489,7 @@ public class Agent {
 							}
 							//System.err.println((GameMap.boxes[node.pos.x][node.pos.y] == 0));
 							//System.err.println("Box on (" + node.pos + ")?" + (char) (GameMap.boxes[node.pos.x][node.pos.y]));
-							if (GameMap.boxes[node.pos.x][node.pos.y] != 0 && GameMap.cellFreeIn(0, node.pos) == -1) {
+							if (GameMap.boxAtTime(node.pos, node.time) != 0 && GameMap.cellFreeIn(node.time, node.pos) == -1) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
 								//System.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
 								//System.err.println("box for job found");
 								node.boxJobs.add(node.pos);
@@ -501,7 +505,7 @@ public class Agent {
 							for (int i = 0; i < endNode.boxJobs.size(); i++) {
 								JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxes[endNode.boxJobs.get(i).x][endNode.boxJobs.get(i).y]), endNode.path);
 								preCJobs.add(theJob); //TODO: Fix priority and char?
-								System.err.println("col " + theJob.color);
+								//System.err.println("col " + theJob.color);
 							}
 							//System.err.println("preCJobs = " + preCJobs.size());
 							preC = new PreCondition(preCJobs, id);
@@ -609,7 +613,7 @@ public class Agent {
 					
 				//Move box to desired position
 					//Find nearest storage! Returns position
-					Position storagePosition = new Position(10,4);
+					Position storagePosition = new Position(10,4); //TODO: Use storage system
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 					

@@ -24,13 +24,11 @@ Current implementation goals :-
 		-> Function to delete plans
 		-> Analyse map to figure out where to "store" agents and boxes if they are not needed (Samuel)
 		-> When printing plans, print them for each agent. Currently, it assumes each agent submits at most one plan. That is wrong, fix.
+		-> Update boxCharacters and boxPositions lists
 	
 	-> Conflicts
 		-> Conflict Resolution (Flowchart) (Carl)
 		-> Detection (how? Where? - Hard conflict detection while building plan)
-		
-	-> Colors
-		-> When creating agents in WallE.java, add their color, so they know what color they are themselves.
 		
 ------------------How to run
 
