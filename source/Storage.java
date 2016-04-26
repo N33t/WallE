@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import source.Position;
+
 public class Storage {
 	
 	/*
@@ -283,7 +285,7 @@ public class Storage {
         seen[p.x][p.y] = true;
         while (!q.isEmpty()) {
             node n = q.remove();
-            System.err.println(n.p.getString() + " to time " + n.t);
+            System.err.println(n.p.toString() + " to time " + n.t);
             if(storageMap.get(n.t)[n.p.x][n.p.y] == hardChar){
             	System.err.println("Hard storage found at " + "(" + n.p.x + ", " + n.p.y + ") to time - " + n.t);
             	return n.p;

@@ -281,6 +281,7 @@ public class Agent {
 	
 	private TreeSet<PosNode> initialMove(TreeSet<PosNode> frontier, PosNode node, char dir) throws Exception {
 		Position newPos = newPosInDirection(node.pos, dir);
+		//if ((!GameMap.isPositionOccupiedToTime(newPos, node.time) || GameMap.boxAtTime(newPos, node.time) != (char)0) && !node.explored.contains(newPos)) {
 		if ((GameMap.isCellFree(newPos) || GameMap.boxes[newPos.x][newPos.y] != (char)0) && !node.explored.contains(newPos)) {
 			//System.err.println("pos = " + newPos + ", box = " + GameMap.boxes[newPos.x][newPos.y] );
 			ArrayList<Type> tmp = new ArrayList<Type>(); 
@@ -614,6 +615,7 @@ public class Agent {
 				//Move box to desired position
 					//Find nearest storage! Returns position
 					Position storagePosition = new Position(10,4); //TODO: Use storage system
+					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 					
