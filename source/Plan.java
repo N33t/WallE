@@ -29,9 +29,12 @@ public class Plan {
 	
 	public Plan() {
 			subplans = new ArrayList<SubPlan>();
+			begin = 0;
+			end = 0;
 	}
 	
 	public void addSubplan(SubPlan subplan){
+		if(subplan.moves.size() == 0) return;
 		if(subplans.size() == 0) begin = subplan.start;
 		this.subplans.add(subplan);
 		end = subplan.stop;
@@ -40,7 +43,7 @@ public class Plan {
 	//Get move to the time t
 	public Move getMoveToTime(int t){ 
 		if(subplans.get(subplans.size() - 1).stop < t) return null;
-		int time = 0;
+		int time = begin;
 		for(int i = 0; i < subplans.size(); i++){
 			if((subplans.get(i).moves.size() + time) > t){
 				return subplans.get(i).moves.get(t - time);
