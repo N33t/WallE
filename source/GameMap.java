@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.*;
 
 import source.Goal;
 import source.Position;
@@ -18,7 +19,7 @@ import source.TypeNum;
 
 public class GameMap {
 	
-	private static GameMap singleton = new GameMap( );
+	private static GameMap singleton = null;
 
 	public static boolean walls[][];
 	public static char goals[][];
@@ -28,23 +29,26 @@ public class GameMap {
 	public ArrayList<Goal> unsolvedGoals;
 	private static int MAX_ROW;
 	private static int MAX_COLUMN;
+	public static Map< Character, String > colors = new HashMap< Character, String >();
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
-	private static ArrayList<Map<Position, Move>> timeController;
-	private static ArrayList<Plan> plans;
+	public static ArrayList<Map<Position, Move>> timeController;
+	public static ArrayList<ArrayList<Plan>> plans;
+	
+	public static JobManager jobManager = new JobManager();
 	
 	private GameMap() {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
 		this.timeController = new ArrayList<Map<Position, Move>>();
-		plans = new ArrayList<Plan>();
+		//plans = new ArrayList<Plan>();
 	}
 	
 	//Adds plan to the timeController
 	public static void addPlanToController(Plan plan)
 	{
-		plans.add(plan);
-		int time = 0;
+		plans.get(plan.id).add(plan);
+		int time = plan.subplans.get(0).start;
 		for(int i = 0; i < plan.subplans.size(); i++){
 			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
 				
@@ -52,7 +56,7 @@ public class GameMap {
 					timeController.add(new HashMap<Position, Move>());
 				
 				Move move = plan.subplans.get(i).moves.get(x);
-				
+				System.err.println(move);
 				/*
 				* Adds moves to the HashMap
 				* These moves represents cells occupied by the agents or boxes to the time
@@ -71,17 +75,56 @@ public class GameMap {
 					timeController.get(time).put(move.type.l4, move);
 				}
 				
-				
-				time++;
+				time++;	
 			}			
 		}
+		//evaluatePlans(plans);
 	}
+	
+	public static void evaluatePlans(ArrayList<Plan> plans){
+		//Set score for plans
+		for(int i = 0; i < plans.size() -1; i++){
+			if(plans.size() == 1){
+				plans.get(i).setScore(1);
+				break;
+			}else{
+				for(int j = 0; j < plans.size() -1; j++){
+					if(j==i){
+						continue;
+					}//end if
+					if(comparePlans(plans.get(i),plans.get(j)) > 0){
+						//TODO check what kind of jobs i and j are
+						//Collections.swap(plans, i, j);
+						//updateTimeController();
+					}//end if
+				}//end for
+			}//end else
+		}//end for
+	}//end method evaluatePlans
+	
+	public static int comparePlans(Plan a, Plan b){
+		return a.subplans.size() - b.subplans.size();
+	}//end method comparePlans
+	
+	public static void updateTimeController(){}//end method updateTimeController
 	
 	//Request position lookup
 	public static boolean isPositionOccupiedToTime(Position p, int t){
 		if(t > timeController.size())
-			return true;
-		Move m = timeController.get(t).get(p);
+			return false;
+		Move m;
+		try {
+			m = timeController.get(t).get(p);
+			//Object[] poses = timeController.get(t).keySet().toArray();
+			//for (int i = 0; i < poses.length; i++) {
+			//	if (poses[i].equals(p)) {
+			//		return true;
+			//	}
+			//}
+			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
+		} catch (java.lang.IndexOutOfBoundsException e) {
+			return false;
+		}
 		if(m == null)
 			return false;
 		return true;
@@ -104,32 +147,62 @@ public class GameMap {
 
 	public static void printMasterPlan()
 	{	
+	
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			System.err.println("Agent " + i + " has # of plans " + plans.get(i).size());
+		}
 		boolean done = false;
 		int count = 0;
 		int time = 0;
 		String cmd = "";
-		
+		int[] currentPlan = new int[agentsAmount];
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			currentPlan[i] = 0;
+		}
 		while(!done){
 			count = 0;
 			cmd = "[";
 			
-			for(int t = 0; t < plans.size(); t++){
-				
-				Move m = plans.get(t).getMoveToTime(time);
-				if(m != null)
-					cmd += (m.toString() + ",");
-				else
-					count++;	
+			for(int t = 0; t < agentsAmount; t++){
+				if(plans.get(t).size() > currentPlan[t])
+				{
+					Move m = plans.get(t).get(currentPlan[t]).getMoveToTime(time);
+					if(m != null)
+						cmd += (m.toString());
+					else {
+						cmd += "NoOp";
+						count++;
+					}
+					cmd += ",";					
+				}
+				else {
+					cmd += "NoOp";
+					cmd += ",";	
+				}
 			}
 			
 			cmd = removeLastChar(cmd);
 			cmd += "]";
-			System.out.println(cmd);
-			System.out.flush();
-			
-			if(count >= plans.size())
+			if (cmd.length() == 1) {
+				done = true;
+			} else {
+				System.err.println(cmd);
+				System.out.println(cmd);
+				System.out.flush();
+			}
+			if(count >= agentsAmount || time >= 50)
 					done = true;
 			time++;
+			for(int t = 0; t < agentsAmount; t++)
+			{
+				if(plans.get(t).size() > currentPlan[t] && plans.get(t).get(currentPlan[t]).subplans.get(plans.get(t).get(currentPlan[t]).subplans.size()-1).stop < time)
+				{
+					System.err.println("Finished a plan");
+					currentPlan[t]++;	
+				}
+			}
 			/*
 			*	TEST CODE
 			*/ 
@@ -149,7 +222,10 @@ public class GameMap {
 	}
 	
 	public static GameMap getInstance( ) {
-      return singleton;
+		if(singleton == null) {
+	         singleton = new GameMap();
+	      }
+	      return singleton;
    	}
 
 	private static void error( String msg ) throws Exception {
@@ -185,7 +261,6 @@ public class GameMap {
 	}
 
 	protected void read(BufferedReader serverMessages) throws Exception {
-		Map< Character, String > colors = new HashMap< Character, String >();
 		String line, color;
 
 		int /*colorLines = 0,*/ levelLines = 0;
@@ -246,11 +321,17 @@ public class GameMap {
 					boxes[i][curLine] = chr;
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
-					unsolvedGoals.add(new Goal(chr, new Position(i, curLine)));
+					JobManager.Job job = jobManager.new Job(0,'g', new Position(i, curLine), chr, colors.get(Character.toUpperCase(chr)));
+					jobManager.addJobToQueue(job); //TODO fix priority and char?
 				}
 			}
 			curLine++;
 			line = lines.get(curLine);
+		}
+		plans = new ArrayList<ArrayList<Plan>>();
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			plans.add(new ArrayList<Plan>());
 		}
 	}
 }

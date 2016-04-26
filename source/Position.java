@@ -33,8 +33,18 @@ public class Position {
 		return (this.x == ptr.x && this.y == ptr.y);
 	}
 	
+	@Override
+	public int hashCode() {
+		return 1000 * x + y;
+	}
+	
 	public boolean nextTo(Position other) {
 		//Are the two positions neighbours?
 		return this.x == other.x ? Math.abs(this.y - other.y) <= 1 : this.y == other.y ? Math.abs(this.x - other.x) <= 1 : false ;
+	}
+	
+	public String toString() {
+		String str = "Position(" + x + "," + y + ")";
+		return str;
 	}
 }

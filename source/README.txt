@@ -11,28 +11,26 @@ Current implementation goals :-
 		-> More intelligent (Nikolaj)
 			-> Add possibility for all types of jobs
 		-> Re-planner
+		-> Clean up (Nikolaj)
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
-		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?)
+		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?) (Djoni)
 		
 	-> GameMap
-		-> Update readMap function to support colors (Djoni)
-		-> Remake goals to jobs (Samuel)
-			-> Create job data structure
-			-> Create data structure for holding jobs
-				-> Heuristic for agents. Give most appropriate job to agent
+		-> jobs
+			-> Heuristic for agents. Give most appropriate job to agent
 			-> Pre-condition, post-condition
 		-> Function to delete plans
+		-> Analyse map to figure out where to "store" agents and boxes if they are not needed (Samuel)
+		-> When printing plans, print them for each agent. Currently, it assumes each agent submits at most one plan. That is wrong, fix.
 	
 	-> Conflicts
 		-> Conflict Resolution (Flowchart) (Carl)
 		-> Detection (how? Where? - Hard conflict detection while building plan)
 		
-	-> Bug fixes
-		-> Map with more than 1 agent makes WallE say that there are 0 agents on the map. Fix (Nikolaj)
-			It's a problem with GameMap.getUnsolvedGoal();
-			Not fixed, since it will be changed to job anyway.
+	-> Colors
+		-> When creating agents in WallE.java, add their color, so they know what color they are themselves.
 		
 ------------------How to run
 

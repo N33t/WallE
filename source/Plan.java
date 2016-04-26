@@ -13,6 +13,18 @@ import source.Move;
 
 public class Plan {
 	
+	private int score;
+	public int begin, end;
+	public int id; //The id of the agent that this plan belongs to.
+	
+	public int getScore(){
+		return this.score;
+	}
+	
+	public void setScore(int score){
+		this.score = score;
+	}
+	
 	public ArrayList<SubPlan> subplans;
 	
 	public Plan() {
@@ -20,11 +32,14 @@ public class Plan {
 	}
 	
 	public void addSubplan(SubPlan subplan){
+		if(subplans.size() == 0) begin = subplan.start;
 		this.subplans.add(subplan);
+		end = subplan.stop;
 	}
 	
 	//Get move to the time t
 	public Move getMoveToTime(int t){ 
+		if(subplans.get(subplans.size() - 1).stop < t) return null;
 		int time = 0;
 		for(int i = 0; i < subplans.size(); i++){
 			if((subplans.get(i).moves.size() + time) > t){
@@ -48,9 +63,8 @@ public class Plan {
 			this.bottom = s;
 			this.left = w;
 			moves.addAll(mvs);
-			start = moves.get(0).time;
-			stop = moves.get(moves.size()-1).time;
+			start = (moves.isEmpty()) ? -1 : moves.get(0).time;
+			stop = (moves.isEmpty()) ? -1 : moves.get(moves.size()-1).time;
 		}
-		
 	}
 }

@@ -37,26 +37,32 @@ public class WallE {
 			for (int x = 0; x < theMap.size()[0]; x++) {
 				for (int y = 0; y < theMap.size()[1]; y++) {
 					if (theMap.agents[x][y] == i + '0') {
-						agents.add(new Agent(i,new Position(x,y)));
+						agents.add(new Agent(i, new Position(x,y))); //GameMap.colors.get((char)(i + '0'))
 					}
 				}
 			}
 		}
 		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
 		System.err.println("We have " + agents.size() + " agents.");
-		//Get plans
-		//ArrayList<Plan> Plans = new ArrayList<Plan>();
 		for (int i = 0; i < agents.size(); i++) {
-		//While (GameMap.jobs.size() > 0) {
-			//new Thread(agents.get(i)).start();
-			//Plans.add(agents.get(i).createPlan());
-			GameMap.addPlanToController(agents.get(i).createPlan());
+			Plan agentPlan = agents.get(i).createPlan();
+			if (!agentPlan.subplans.isEmpty()) {
+				GameMap.addPlanToController(agentPlan);
+			}
+		}
+		
+		for (int i = 0; i < agents.size(); i++) {
+			Plan agentPlan = agents.get(i).createPlan();
+			if (!agentPlan.subplans.isEmpty()) {
+				GameMap.addPlanToController(agentPlan);
+			}
 		}
 
 		GameMap.printMasterPlan();
 		//System.out.println( "[Move(E)]" );
 		//System.out.flush();
-		//System.out.println( "[NoOp]" );
+		//System.out.println( "[Pull(W,E)]" );
+		//System.out.flush();
 		String response = serverMessages.readLine();
 	}
 }
