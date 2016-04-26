@@ -14,6 +14,7 @@ import source.Move;
 public class Plan {
 	
 	private int score;
+	public int begin, end;
 	public int id; //The id of the agent that this plan belongs to.
 	
 	public int getScore(){
@@ -31,11 +32,14 @@ public class Plan {
 	}
 	
 	public void addSubplan(SubPlan subplan){
+		if(subplans.size() == 0) begin = subplan.start;
 		this.subplans.add(subplan);
+		end = subplan.stop;
 	}
 	
 	//Get move to the time t
 	public Move getMoveToTime(int t){ 
+		if(subplans.get(subplans.size() - 1).stop < t) return null;
 		int time = 0;
 		for(int i = 0; i < subplans.size(); i++){
 			if((subplans.get(i).moves.size() + time) > t){

@@ -434,6 +434,9 @@ public class Agent {
 	public Plan createPlan() throws Exception {
 		//final Goal goal = GameMap.getUnsolvedGoal();
 		final JobManager.Job job = GameMap.jobManager.getPriorityJob(id);
+		int startTime = 0;
+		System.err.println(GameMap.plans.get(id).size());
+		if(GameMap.plans.get(id).size() > 0) startTime = GameMap.plans.get(id).get(GameMap.plans.get(id).size() - 1).end;
 		Plan thePlan = new Plan();
 		if (job != null) {
 			
@@ -469,7 +472,7 @@ public class Agent {
 						ArrayList<Type> resultInitialMoves = new ArrayList<Type>();
 						ArrayList<Position> ex = new ArrayList<Position>();
 						ex.add(position);
-						frontier.add(new PosNode(position, boxPosition, ex, 0));
+						frontier.add(new PosNode(position, boxPosition, ex, startTime));
 						PosNode endNode = new PosNode(new Position(-1,-1));
 						while (!frontier.isEmpty()) {
 							PosNode node = frontier.pollFirst();
@@ -563,7 +566,7 @@ public class Agent {
 					//Create list of moves for creating plan. Also create bounds
 						thePlan = buildPlan(resultInitialMoves, resultBoxMoves);
 						
-					System.err.println("Returning goal-plan");
+					System.err.println("Returning goal-plan for agent " + id);
 					System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
 					

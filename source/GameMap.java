@@ -33,7 +33,7 @@ public class GameMap {
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	public static ArrayList<Map<Position, Move>> timeController;
-	private static ArrayList<Plan> plans;
+	public static ArrayList<ArrayList<Plan>> plans;
 	
 	public static JobManager jobManager = new JobManager();
 	
@@ -41,14 +41,14 @@ public class GameMap {
 		this.agentsAmount = 0;
 		this.unsolvedGoals = new ArrayList<Goal>();
 		this.timeController = new ArrayList<Map<Position, Move>>();
-		plans = new ArrayList<Plan>();
+		//plans = new ArrayList<Plan>();
 	}
 	
 	//Adds plan to the timeController
 	public static void addPlanToController(Plan plan)
 	{
-		plans.add(plan);
-		int time = 0;
+		plans.get(plan.id).add(plan);
+		int time = plan.subplans.get(0).start;
 		for(int i = 0; i < plan.subplans.size(); i++){
 			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
 				
@@ -56,7 +56,7 @@ public class GameMap {
 					timeController.add(new HashMap<Position, Move>());
 				
 				Move move = plan.subplans.get(i).moves.get(x);
-				
+				System.err.println(move);
 				/*
 				* Adds moves to the HashMap
 				* These moves represents cells occupied by the agents or boxes to the time
@@ -147,25 +147,40 @@ public class GameMap {
 
 	public static void printMasterPlan()
 	{	
+	
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			System.err.println("Agent " + i + " has # of plans " + plans.get(i).size());
+		}
 		boolean done = false;
 		int count = 0;
 		int time = 0;
 		String cmd = "";
-		
+		int[] currentPlan = new int[agentsAmount];
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			currentPlan[i] = 0;
+		}
 		while(!done){
 			count = 0;
 			cmd = "[";
 			
-			for(int t = 0; t < plans.size(); t++){
-				
-				Move m = plans.get(t).getMoveToTime(time);
-				if(m != null)
-					cmd += (m.toString());
+			for(int t = 0; t < agentsAmount; t++){
+				if(plans.get(t).size() > currentPlan[t])
+				{
+					Move m = plans.get(t).get(currentPlan[t]).getMoveToTime(time);
+					if(m != null)
+						cmd += (m.toString());
+					else {
+						cmd += "NoOp";
+						count++;
+					}
+					cmd += ",";					
+				}
 				else {
 					cmd += "NoOp";
-					count++;
+					cmd += ",";	
 				}
-				cmd += ",";
 			}
 			
 			cmd = removeLastChar(cmd);
@@ -177,9 +192,17 @@ public class GameMap {
 				System.out.println(cmd);
 				System.out.flush();
 			}
-			if(count >= plans.size())
+			if(count >= agentsAmount || time >= 50)
 					done = true;
 			time++;
+			for(int t = 0; t < agentsAmount; t++)
+			{
+				if(plans.get(t).size() > currentPlan[t] && plans.get(t).get(currentPlan[t]).subplans.get(plans.get(t).get(currentPlan[t]).subplans.size()-1).stop < time)
+				{
+					System.err.println("Finished a plan");
+					currentPlan[t]++;	
+				}
+			}
 			/*
 			*	TEST CODE
 			*/ 
@@ -304,6 +327,11 @@ public class GameMap {
 			}
 			curLine++;
 			line = lines.get(curLine);
+		}
+		plans = new ArrayList<ArrayList<Plan>>();
+		for(int i = 0; i < agentsAmount; i++)
+		{
+			plans.add(new ArrayList<Plan>());
 		}
 	}
 }
