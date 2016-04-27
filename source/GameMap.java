@@ -282,11 +282,11 @@ public class GameMap {
 			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
 			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
 			try {
-				if (pos.equals(boxPositionsTo.get(i).get(time+1))) {
+				if (pos.equals(boxPositionsTo.get(i).get(time))) {
 					//System.err.println("Returning");
 					return boxCharacters.get(i);
 				}
-				if (pos.equals(boxPositionsFrom.get(i).get(time+1))) {
+				if (pos.equals(boxPositionsFrom.get(i).get(time))) {
 					return boxCharacters.get(i);
 				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
