@@ -515,7 +515,6 @@ public class Agent {
 						}
 				
 					//Do the actual pathing
-					
 					ArrayList<Type> actualMoves = new ArrayList<Type>();
 					
 					if(id == 0) System.err.println(GameMap.boxPositionsTo.get(0).size());
@@ -524,7 +523,7 @@ public class Agent {
 					{
 						tmpTime++;
 						boolean occupied = GameMap.isPositionOccupiedToTime(resultInitialMoves.get(i).l2,tmpTime);
-						if((GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime-1 ) != 0) || occupied)
+						if((GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0) || occupied)
 						{
 							actualMoves.add(new Type(resultInitialMoves.get(i).l1));
 						}
