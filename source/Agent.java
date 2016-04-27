@@ -515,7 +515,51 @@ public class Agent {
 						}
 				
 					//Do the actual pathing
-
+					
+					ArrayList<Type> actualMoves = new ArrayList<Type>();
+					int tmpTime = 0;
+					for(int i = 0; i < resultInitialMoves.size();)
+					{
+						tmpTime++;
+						if(resultInitialMoves.get(i).type == TypeNum.MOV)
+						{
+							if(id == 0) System.err.println("Position " + resultInitialMoves.get(i).l2 + " occupied at " + tmpTime + " is " + (GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) == 0));
+							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
+							{
+								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
+							}
+							else
+							{
+								actualMoves.add(resultInitialMoves.get(i));
+								i++;
+							}
+						}
+						else if(resultInitialMoves.get(i).type == TypeNum.PUS)
+						{
+							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
+							{
+								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
+							}
+							else
+							{
+								actualMoves.add(resultInitialMoves.get(i));
+								i++;
+							}
+						}
+						else if(resultInitialMoves.get(i).type == TypeNum.PUL)
+						{
+							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
+							{
+								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
+							}
+							else
+							{
+								actualMoves.add(resultInitialMoves.get(i));
+								i++;
+							}
+						}
+					}
+					if(id == 0) System.err.println("Actual moves list has length " + actualMoves.size());
 					//Find path to box
 						//frontier.clear();
 						//ex.clear();
@@ -525,6 +569,7 @@ public class Agent {
 						//frontier.add(new PosNode(position, boxPosition, ex, 0));
 						//while (!frontier.isEmpty()) {
 						//	PosNode node = frontier.pollFirst();
+						//	if(node.time > 1000) break;
 						//	System.err.println("Check node: " + node.pos);
 						//	if (node.pos.nextTo(boxPosition)) { //Next to box?
 						//		System.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
@@ -569,8 +614,8 @@ public class Agent {
 						}
 						
 					//Create list of moves for creating plan. Also create bounds
-						thePlan = buildPlan(resultInitialMoves, resultBoxMoves);
-						
+						//thePlan = buildPlan(resultInitialMoves, resultBoxMoves);
+						thePlan = buildPlan(actualMoves, resultBoxMoves);
 					System.err.println("Returning goal-plan for agent " + id);
 					System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
