@@ -90,17 +90,17 @@ public class GameMap {
 						//System.err.println("Box moved to" + move.type.l4 + ", Last = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					} else {
 						boxPositionsTo.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
-						boxPositionsFrom.get(j).add(boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
+						boxPositionsFrom.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					}
 				}
 				
 				time++;	
 			}			
 		}
-		//for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
-		//	System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
-		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
-		//}
+		for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
+			System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
+			System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
+		}
 		//evaluatePlans(plans);
 	}
 	
@@ -281,12 +281,16 @@ public class GameMap {
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
 			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
 			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
-			if (pos.equals(boxPositionsTo.get(i).get(time+1))) {
-				//System.err.println("Returning");
-				return boxCharacters.get(i);
-			}
-			if (pos.equals(boxPositionsFrom.get(i).get(time+1))) {
-				return boxCharacters.get(i);
+			try {
+				if (pos.equals(boxPositionsTo.get(i).get(time+1))) {
+					//System.err.println("Returning");
+					return boxCharacters.get(i);
+				}
+				if (pos.equals(boxPositionsFrom.get(i).get(time+1))) {
+					return boxCharacters.get(i);
+				}
+			} catch (java.lang.IndexOutOfBoundsException e) {
+				return 0;
 			}
 		}
 		return 0;
