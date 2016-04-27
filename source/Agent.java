@@ -517,47 +517,23 @@ public class Agent {
 					//Do the actual pathing
 					
 					ArrayList<Type> actualMoves = new ArrayList<Type>();
+					
+					if(id == 0) System.err.println(GameMap.boxPositionsTo.get(0).size());
 					int tmpTime = 0;
 					for(int i = 0; i < resultInitialMoves.size();)
 					{
 						tmpTime++;
-						if(resultInitialMoves.get(i).type == TypeNum.MOV)
+						boolean occupied = GameMap.isPositionOccupiedToTime(resultInitialMoves.get(i).l2,tmpTime);
+						if((GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime-1 ) != 0) || occupied)
 						{
-							if(id == 0) System.err.println("Position " + resultInitialMoves.get(i).l2 + " occupied at " + tmpTime + " is " + (GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) == 0));
-							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
-							{
-								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
-							}
-							else
-							{
-								actualMoves.add(resultInitialMoves.get(i));
-								i++;
-							}
+							actualMoves.add(new Type(resultInitialMoves.get(i).l1));
 						}
-						else if(resultInitialMoves.get(i).type == TypeNum.PUS)
+						else
 						{
-							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
-							{
-								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
-							}
-							else
-							{
-								actualMoves.add(resultInitialMoves.get(i));
-								i++;
-							}
+							actualMoves.add(resultInitialMoves.get(i));
+							i++;
 						}
-						else if(resultInitialMoves.get(i).type == TypeNum.PUL)
-						{
-							if(GameMap.boxAtTime(resultInitialMoves.get(i).l2,tmpTime ) != 0)
-							{
-								actualMoves.add(new Type(resultInitialMoves.get(i).l1));
-							}
-							else
-							{
-								actualMoves.add(resultInitialMoves.get(i));
-								i++;
-							}
-						}
+						if(tmpTime >= 100) error("failed at creating moves");
 					}
 					if(id == 0) System.err.println("Actual moves list has length " + actualMoves.size());
 					//Find path to box

@@ -97,10 +97,10 @@ public class GameMap {
 				time++;	
 			}			
 		}
-		for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
-			System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
-			System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
-		}
+		//for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
+		//	System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
+		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
+		//}
 		//evaluatePlans(plans);
 	}
 	
