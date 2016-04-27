@@ -31,8 +31,8 @@ public class GameMap {
 	private static int MAX_COLUMN;
 	public static Map< Character, String > colors = new HashMap< Character, String >();
 	
-	//public static ArrayList<ArrayList<Position>> boxPositionsFrom = new ArrayList<ArrayList<Position>>();
-	public static ArrayList<ArrayList<Position>> boxPositions = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<ArrayList<Position>> boxPositionsFrom = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<ArrayList<Position>> boxPositionsTo = new ArrayList<ArrayList<Position>>();
 	public static ArrayList<Character> boxCharacters = new ArrayList<Character>();
 	
 	//public static Map< int , Map<Position, char>>
@@ -80,24 +80,26 @@ public class GameMap {
 					timeController.get(time).put(move.type.l3, move);
 					timeController.get(time).put(move.type.l4, move);
 				}
-				for (int j = 0; j < boxPositions.size(); j++) {
-					//System.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositions.get(j).get(boxPositions.get(j).size()-1));
+				for (int j = 0; j < boxPositionsTo.size(); j++) {
+					//System.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					
-					if (move.type.l3 != null && move.type.l4 != null && boxPositions.get(j).get(boxPositions.get(j).size()-1).equals(move.type.l3)) {
-						//boxPositions.get(j).add(move.type.l3);
-						boxPositions.get(j).add(move.type.l4);
-						//System.err.println("Box moved to" + move.type.l4);
+					if (move.type.l3 != null && move.type.l4 != null && boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1).equals(move.type.l3)) {
+						boxPositionsFrom.get(j).add(move.type.l3);
+						boxPositionsTo.get(j).add(move.type.l4);
+						//System.err.println("Box moved from" + move.type.l3 + ", Last = " + boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
+						//System.err.println("Box moved to" + move.type.l4 + ", Last = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					} else {
-						boxPositions.get(j).add(boxPositions.get(j).get(boxPositions.get(j).size()-1));
-						//boxPositions.get(j).add(boxPositions.get(j).get(boxPositions.get(j).size()-1));
+						boxPositionsTo.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
+						boxPositionsFrom.get(j).add(boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
 					}
 				}
 				
 				time++;	
 			}			
 		}
-		//for (int k = 0; k < boxPositions.get(1).size(); k++) {
-		//	System.err.println("box B. time=" + k + ", " + boxPositions.get(1).get(k));
+		//for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
+		//	System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
+		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
 		//}
 		//evaluatePlans(plans);
 	}
@@ -276,9 +278,14 @@ public class GameMap {
 	public static char boxAtTime(Position pos, int time){
 		//returns the character of the box at a time position to a given time.
 		if (time == 0) return BoxAt(pos);
-		for (int i = 0; i < boxPositions.size(); i++) {
-			//System.err.println("boxAtTime. time=" + time + ", pos=" + pos + ", return = " + boxPositions.get(i).get(time));
-			if (pos.equals(boxPositions.get(i).get(time+1))) {
+		for (int i = 0; i < boxPositionsTo.size(); i++) {
+			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
+			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
+			if (pos.equals(boxPositionsTo.get(i).get(time+1))) {
+				//System.err.println("Returning");
+				return boxCharacters.get(i);
+			}
+			if (pos.equals(boxPositionsFrom.get(i).get(time+1))) {
 				return boxCharacters.get(i);
 			}
 		}
@@ -357,8 +364,11 @@ public class GameMap {
 				} else if ( 'A' <= chr && chr <= 'Z' ) { // Boxes
 					boxes[i][curLine] = chr;
 					ArrayList<Position> posList = new ArrayList<Position>();
+					ArrayList<Position> posList2 = new ArrayList<Position>();
 					posList.add(new Position(i,curLine));
-					boxPositions.add(posList);
+					posList2.add(new Position(i,curLine));
+					boxPositionsTo.add(posList);
+					boxPositionsFrom.add(posList2);
 					boxCharacters.add(chr);
 				} else if ( 'a' <= chr && chr <= 'z' ) { // Goal cells
 					goals[i][curLine] = chr;
