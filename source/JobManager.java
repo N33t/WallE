@@ -17,6 +17,20 @@ public class JobManager {
 		jobs = new ArrayList<Job>();
 	}
 	
+	public boolean goalsFulfilled(){
+		
+		for(int i = 0; i < jobs.size(); i++){
+			if(jobs.get(i).jobType.eqauls('g')){
+				if(jobs.get(i).solved){	
+				}else{
+					return false,
+				}
+			}
+		}
+		return true;
+		
+	}
+	
 	private static boolean agentFulfillsPreConditions(Job job, int agentID) {
 		//Correct color
 		//System.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
@@ -26,14 +40,14 @@ public class JobManager {
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				if (preC.agentID == agentID) {
-					//System.err.println("Going to for loop");
+					System.err.println("Going to for loop");
 					for (int k = 0; k < preC.jobs.size(); k++) {
 						if (!preC.jobs.get(i).solved) {
-							//System.err.println("Returning False");
+							System.err.println("Returning False");
 							return false;
 						}
 					}
-					//System.err.println("Ended for loop");
+					System.err.println("Ended for loop");
 				}
 			}
 		}
@@ -84,6 +98,8 @@ public class JobManager {
 		
 		private int Priority = 0;
 		
+		//Enum instead?
+		//enum prioty = {LOW_PRIORITY = 1, MID_PRIORITY = 2, HIGH_PRIORITY = 3};
 		public static final int LOW_PRIORITY = 1;
 		public static final int MID_PRIORITY = 2;
 		public static final int HIGH_PRIORITY = 3;
