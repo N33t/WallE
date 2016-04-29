@@ -434,9 +434,9 @@ public class Agent {
 	}
 	
 	///////////////////////////////////////////////////////////// The function that executes it all!
-	public Plan createPlan() throws Exception {
+	public Plan createPlan(JobManager.Job job) throws Exception {
 		//final Goal goal = GameMap.getUnsolvedGoal();
-		final JobManager.Job job = GameMap.jobManager.getPriorityJob(id);
+		
 		int startTime = 0;
 		//System.err.println(GameMap.plans.get(id).size());
 		if(GameMap.plans.get(id).size() > 0) startTime = GameMap.plans.get(id).get(GameMap.plans.get(id).size() - 1).end + 1;
