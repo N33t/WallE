@@ -1,10 +1,10 @@
-package source;
-
 import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import source.Position;
 
 public class Storage {
 	
@@ -244,7 +244,7 @@ public class Storage {
 	    return target;
 	}
 	
-	//####################### END : UPDATE MAP SECTION  #######################
+	//####################### UPDATE MAP SECTION #######################
 	
 	//####################### PATH FINDING SECTION #######################
 	
@@ -319,5 +319,5 @@ public class Storage {
         }
 	}
 	
-	//####################### END : PATH FINDING SECTION #######################
+	//####################### PATH FINDING SECTION #######################
 }

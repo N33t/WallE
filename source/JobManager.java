@@ -10,7 +10,6 @@ public class JobManager {
 	
 	//public static PriorityQueue<Job> jobs;
 	public static ArrayList<Job> jobs;
-	private static int lastJobGiven;
 	
 	public JobManager(){
 		Comparator<Job> comparator = new JobPriorityComparator();
@@ -18,13 +17,13 @@ public class JobManager {
 		jobs = new ArrayList<Job>();
 	}
 	
-	public static boolean goalsFulfilled(){
+	public boolean goalsFulfilled(){
 		
 		for(int i = 0; i < jobs.size(); i++){
-			if(jobs.get(i).jobType == 'g'){
+			if(jobs.get(i).jobType.eqauls('g')){
 				if(jobs.get(i).solved){	
 				}else{
-					return false;
+					return false,
 				}
 			}
 		}
@@ -75,33 +74,14 @@ public class JobManager {
 		return null;
 	}
 	
-	public static Job getNextJob(){
-		if(lastJobGiven > jobs.size())
-			return null;
-		
-		Job j = jobs.get(lastJobGiven);
-		lastJobGiven++;
-		return j;
-	}
-	
 	//Returns job to agent
-	public static Job getPriorityJob(int agentID, int nextJob){
+	public static Job getPriorityJob(int agentID){
 		//System.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
-		Job jobGet = null;
+		Job jobGet;
 		for (int i = 0; i < jobs.size(); i++) {
-			if(nextJob != 0)
-				if((jobs.size() - 1) < (i + nextJob)){
-					jobGet = preCondJob(jobs.get(i + 1), agentID);
-				}else{
-					
-				}
-			else{
-				jobGet = preCondJob(jobs.get(i), agentID);
-			}
-			
+			jobGet = preCondJob(jobs.get(i), agentID);
 			if (jobGet != null) {
-				lastJobGiven = i;
 				return jobGet;
 			}
 		}

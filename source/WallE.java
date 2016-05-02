@@ -45,45 +45,29 @@ public class WallE {
 		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
 		System.err.println("We have " + agents.size() + " agents.");
 		
+		/*
+		
 		//While loop to distribute jobs to agents
-		int nextJob = 0;
-		int lastAgentToSolveAJob = 0;
-		while(!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0){
-			
-			final JobManager.Job job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob, nextJob);
-			for (int i = lastAgentToSolveAJob; i < agents.size(); i++){
-				Plan agentPlan = agents.get(i).createPlan(job);
-				//If agent succesfully creates a plan for the job add job to controller and get new job
-				if (!agentPlan.subplans.isEmpty()){
+		while(!GameMap.jobManager.plansFulfilled() || GameMap.jobManager.jobs.size() == 0){
+			for (int i = 0; i < agents.size(); i++) {
+				Plan agentPlan = agents.get(i).createPlan();
+				if (!agentPlan.subplans.isEmpty()) {
 					GameMap.addPlanToController(agentPlan);
-					lastAgentToSolveAJob = i + 1;
-					nextJob = 0;
-					break;
-				}/*else{
-					assignNewJobs(i, agents);
-				}
-				job = GameMap.jobManager.getPriorityJob(id);*/
-				if(i == agents.size() - 1)
-					i = 0;
-				
-				//No agents could solve the job yet
-				if(i == lastAgentToSolveAJob - 1){
-					nextJob++;
-					break;
 				}
 			}
-			
 		}
 		
+		*/
+		
 		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob(0, 0));
+			Plan agentPlan = agents.get(i).createPlan();
 			if (!agentPlan.subplans.isEmpty()) {
 				GameMap.addPlanToController(agentPlan);
 			}
 		}
 		
 		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob(0, 0));
+			Plan agentPlan = agents.get(i).createPlan();
 			if (!agentPlan.subplans.isEmpty()) {
 				GameMap.addPlanToController(agentPlan);
 			}
@@ -96,19 +80,4 @@ public class WallE {
 		//System.out.flush();
 		String response = serverMessages.readLine();
 	}
-	/*
-	private void assignNewJobs(int agentIndex, Job job, ArrayList<agent> agents){
-		Job job = jobManager.getNextJob();
-		Plan agentPlan = agents.get(agentIndex).createPlan(job);
-		
-		if(!agentPlan.subplans.isEmpty()){
-			GameMap.addPlanToController(agentPlan);
-			return;
-		}
-		
-		if(job != null)
-			assignNewJobs(agentIndex, job);
-		
-		return;
-	}*/
 }

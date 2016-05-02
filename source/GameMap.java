@@ -147,7 +147,7 @@ public class GameMap {
 	
 	public static void removePlanFromController(Plan plan)
 	{
-		Plan tempPlan = plans.get(plan.id).pop();
+		Plan tempPlan = plans.get(plan.id).pop(plan);
 		int time = tempPlan.subplans.get(0).start;
 		int startTime = plan.subplans.get(0).start;
 		
@@ -176,20 +176,22 @@ public class GameMap {
 					
 					//Resets box positions
 					for (int j = 0; j < boxPositionsTo.size(); j++) {
-						if(move.type.l3 != null && move.type.l4 != null && (boxPositionsFrom.get(j).get(time) == move.type.l3 && boxPositionsTo.get(j).get(time) == move.type.l4)){
-							boxAlteredByPlan[j] = boxPositionsFrom.get(j).get(time);
+						if(move.type.l3 != null && move.type.l4 != null && (boxPositionsFrom.get(j).get(time) == move.type.l3 && boxPositionsTo.get(j).get(time) == move.type.l4){
+							boxAlteredByPlan[j] = boxPositionsFrom;
 						}
 						if(boxAlteredByPlan[j] != null){
-							boxPositionsFrom.get(j).set(time, boxAlteredByPlan[j]);
-							boxPositionsTo.get(j).set(time, boxAlteredByPlan[j]);
+							boxPositionsFrom.get(j).get(time) = boxAlteredByPlan[j];
+							boxPositionsTo.get(j).get(time) = boxAlteredByPlan[j];
 						}
 					}
 					time++;
 				}
 			}
 			
-			time = tempPlan.subplans.get(0).start;
-		}	
+			int time = tempPlan.subplans.get(0).start;
+			int startTime = plan.subplans.get(0).start;
+		}
+		
 	}
 	
 	public static void evaluatePlans(ArrayList<Plan> plans){
