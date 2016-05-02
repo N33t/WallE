@@ -44,21 +44,6 @@ public class WallE {
 		}
 		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
 		System.err.println("We have " + agents.size() + " agents.");
-		
-		/*
-		
-		//While loop to distribute jobs to agents
-		while(!GameMap.jobManager.plansFulfilled() || GameMap.jobManager.jobs.size() == 0){
-			for (int i = 0; i < agents.size(); i++) {
-				Plan agentPlan = agents.get(i).createPlan();
-				if (!agentPlan.subplans.isEmpty()) {
-					GameMap.addPlanToController(agentPlan);
-				}
-			}
-		}
-		
-		*/
-		
 		for (int i = 0; i < agents.size(); i++) {
 			Plan agentPlan = agents.get(i).createPlan();
 			if (!agentPlan.subplans.isEmpty()) {

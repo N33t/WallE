@@ -41,8 +41,7 @@ public class GameMap {
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	public static ArrayList<Map<Position, Move>> timeController;
-	//Plans is the size of agents and holds the number of agents
-	public static ArrayList<Stack<Plan>> plans;
+	public static ArrayList<ArrayList<Plan>> plans;
 	
 	public static JobManager jobManager = new JobManager();
 	
@@ -56,7 +55,7 @@ public class GameMap {
 	//Adds plan to the timeController
 	public static void addPlanToController(Plan plan)
 	{
-		plans.get(plan.id).push(plan);
+		plans.get(plan.id).add(plan);
 		int time = plan.subplans.get(0).start;
 		for(int i = 0; i < plan.subplans.size(); i++){
 			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
@@ -143,55 +142,6 @@ public class GameMap {
 		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
 		//}
 		//evaluatePlans(plans);
-	}
-	
-	public static void removePlanFromController(Plan plan)
-	{
-		Plan tempPlan = plans.get(plan.id).pop(plan);
-		int time = tempPlan.subplans.get(0).start;
-		int startTime = plan.subplans.get(0).start;
-		
-		//Loops over all the agents plans until the current plan is reached and removed
-		while (!(time < startTime) || plans.get(plan.id).size() == 0){
-			Position[] boxAlteredByPlan = new Position[boxPositionsTo.size()];
-			for(int i = 0; i < tempPlan.subplans.size(); i++){
-				for(int x = 0; x < tempPlan.subplans.get(i).moves.size(); x++){
-					
-					Move move = tempPlan.subplans.get(i).moves.get(x);
-					
-					//Removes the agents moves from the time controller
-					if(move.type.type == TypeNum.NOP){
-						timeController.get(time).remove(move.type.l1);
-					}
-					else if(move.type.type == TypeNum.MOV){
-						timeController.get(time).remove(move.type.l1);
-						timeController.get(time).remove(move.type.l2);
-					}
-					else if(move.type.type == TypeNum.PUS || move.type.type == TypeNum.PUL){
-						timeController.get(time).remove(move.type.l1);
-						timeController.get(time).remove(move.type.l2);
-						timeController.get(time).remove(move.type.l3);
-						timeController.get(time).remove(move.type.l4);
-					}
-					
-					//Resets box positions
-					for (int j = 0; j < boxPositionsTo.size(); j++) {
-						if(move.type.l3 != null && move.type.l4 != null && (boxPositionsFrom.get(j).get(time) == move.type.l3 && boxPositionsTo.get(j).get(time) == move.type.l4){
-							boxAlteredByPlan[j] = boxPositionsFrom;
-						}
-						if(boxAlteredByPlan[j] != null){
-							boxPositionsFrom.get(j).get(time) = boxAlteredByPlan[j];
-							boxPositionsTo.get(j).get(time) = boxAlteredByPlan[j];
-						}
-					}
-					time++;
-				}
-			}
-			
-			int time = tempPlan.subplans.get(0).start;
-			int startTime = plan.subplans.get(0).start;
-		}
-		
 	}
 	
 	public static void evaluatePlans(ArrayList<Plan> plans){
@@ -562,10 +512,10 @@ public class GameMap {
 			curLine++;
 			line = lines.get(curLine);
 		}
-		plans = new ArrayList<Stack<Plan>>();
+		plans = new ArrayList<ArrayList<Plan>>();
 		for(int i = 0; i < agentsAmount; i++)
 		{
-			plans.add(new Stack<Plan>());
+			plans.add(new ArrayList<Plan>());
 		}
 	}
 }
