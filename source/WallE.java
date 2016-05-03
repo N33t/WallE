@@ -48,10 +48,24 @@ public class WallE {
 		//While loop to distribute jobs to agents
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
-		while(!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0){
-			
-			final JobManager.Job job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob, nextJob);
-			
+		int max = 0;
+		while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
+			max++;
+			final JobManager.Job job = GameMap.jobManager.getPriorityJob();
+			if(job != null){
+				System.err.println("Goal: " + job.goal);
+			}
+			for(Agent a : agents){
+				Plan agentPlan = a.createPlan(job);
+				if (!agentPlan.subplans.isEmpty()){
+					GameMap.addPlanToController(agentPlan);
+					
+					break;
+				}else{
+					System.err.println("isEmpty");
+				}
+			}//end for
+			/*
 			for (int i = lastAgentToSolveAJob; i < agents.size(); i++){
 				System.err.println("Agent Id: " + agents.get(i).getId() + "");
 				Plan agentPlan = agents.get(i).createPlan(job);
@@ -61,7 +75,7 @@ public class WallE {
 					//System.out.println("Her!!!");
 					lastAgentToSolveAJob = i + 1;
 					nextJob = 0;
-					//break;
+					break;
 				}else{
 					//job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob+1, nextJob);
 					//assignNewJobs(i, agents);
@@ -75,18 +89,18 @@ public class WallE {
 					nextJob++;
 					break;
 				}
-			}
+			}*/
 		}
 		
 		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob(0, 0));
+			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob());
 			if (!agentPlan.subplans.isEmpty()) {
 				GameMap.addPlanToController(agentPlan);
 			}
 		}
 		
 		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob(0, 0));
+			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJob());
 			if (!agentPlan.subplans.isEmpty()) {
 				GameMap.addPlanToController(agentPlan);
 			}

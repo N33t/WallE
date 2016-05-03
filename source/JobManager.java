@@ -36,18 +36,27 @@ public class JobManager {
 		//Correct color
 		//System.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
 		boolean color = job.color == GameMap.colors.get((char)(agentID + '0'));
+		System.err.println("preCond.size() = " + job.preConds.size());
 		for (int i = 0; i < job.preConds.size(); i++) {
 			PreCondition preC = job.preConds.get(i);
+			
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
+				
+				if(preC.jobs.size() > 0){
+					System.err.println("preC.size() = " + preC.jobs.size() + 
+							"\nJobType = " + preC.jobs.get(j).getJobType());
+				}
+				
 				if (preC.agentID == agentID) {
 					System.err.println("Going to for loop");
+					/*
 					for (int k = 0; k < preC.jobs.size(); k++) {
 						if (!preC.jobs.get(i).solved) {
 							System.err.println("Returning False");
 							return false;
 						}
-					}
+					}*/
 					System.err.println("Ended for loop");
 				}
 			}
@@ -85,14 +94,14 @@ public class JobManager {
 	}
 	
 	//Returns job to agent
-	public static Job getPriorityJob(int agentID, int nextJob){
+	/*public static Job getPriorityJob(int agentID, int nextJob){
 		//System.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
 		Job jobGet = null;
 		for (int i = 0; i < jobs.size(); i++) {
 			if(nextJob != 0)
 				if((jobs.size() - 1) < (i + nextJob)){
-					jobGet = preCondJob(jobs.get(i + 1), agentID);
+					jobGet = preCondJob(jobs.get(i), agentID);
 				}else{
 					
 				}
@@ -102,6 +111,20 @@ public class JobManager {
 			
 			if (jobGet != null) {
 				lastJobGiven = i;
+				return jobGet;
+			}
+		}
+		return null;
+	}*/
+	
+	public static Job getPriorityJob(){
+		//System.err.println("We have " + jobs.size() + " jobs.");
+		//return jobs.poll();
+		Job jobGet = null;
+		System.err.println("jobs.sice() = " + jobs.size());
+		for (int i = 0; i < jobs.size(); i++) {		
+			jobGet = preCondJob(jobs.get(i),0);
+			if(jobGet != null){
 				return jobGet;
 			}
 		}
