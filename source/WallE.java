@@ -51,18 +51,22 @@ public class WallE {
 		while(!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0){
 			
 			final JobManager.Job job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob, nextJob);
+			
 			for (int i = lastAgentToSolveAJob; i < agents.size(); i++){
+				System.err.println("Agent Id: " + agents.get(i).getId() + "");
 				Plan agentPlan = agents.get(i).createPlan(job);
 				//If agent succesfully creates a plan for the job add job to controller and get new job
 				if (!agentPlan.subplans.isEmpty()){
 					GameMap.addPlanToController(agentPlan);
+					//System.out.println("Her!!!");
 					lastAgentToSolveAJob = i + 1;
 					nextJob = 0;
-					break;
-				}/*else{
-					assignNewJobs(i, agents);
+					//break;
+				}else{
+					//job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob+1, nextJob);
+					//assignNewJobs(i, agents);
 				}
-				job = GameMap.jobManager.getPriorityJob(id);*/
+				//job = GameMap.jobManager.getPriorityJob(id);
 				if(i == agents.size() - 1)
 					i = 0;
 				

@@ -26,6 +26,10 @@ public class Agent {
 	private Position position;
 	private int time;
 
+	public int getId(){
+		return this.id;
+	}
+	
 	public Agent(int id, Position position) {
 		this.id = id;
 		this.position = position;
@@ -597,7 +601,7 @@ public class Agent {
 					job.solved = true;
 					
 				} else {
-					job.preConds.isSolvable = false;
+					//job.preConds(0).isSolvable = false;
 					System.err.println("box not found");
 				}
 			} else if (job.jobType == 'b') {
