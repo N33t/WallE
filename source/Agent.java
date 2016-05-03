@@ -390,6 +390,31 @@ public class Agent {
 		return (one < two) ? one : two;
 	}
 	
+	private Position quickStoreBox(ArrayList<Position> path, Position boxPos, int time) throws Exception {
+		//Returns the nearest free position to the box that is not on the path
+		Position returnPosition = new Position(10,4);
+		ArrayList<Position> explored = new ArrayList<Position>();
+		ArrayList<Position> frontier = new ArrayList<Position>();
+		frontier.add(boxPos);
+		
+		//while (!frontier.isEmpty()) {
+		//	Position pos = frontier.get(0);
+		//	if (!GameMap.isPositionOccupiedToTime(pos, time)) {
+		//		returnPosition = pos;
+		//		break;
+		//	}
+		//	frontier.add(newPosInDirection(pos,'W'));
+		//	frontier.add(newPosInDirection(pos,'E'));
+		//	frontier.add(newPosInDirection(pos,'N'));
+		//	frontier.add(newPosInDirection(pos,'S'));
+		//}
+		//
+		//if (returnPosition.equals(new Position(-1,-1))) {
+		//	System.err.println("Quickstorage couldn't find storage.");
+		//}
+		return returnPosition;
+	}
+	
 	private Plan buildPlan(ArrayList<Type> resultMoves, ArrayList<Type> resultBoxMoves) {
 		Plan thePlan = new Plan();
 		ArrayList<Move> moves = new ArrayList<Move>();
@@ -650,7 +675,7 @@ public class Agent {
 					ArrayList<Type> resultMoves = new ArrayList<Type>();
 					ArrayList<Position> ex = new ArrayList<Position>();
 					ex.add(position);
-					frontier.add(new PosNode(position, job.jobPos, ex, 0));
+					frontier.add(new PosNode(position, job.jobPos, ex, startTime));
 					while (!frontier.isEmpty()) {
 						PosNode node = frontier.pollFirst();
 						if (node.pos.nextTo(job.jobPos)) { //Next to box?
@@ -674,8 +699,8 @@ public class Agent {
 					
 				//Move box to desired position
 					//Find nearest storage! Returns position
-					Position storagePosition = new Position(10,4); //TODO: Use storage system
-					//Position storagePosition = Storage.
+					//Position storagePosition = new Position(10,4); //TODO: Use storage system
+					Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();

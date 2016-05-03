@@ -267,7 +267,7 @@ public class GameMap {
 	//Returns time until cell is free
 	//return -1 if the cell will never be free
 	public static int cellFreeIn(int currentTime, Position pos){
-	
+		if (walls[pos.x][pos.y]) return -1;
 		int time = 0;
 		for(int t = currentTime; t < timeController.size(); t++){
 			
