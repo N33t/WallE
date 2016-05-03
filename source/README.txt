@@ -12,9 +12,11 @@ Current implementation goals :-
 			-> Add possibility for all types of jobs
 		-> Re-planner
 		-> Clean up (Nikolaj)
-		-> Fix move, boxMove (with time and static map-look)
-			-> Make the box-pathing work with no-ops.
 		-> Add jobs between box and goal (currently only obstructions between agent and box are added).
+		-> Fix time++ i gamemap...?
+		-> fix MAsimple4.lvl
+		-> Use storage
+		-> Start using new job planner.
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.

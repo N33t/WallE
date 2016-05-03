@@ -108,6 +108,30 @@ public class JobManager {
 		return null;
 	}
 	
+	public static Job getPriorityJobOLD(int agentID){
+		//System.err.println("We have " + jobs.size() + " jobs.");
+		//return jobs.poll();
+		Job jobGet = null;
+		for (int i = 0; i < jobs.size(); i++) {
+			jobGet = preCondJob(jobs.get(i), agentID);
+			//if(nextJob != 0)
+			//	if((jobs.size() - 1) < (i + nextJob)){
+			//		jobGet = preCondJob(jobs.get(i + 1), agentID);
+			//	}else{
+			//		
+			//	}
+			//else{
+			//	jobGet = preCondJob(jobs.get(i), agentID);
+			//}
+			
+			if (jobGet != null) {
+				//lastJobGiven = i;
+				return jobGet;
+			}
+		}
+		return null;
+	}
+	
 	//Adds a job to the job queue
 	public static void addJobToQueue(Job j){
 		jobs.add(j);

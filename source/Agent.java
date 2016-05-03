@@ -262,7 +262,7 @@ public class Agent {
 	private boolean isLegalMove(Position pos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(pos, dir);
 		//return GameMap.isCellFree(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
-		//if(id == 0) System.err.println("Checking new pos " + newPos + ", bool= " + GameMap.isPositionOccupiedToTime(newPos, time));
+		//if(id == 0) System.err.println("Checking new pos " + newPos + ", bool= " + GameMap.isPositionOccupiedToTime(newPos, time) + ", time= " + time);
 		return !GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
@@ -294,9 +294,10 @@ public class Agent {
 	
 	private TreeSet<PosNode> initialMove(TreeSet<PosNode> frontier, PosNode node, char dir) throws Exception {
 		Position newPos = newPosInDirection(node.pos, dir);
+		//System.err.println("pos = " + newPos + ", time = " + node.time + ", occ = " + GameMap.isPositionOccupiedToTime(newPos, node.time) + ",box=" +  GameMap.boxAtTime(newPos, node.time));
 		if ((!GameMap.isPositionOccupiedToTime(newPos, node.time) || GameMap.boxAtTime(newPos, node.time) != (char)0) && !node.explored.contains(newPos)) {
 		//if ((GameMap.isCellFree(newPos) || GameMap.boxes[newPos.x][newPos.y] != (char)0) && !node.explored.contains(newPos)) {
-			//System.err.println("pos = " + newPos + ", box = " + GameMap.boxes[newPos.x][newPos.y] );
+			//System.err.println("not occ");
 			ArrayList<Type> tmp = new ArrayList<Type>(); 
 			ArrayList<Position> tmp2 = new ArrayList<Position>();
 			tmp2.addAll(node.explored);
@@ -451,7 +452,7 @@ public class Agent {
 	///////////////////////////////////////////////////////////// The function that executes it all!
 	public Plan createPlan(JobManager.Job job) throws Exception {
 		//final Goal goal = GameMap.getUnsolvedGoal();
-		
+		//final JobManager.Job job = GameMap.jobManager.getPriorityJob(id);
 		int startTime = 0;
 		//System.err.println(GameMap.plans.get(id).size());
 		if(GameMap.plans.get(id).size() > 0) startTime = GameMap.plans.get(id).get(GameMap.plans.get(id).size() - 1).end + 1;
@@ -462,11 +463,11 @@ public class Agent {
 			
 			String preCColor = "";
 			
-			System.err.println("Goal pos = (" + job.jobPos.x + "," + job.jobPos.y + ")");
 			if (job.jobType == 'g') {
 				//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
 				Position boxPosition = new Position(-1,-1);
-				System.err.println("Agent Job Start time= " + startTime);
+				System.err.println("Agent " + id + " Job Start time= " + startTime);
+				System.err.println("Goal pos = (" + job.jobPos.x + "," + job.jobPos.y + ")");
 				for (int x = 0; x < GameMap.size()[0]; x++) {
 					for (int y = 0; y < GameMap.size()[1]; y++) {
 						//System.err.println("pos=" + new Position(x,y) + "GM= " + GameMap.boxAtTime(new Position(x,y), startTime));
@@ -504,8 +505,8 @@ public class Agent {
 								break;
 							}
 							//System.err.println((GameMap.boxes[node.pos.x][node.pos.y] == 0));
-							//System.err.println("Box on (" + node.pos + ")?" + (char) (GameMap.boxes[node.pos.x][node.pos.y]));
-							if (GameMap.boxAtTime(node.pos, node.time) != 0 && GameMap.cellFreeIn(node.time, node.pos) == -1) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
+							//System.err.println("Box on " + node.pos + " at time " + time + "?" + (char) (GameMap.boxAtTime(node.pos, node.time)));
+							if (GameMap.boxAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
 								//System.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
 								//System.err.println("box for job found");
 								node.boxJobs.add(node.pos);
@@ -562,7 +563,7 @@ public class Agent {
 						int endMoveTime = 0;
 						while (!frontier.isEmpty()) {
 							PosNode node = frontier.pollFirst();
-							if(node.time > 1000) break;
+							if(node.time > 1000) error("Can't move to box!");
 							//System.err.println("Check node: " + node.pos);
 							if (node.pos.nextTo(boxPosition)) { //Next to box?
 								System.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
