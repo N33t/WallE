@@ -36,6 +36,7 @@ public class GameMap {
 	public static ArrayList<ArrayList<Position>> agentPositionsFrom = new ArrayList<ArrayList<Position>>();
 	public static ArrayList<ArrayList<Position>> agentPositionsTo = new ArrayList<ArrayList<Position>>();
 	public static ArrayList<Character> boxCharacters = new ArrayList<Character>();
+	public static ArrayList<Character> agentCharacters = new ArrayList<Character>();
 	
 	//public static Map< int , Map<Position, char>>
 	
@@ -89,7 +90,7 @@ public class GameMap {
 					if (move.type.l3 != null && move.type.l4 != null && boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1).equals(move.type.l3)) {
 					
 						//Compare list length to time
-						int timeDifference = move.time - boxPositionsTo.get(j).size();
+						int timeDifference = move.time+1 - boxPositionsTo.get(j).size();
 						//Add "NoOps" to make list length correct
 						if (timeDifference > 0) {
 							for (int k = 0; k < timeDifference; k++) {
@@ -133,6 +134,8 @@ public class GameMap {
 							break;
 						}
 				}
+				
+				//System.err.println("boxFrom:" + boxPositionsFrom + "\nboxTo" + boxPositionsTo);
 				
 				time++;	
 			}			
@@ -215,7 +218,7 @@ public class GameMap {
 		//	
 		//}
 		
-		//time++;
+		time++; //Offset to make it correct
 		
 		if (walls[p.x][p.y]) return true;
 		
@@ -269,7 +272,7 @@ public class GameMap {
 		for(int t = currentTime; t < timeController.size(); t++){
 			
 			if(!isPositionOccupiedToTime(pos, t)) {
-				System.err.println(pos + "is not occupied to " + t);
+				//System.err.println(pos + "is not occupied to " + t);
 				return time;
 			}
 			time++;
@@ -394,7 +397,7 @@ public class GameMap {
 	public static char boxAtTime(Position pos, int time){
 		//returns the character of the box at a time position to a given time.
 		//if (time == 0) return BoxAt(pos);
-		time++;
+		time++; //Offset to make it correct
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
 			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
 			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
@@ -428,6 +431,34 @@ public class GameMap {
 		return (agents[pos.x][pos.y]);
 	}
 
+	public static char agentAtTime(Position pos, int time){
+		//returns the character of the agent at a time position to a given time.
+		time++; //Offset to make it correct
+		for (int i = 0; i < agentPositionsTo.size(); i++) {
+			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
+			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
+			try {
+				if (pos.equals(agentPositionsTo.get(i).get(time))) {
+					//System.err.println("Returning");
+					return agentCharacters.get(i);
+				}
+			} catch (java.lang.IndexOutOfBoundsException e) {
+				if (pos.equals(agentPositionsTo.get(i).get(agentPositionsTo.get(i).size()-1))) return agentCharacters.get(i);
+			}
+			
+			//try {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(time))) {
+			//		//System.err.println("Returning");
+			//		return boxCharacters.get(i);
+			//	}
+			//} catch (java.lang.IndexOutOfBoundsException e) {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(boxPositionsFrom.get(i).size()-1))) return boxCharacters.get(i);
+			//}
+			
+		}
+		return 0;
+	}
+	
 	protected void read(BufferedReader serverMessages) throws Exception {
 		String line, color;
 
@@ -495,7 +526,7 @@ public class GameMap {
 					posList2.add(new Position(i,curLine));
 					agentPositionsTo.add(posList);
 					agentPositionsFrom.add(posList2);
-					//boxCharacters.add(chr);
+					agentCharacters.add(chr);
 				} else if ( 'A' <= chr && chr <= 'Z' ) { // Boxes
 					boxes[i][curLine] = chr;
 					ArrayList<Position> posList = new ArrayList<Position>();

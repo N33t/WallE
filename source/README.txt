@@ -13,7 +13,6 @@ Current implementation goals :-
 		-> Re-planner
 		-> Clean up (Nikolaj)
 		-> Add jobs between box and goal (currently only obstructions between agent and box are added).
-		-> Fix time++ i gamemap...?
 		-> fix MAsimple4.lvl
 		-> Use storage
 		-> Start using new job planner.

@@ -41,14 +41,14 @@ public class JobManager {
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				if (preC.agentID == agentID) {
-					System.err.println("Going to for loop");
+					//System.err.println("Going to for loop");
 					for (int k = 0; k < preC.jobs.size(); k++) {
 						if (!preC.jobs.get(i).solved) {
-							System.err.println("Returning False");
+							//System.err.println("Returning False");
 							return false;
 						}
 					}
-					System.err.println("Ended for loop");
+					//System.err.println("Ended for loop");
 				}
 			}
 		}
@@ -112,6 +112,13 @@ public class JobManager {
 		//System.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
 		Job jobGet = null;
+		for (int i = 0; i < jobs.size(); i++) {
+			jobGet = preCondJob(jobs.get(i), agentID);
+			if (jobGet != null && jobGet.jobType == 'b') {
+				//System.err.println("Has " + jobGet.jobType + " job");
+				return jobGet;
+			}
+		}
 		for (int i = 0; i < jobs.size(); i++) {
 			jobGet = preCondJob(jobs.get(i), agentID);
 			//if(nextJob != 0)
