@@ -72,7 +72,6 @@ public class WallE {
 					break;
 				}
 			}
-			
 		}
 		
 		for (int i = 0; i < agents.size(); i++) {

@@ -469,6 +469,7 @@ public class Agent {
 					}
 				}
 				
+				
 				if (boxFound) {
 					//Figure out if there is a path to the box. Record all positions / paths blocked by boxes.
 					// If we cannot find a path to our box, create job for alle the boxes that blocked paths.
@@ -596,6 +597,7 @@ public class Agent {
 					job.solved = true;
 					
 				} else {
+					job.preConds.isSolvable = false;
 					System.err.println("box not found");
 				}
 			} else if (job.jobType == 'b') {
