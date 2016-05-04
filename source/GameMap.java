@@ -33,14 +33,16 @@ public class GameMap {
 	
 	public static ArrayList<ArrayList<Position>> boxPositionsFrom = new ArrayList<ArrayList<Position>>();
 	public static ArrayList<ArrayList<Position>> boxPositionsTo = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<ArrayList<Position>> agentPositionsFrom = new ArrayList<ArrayList<Position>>();
+	public static ArrayList<ArrayList<Position>> agentPositionsTo = new ArrayList<ArrayList<Position>>();
 	public static ArrayList<Character> boxCharacters = new ArrayList<Character>();
+	public static ArrayList<Character> agentCharacters = new ArrayList<Character>();
 	
 	//public static Map< int , Map<Position, char>>
 	
 	//List that holds a HashMap over the positions of boxes and agents to time i (list index)
 	public static ArrayList<Map<Position, Move>> timeController;
-	//Plans is the size of agents and holds the number of agents
-	public static ArrayList<Stack<Plan>> plans;
+	public static ArrayList<ArrayList<Plan>> plans;
 	
 	public static JobManager jobManager = new JobManager();
 	
@@ -54,7 +56,7 @@ public class GameMap {
 	//Adds plan to the timeController
 	public static void addPlanToController(Plan plan)
 	{
-		plans.get(plan.id).push(plan);
+		plans.get(plan.id).add(plan);
 		int time = plan.subplans.get(0).start;
 		for(int i = 0; i < plan.subplans.size(); i++){
 			for(int x = 0; x < plan.subplans.get(i).moves.size(); x++){
@@ -84,16 +86,56 @@ public class GameMap {
 				for (int j = 0; j < boxPositionsTo.size(); j++) {
 					//System.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					
+					//Find box being moved
 					if (move.type.l3 != null && move.type.l4 != null && boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1).equals(move.type.l3)) {
+					
+						//Compare list length to time
+						int timeDifference = move.time+1 - boxPositionsTo.get(j).size();
+						//Add "NoOps" to make list length correct
+						if (timeDifference > 0) {
+							for (int k = 0; k < timeDifference; k++) {
+								boxPositionsTo.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
+								boxPositionsFrom.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
+							}
+						}
 						boxPositionsFrom.get(j).add(move.type.l3);
 						boxPositionsTo.get(j).add(move.type.l4);
+							
 						//System.err.println("Box moved from" + move.type.l3 + ", Last = " + boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
 						//System.err.println("Box moved to" + move.type.l4 + ", Last = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
-					} else {
-						boxPositionsTo.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
-						boxPositionsFrom.get(j).add(boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
-					}
+						break;
+					} 
 				}
+				for (int j = 0; j < agentPositionsTo.size(); j++) {
+					//Find agent moving
+						//System.err.println("size=" + agentPositionsTo.get(j).size());
+						//System.err.println("list=" + agentPositionsTo.get(j));
+						//Position p = agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1);
+						//Position m = move.type.l1;
+						//System.err.println("p=" + p + ", m= " + m);
+						//boolean ting = p.equals(m);
+						//if (move.time == 0 && move.type.type == TypeNum.NOP) {
+						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
+						//	agentPositionsTo.get(j).set(move.time, move.type.l1);
+						//} else if (move.time == 0) {
+						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
+						//	agentPositionsTo.get(j).set(move.time, move.type.l2);
+						//} else 
+						if (move.type.type == TypeNum.NOP) {
+							//System.err.println("Noop");
+							agentPositionsFrom.get(j).add(move.type.l1);
+							agentPositionsTo.get(j).add(move.type.l1);
+							break;
+						} else if (agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1).equals(move.type.l1)) {
+							//Add new move to list
+							//System.err.println("Move");
+							agentPositionsFrom.get(j).add(move.type.l1);
+							agentPositionsTo.get(j).add(move.type.l2);
+							break;
+						}
+				}
+				
+				//System.err.println("boxFrom:" + boxPositionsFrom + "\nboxTo" + boxPositionsTo);
 				
 				time++;	
 			}			
@@ -103,55 +145,6 @@ public class GameMap {
 		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
 		//}
 		//evaluatePlans(plans);
-	}
-	
-	public static void removePlanFromController(Plan plan)
-	{
-		Plan tempPlan = plans.get(plan.id).pop(plan);
-		int time = tempPlan.subplans.get(0).start;
-		int startTime = plan.subplans.get(0).start;
-		
-		//Loops over all the agents plans until the current plan is reached and removed
-		while (!(time < startTime) || plans.get(plan.id).size() == 0){
-			Position[] boxAlteredByPlan = new Position[boxPositionsTo.size()];
-			for(int i = 0; i < tempPlan.subplans.size(); i++){
-				for(int x = 0; x < tempPlan.subplans.get(i).moves.size(); x++){
-					
-					Move move = tempPlan.subplans.get(i).moves.get(x);
-					
-					//Removes the agents moves from the time controller
-					if(move.type.type == TypeNum.NOP){
-						timeController.get(time).remove(move.type.l1);
-					}
-					else if(move.type.type == TypeNum.MOV){
-						timeController.get(time).remove(move.type.l1);
-						timeController.get(time).remove(move.type.l2);
-					}
-					else if(move.type.type == TypeNum.PUS || move.type.type == TypeNum.PUL){
-						timeController.get(time).remove(move.type.l1);
-						timeController.get(time).remove(move.type.l2);
-						timeController.get(time).remove(move.type.l3);
-						timeController.get(time).remove(move.type.l4);
-					}
-					
-					//Resets box positions
-					for (int j = 0; j < boxPositionsTo.size(); j++) {
-						if(move.type.l3 != null && move.type.l4 != null && (boxPositionsFrom.get(j).get(time) == move.type.l3 && boxPositionsTo.get(j).get(time) == move.type.l4){
-							boxAlteredByPlan[j] = boxPositionsFrom;
-						}
-						if(boxAlteredByPlan[j] != null){
-							boxPositionsFrom.get(j).get(time) = boxAlteredByPlan[j];
-							boxPositionsTo.get(j).get(time) = boxAlteredByPlan[j];
-						}
-					}
-					time++;
-				}
-			}
-			
-			int time = tempPlan.subplans.get(0).start;
-			int startTime = plan.subplans.get(0).start;
-		}
-		
 	}
 	
 	public static void evaluatePlans(ArrayList<Plan> plans){
@@ -182,37 +175,106 @@ public class GameMap {
 	public static void updateTimeController(){}//end method updateTimeController
 	
 	//Request position lookup
-	public static boolean isPositionOccupiedToTime(Position p, int t){
-		if(t > timeController.size())
-			return false;
-		Move m;
-		try {
-			m = timeController.get(t).get(p);
-			//Object[] poses = timeController.get(t).keySet().toArray();
-			//for (int i = 0; i < poses.length; i++) {
-			//	if (poses[i].equals(p)) {
-			//		return true;
-			//	}
-			//}
-			//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
-		} catch (java.lang.IndexOutOfBoundsException e) {
-			return false;
+	public static boolean isPositionOccupiedToTime(Position p, int time){
+		//boolean initialBlocked = (boxes[p.x][p.y] != (char)0 || walls[p.x][p.y]);
+		//if(t > timeController.size())
+		//	return initialBlocked;
+		//Move m;
+		//try {
+		//	m = timeController.get(t).get(p);
+		//	//Object[] poses = timeController.get(t).keySet().toArray();
+		//	//for (int i = 0; i < poses.length; i++) {
+		//	//	if (poses[i].equals(p)) {
+		//	//		return true;
+		//	//	}
+		//	//}
+		//	//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
+		//} catch (java.lang.IndexOutOfBoundsException e) {
+		//	//return false;
+		//	return initialBlocked;
+		//}
+		//if(m == null)
+		//	//return false;
+		//	return initialBlocked;
+		//return true;
+		
+		//if (p.equals(new Position(1,3))) {
+		//	System.err.println("1,3! time=" + time + ",fromList= " + boxPositionsFrom.get(0).size() + ", toList=" + boxPositionsTo.get(0).size());
+		//	System.err.println("fr=" + boxPositionsFrom.get(1) + ", t=" + boxPositionsTo.get(1));
+		//	
+		//	Position pos1 = time >= boxPositionsTo.get(0).size() ? boxPositionsTo.get(0).get(boxPositionsTo.get(0).size()-1) : boxPositionsTo.get(0).get(time);
+		//	Position pos2 = time >= boxPositionsFrom.get(0).size() ? boxPositionsFrom.get(0).get(boxPositionsFrom.get(0).size()-1) : boxPositionsFrom.get(0).get(time);
+		//	System.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
+		//	
+		//}
+		//
+		//if (p.equals(new Position(9,3))) {
+		//	System.err.println("9,3! time=" + time + ",fromList= " + agentPositionsFrom.get(0).size() + ", toList=" + agentPositionsTo.get(0).size());
+		//	//System.err.println("fr=" + agentPositionsFrom.get(0) + ", t=" + agentPositionsTo.get(0));
+		//	
+		//	Position pos1 = time > agentPositionsTo.get(0).size() ? agentPositionsTo.get(0).get(agentPositionsTo.get(0).size()-1) : agentPositionsTo.get(0).get(time);
+		//	Position pos2 = time > agentPositionsFrom.get(0).size() ? agentPositionsFrom.get(0).get(agentPositionsFrom.get(0).size()-1) : agentPositionsFrom.get(0).get(time);
+		//	System.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
+		//	
+		//}
+		
+		time++; //Offset to make it correct
+		
+		if (walls[p.x][p.y]) return true;
+		
+		//System.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+		
+		for (int i = 0; i < boxPositionsTo.size(); i++) {
+			try{
+				if (boxPositionsTo.get(i).get(time).equals(p)) {
+					//System.err.println("Return boxTo");
+					return true;
+				}
+				if (boxPositionsFrom.get(i).get(time).equals(p)) { 
+					//System.err.println("Return boxFrom");
+					return true;
+				}
+			} catch (java.lang.IndexOutOfBoundsException e) {
+				if (boxPositionsTo.get(i).get(boxPositionsTo.get(i).size()-1).equals(p)){
+					//System.err.println("Return OOB box");
+					return true;
+				}
+			}
 		}
-		if(m == null)
-			return false;
-		return true;
+		
+		for (int i = 0; i < agentPositionsTo.size(); i++) {
+			try{
+				if (agentPositionsTo.get(i).get(time).equals(p)) {
+					//System.err.println("Return agentTo");
+					return true;
+				}
+				
+				if (p.equals(agentPositionsFrom.get(i).get(time))) {
+					//System.err.println("Return agentTo");
+					return true;
+				}
+			} catch (java.lang.IndexOutOfBoundsException e) {
+				if (agentPositionsTo.get(i).get(agentPositionsTo.get(i).size()-1).equals(p)) {
+					//System.err.println("Return OOB agent");
+					return true;
+				}
+			}
+		}
+		//System.err.println("false");
+		return false;
 	}
 	
 	//Returns time until cell is free
 	//return -1 if the cell will never be free
 	public static int cellFreeIn(int currentTime, Position pos){
-	
+		if (walls[pos.x][pos.y]) return -1;
 		int time = 0;
 		for(int t = currentTime; t < timeController.size(); t++){
 			
-			if(isPositionOccupiedToTime(pos, t))
+			if(!isPositionOccupiedToTime(pos, t)) {
+				//System.err.println(pos + "is not occupied to " + t);
 				return time;
-			
+			}
 			time++;
 		}
 		return -1;
@@ -321,13 +383,21 @@ public class GameMap {
 		return (boxes[pos.x][pos.y] == (char)0 && walls[pos.x][pos.y] == false);
 	}
 	
+	public static Boolean isWall(Position pos) throws Exception {
+		if (pos.x == -1 || pos.y == -1) { 
+			error("GameMap.isCellFree: input position was -1!"); 
+		}
+		return walls[pos.x][pos.y];
+	}
+	
 	public static char BoxAt(Position pos) {
 		return (boxes[pos.x][pos.y]);
 	}
 	
 	public static char boxAtTime(Position pos, int time){
 		//returns the character of the box at a time position to a given time.
-		if (time == 0) return BoxAt(pos);
+		//if (time == 0) return BoxAt(pos);
+		time++; //Offset to make it correct
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
 			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
 			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
@@ -336,12 +406,19 @@ public class GameMap {
 					//System.err.println("Returning");
 					return boxCharacters.get(i);
 				}
-				if (pos.equals(boxPositionsFrom.get(i).get(time))) {
-					return boxCharacters.get(i);
-				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
-				return 0;
+				if (pos.equals(boxPositionsTo.get(i).get(boxPositionsTo.get(i).size()-1))) return boxCharacters.get(i);
 			}
+			
+			//try {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(time))) {
+			//		//System.err.println("Returning");
+			//		return boxCharacters.get(i);
+			//	}
+			//} catch (java.lang.IndexOutOfBoundsException e) {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(boxPositionsFrom.get(i).size()-1))) return boxCharacters.get(i);
+			//}
+			
 		}
 		return 0;
 	}
@@ -354,6 +431,34 @@ public class GameMap {
 		return (agents[pos.x][pos.y]);
 	}
 
+	public static char agentAtTime(Position pos, int time){
+		//returns the character of the agent at a time position to a given time.
+		time++; //Offset to make it correct
+		for (int i = 0; i < agentPositionsTo.size(); i++) {
+			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
+			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
+			try {
+				if (pos.equals(agentPositionsTo.get(i).get(time))) {
+					//System.err.println("Returning");
+					return agentCharacters.get(i);
+				}
+			} catch (java.lang.IndexOutOfBoundsException e) {
+				if (pos.equals(agentPositionsTo.get(i).get(agentPositionsTo.get(i).size()-1))) return agentCharacters.get(i);
+			}
+			
+			//try {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(time))) {
+			//		//System.err.println("Returning");
+			//		return boxCharacters.get(i);
+			//	}
+			//} catch (java.lang.IndexOutOfBoundsException e) {
+			//	if (pos.equals(boxPositionsFrom.get(i).get(boxPositionsFrom.get(i).size()-1))) return boxCharacters.get(i);
+			//}
+			
+		}
+		return 0;
+	}
+	
 	protected void read(BufferedReader serverMessages) throws Exception {
 		String line, color;
 
@@ -415,6 +520,13 @@ public class GameMap {
 				} else if ( '0' <= chr && chr <= '9' ) { // Agents
 					agents[i][curLine] = chr;
 					agentsAmount++;
+					ArrayList<Position> posList = new ArrayList<Position>();
+					ArrayList<Position> posList2 = new ArrayList<Position>();
+					posList.add(new Position(i,curLine));
+					posList2.add(new Position(i,curLine));
+					agentPositionsTo.add(posList);
+					agentPositionsFrom.add(posList2);
+					agentCharacters.add(chr);
 				} else if ( 'A' <= chr && chr <= 'Z' ) { // Boxes
 					boxes[i][curLine] = chr;
 					ArrayList<Position> posList = new ArrayList<Position>();
@@ -433,10 +545,10 @@ public class GameMap {
 			curLine++;
 			line = lines.get(curLine);
 		}
-		plans = new ArrayList<Stack<Plan>>();
+		plans = new ArrayList<ArrayList<Plan>>();
 		for(int i = 0; i < agentsAmount; i++)
 		{
-			plans.add(new Stack<Plan>());
+			plans.add(new ArrayList<Plan>());
 		}
 	}
 }

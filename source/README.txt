@@ -12,9 +12,10 @@ Current implementation goals :-
 			-> Add possibility for all types of jobs
 		-> Re-planner
 		-> Clean up (Nikolaj)
-		-> Fix move, boxMove (with time and static map-look)
-			-> Make the box-pathing work with no-ops.
 		-> Add jobs between box and goal (currently only obstructions between agent and box are added).
+		-> fix MAsimple4.lvl
+			-> Use storage
+		-> Start using new job planner.
 		
 	-> Main (plan-maker?)
 		-> Make plans until entire level is solved. Don't just create one.
@@ -23,15 +24,7 @@ Current implementation goals :-
 	-> GameMap
 		-> jobs
 			-> Heuristic for agents. Give most appropriate job to agent
-			-> Pre-condition, post-condition
 		-> Function to delete plans
-		-> Analyse map to figure out where to "store" agents and boxes if they are not needed (Samuel)
-		-> When printing plans, print them for each agent. Currently, it assumes each agent submits at most one plan. That is wrong, fix.
-		-> Update boxCharacters and boxPositions lists
-	
-	-> Conflicts
-		-> Conflict Resolution (Flowchart) (Carl)
-		-> Detection (how? Where? - Hard conflict detection while building plan)
 		
 ------------------How to run
 
