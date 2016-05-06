@@ -12,6 +12,7 @@ import java.util.List;
 import source.GameMap;
 import source.Agent;
 import source.Position;
+import source.Storage;
 
 
 public class WallE {
@@ -28,7 +29,10 @@ public class WallE {
 		//Create and read the map
 		GameMap theMap = GameMap.getInstance();
 		theMap.read(serverMessages);
-
+	
+		GameMap.storage = new Storage(theMap.walls, theMap.boxes);
+		GameMap.storage.printMap(0);
+		
 		//Create agents
 		ArrayList<Agent> agents = new ArrayList<Agent>();
 
@@ -48,6 +52,7 @@ public class WallE {
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
 		int max = 0;
+<<<<<<< HEAD
 		while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
 			max++;
 			for(int i = 0; i < agents.size(); i++) {
@@ -63,6 +68,30 @@ public class WallE {
 						//system.err.println("isEmpty");
 					}
 				}
+=======
+		//while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
+		//	max++;
+		//	final JobManager.Job job = GameMap.jobManager.getPriorityJob();
+		//	if(job != null){
+		//		System.err.println("Goal: " + job.goal);
+		//	}
+		//	for(Agent a : agents){
+		//		Plan agentPlan = a.createPlan(job);
+		//		if (!agentPlan.subplans.isEmpty()){
+		//			GameMap.addPlanToController(agentPlan);
+		//			
+		//			break;
+		//		}else{
+		//			System.err.println("isEmpty");
+		//		}
+		//	}
+		//}
+		
+		for (int i = 0; i < agents.size(); i++) {
+			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
+			if (!agentPlan.subplans.isEmpty()) {
+				GameMap.addPlanToController(agentPlan);
+>>>>>>> origin/master
 			}
 
 		}

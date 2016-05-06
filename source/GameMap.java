@@ -15,7 +15,7 @@ import source.Goal;
 import source.Position;
 import source.Plan;
 import source.TypeNum;
-
+import source.Storage;
 
 public class GameMap {
 	
@@ -45,6 +45,7 @@ public class GameMap {
 	public static ArrayList<ArrayList<Plan>> plans;
 	
 	public static JobManager jobManager = new JobManager();
+	public static Storage storage;
 	
 	private GameMap() {
 		this.agentsAmount = 0;
@@ -222,7 +223,12 @@ public class GameMap {
 		
 		if (walls[p.x][p.y]) return true;
 		
+<<<<<<< HEAD
 		////system.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+=======
+		//System.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+		//System.err.println("Asking for time" + time + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+>>>>>>> origin/master
 		
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
 			try{

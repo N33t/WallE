@@ -1,3 +1,5 @@
+package source;
+
 import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,7 +33,7 @@ public class Storage {
 	int timeLimit;
 	
 	//Constructor, creates a storage map of the map
-	public Storage(boolean walls[][]){
+	public Storage(boolean walls[][], char boxes[][]){
 		timeLimit = 0;
 		xSize = walls.length;
 		ySize = walls[0].length;
@@ -54,20 +56,30 @@ public class Storage {
 				//Top row
 				DiamondBlocked[0] = ((x - 1) < 0 || (y - 1) < 0 || walls[x-1][y-1]) ? true : false;
 				SquareBlocked[0] = ((y - 1) < 0 || walls[x][y-1]) ? true : false;
-				DiamondBlocked[1] = ((x + 1) > xSize || (y - 1) < 0 || walls[x+1][y-1]) ? true : false;
+				DiamondBlocked[1] = ((x + 1) >= xSize || (y - 1) < 0 || walls[x+1][y-1]) ? true : false;
+				
+				//System.err.println(x);
 				
 				//Middle row
 				SquareBlocked[1] = ((x - 1) < 0 || walls[x-1][y]) ? true : false;
-				SquareBlocked[2] = ((x + 1) > xSize || walls[x+1][y]) ? true : false;
+				SquareBlocked[2] = ((x + 1) >= xSize || walls[x+1][y]) ? true : false;
 				
 				//Bottom row
-				DiamondBlocked[2] = ((x - 1) < 0 || (y + 1) > ySize || walls[x-1][y+1]) ? true : false;
-				SquareBlocked[3] = ((y + 1) > ySize || walls[x][y+1]) ? true : false;
-				DiamondBlocked[3] = ((x + 1) > xSize || (y + 1) > ySize|| walls[x+1][y+1]) ? true : false;
+				DiamondBlocked[2] = ((x - 1) < 0 || (y + 1) >= ySize || walls[x-1][y+1]) ? true : false;
+				SquareBlocked[3] = ((y + 1) >= ySize || walls[x][y+1]) ? true : false;
+				DiamondBlocked[3] = ((x + 1) >= xSize || (y + 1) >= ySize|| walls[x+1][y+1]) ? true : false;
 				
 				
 				storageMap.get(0)[x][y] = analyse(DiamondBlocked, SquareBlocked);
 				
+			}
+		}
+		
+		for(int y = 0; y < ySize; y++){
+			for(int x = 0; x < xSize; x++){
+				if (boxes[x][y] != (char)0) {
+					storeBox(new Position(x,y), 0);
+				}
 			}
 		}
 	}
