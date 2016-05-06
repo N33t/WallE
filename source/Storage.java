@@ -263,6 +263,9 @@ public class Storage {
 	//Returns null if no storage could be found from position, returns a soft storage if no hard storage could be found
 	public Position getNearestStorage(Position p, int time){
 		
+		if(time > timeLimit)
+			addXMaps(time - timeLimit);
+		
 		if(p.x > xSize || p.x < 0 || p.y > ySize || p.y < 0)
 			System.err.println("Nearest storage request on out of bounds position");
 		

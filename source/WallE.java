@@ -67,6 +67,8 @@ public class WallE {
 						//system.err.println("isEmpty");
 					}
 				}
+			}
+		}
 		
 		//for (int i = 0; i < agents.size(); i++) {
 		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));

@@ -668,7 +668,7 @@ public class Agent {
 				//Move box to desired position
 					//Find nearest storage! Returns position
 					//Position storagePosition = new Position(10,4); //TODO: Use storage system
-					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time);
+					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time); //TODO Why -1? Fix!
 					//System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
 					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
