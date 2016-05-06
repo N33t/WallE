@@ -86,22 +86,6 @@ public class Agent {
 			this.explored = new ArrayList<Position>();
 		}
 		
-		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos) {
-			this.pos = pos;
-			this.moves = moves;
-			this.boxPos = boxPos;
-			this.time = 0;
-			this.explored = new ArrayList<Position>();
-		}
-		
-		public PosNode(Position pos, Position boxPos, ArrayList<Position> explored) {
-			this.pos = pos;
-			this.moves = new ArrayList<Type>();
-			this.boxPos = boxPos;
-			this.time = 0;
-			this.explored = explored;
-		}
-		
 		public PosNode(Position pos, ArrayList<Type> moves, Position boxPos, ArrayList<Position> explored, ArrayList<Position> boxJobs, ArrayList<Position> path, int time, ArrayList<Position> agentJobs) {
 			this.pos = pos;
 			this.moves = moves;
@@ -121,14 +105,6 @@ public class Agent {
 			this.explored = explored;
 			this.boxJobs = new ArrayList<Position>();
 			this.agentJobs = new ArrayList<Position>();
-		}
-		
-		public PosNode(Position pos, Position boxPos) {
-			this.pos = pos;
-			this.moves = new ArrayList<Type>();
-			this.boxPos = boxPos;
-			this.time = 0;
-			this.explored = new ArrayList<Position>();
 		}
 		
 		public PosNode(Position pos) {
@@ -172,24 +148,6 @@ public class Agent {
 			this.explored = explored;
 		}
 		
-		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos, int time) {
-			this.pos = pos;
-			this.moves = moves;
-			this.boxPos = boxPos;
-			this.goalPos = goalPos;
-			this.time = time;
-			this.explored = new ArrayList<Position>();
-		}
-		
-		public PosBoxNode(Position pos, ArrayList<Type> moves, Position boxPos, Position goalPos) {
-			this.pos = pos;
-			this.moves = moves;
-			this.boxPos = boxPos;
-			this.goalPos = goalPos;
-			this.time = 0;
-			this.explored = new ArrayList<Position>();
-		}
-		
 		public PosBoxNode(Position pos, Position boxPos, Position goalPos, int time) {
 			this.pos = pos;
 			this.moves = new ArrayList<Type>();
@@ -204,14 +162,6 @@ public class Agent {
 			this.moves = new ArrayList<Type>();
 			this.boxPos = boxPos;
 			this.goalPos = goalPos;
-			this.time = 0;
-			this.explored = new ArrayList<Position>();
-		}
-		
-		public PosBoxNode(Position pos, Position boxPos) {
-			this.pos = pos;
-			this.moves = new ArrayList<Type>();
-			this.boxPos = boxPos;
 			this.time = 0;
 			this.explored = new ArrayList<Position>();
 		}
