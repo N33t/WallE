@@ -669,7 +669,7 @@ public class Agent {
 					//Find nearest storage! Returns position
 					//Position storagePosition = new Position(10,4); //TODO: Use storage system
 					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time);
-					System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
+					//System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
 					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());
