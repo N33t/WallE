@@ -24,7 +24,7 @@ public class WallE {
 	public static void main( String[] args ) throws Exception {
 		BufferedReader serverMessages = new BufferedReader( new InputStreamReader( System.in ) );
 		// Use stderr to print to console
-		System.err.println( "WallE initializing." );
+		//system.err.println( "WallE initializing." );
 
 		//Create and read the map
 		GameMap theMap = GameMap.getInstance();
@@ -46,43 +46,41 @@ public class WallE {
 				}
 			}
 		}
-		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
-		System.err.println("We have " + agents.size() + " agents.");
+		//system.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
+		//system.err.println("We have " + agents.size() + " agents.");
 		//While loop to distribute jobs to agents
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
 		int max = 0;
-		//while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
-		//	max++;
-		//	final JobManager.Job job = GameMap.jobManager.getPriorityJob();
-		//	if(job != null){
-		//		System.err.println("Goal: " + job.goal);
-		//	}
-		//	for(Agent a : agents){
-		//		Plan agentPlan = a.createPlan(job);
-		//		if (!agentPlan.subplans.isEmpty()){
-		//			GameMap.addPlanToController(agentPlan);
-		//			
-		//			break;
-		//		}else{
-		//			System.err.println("isEmpty");
-		//		}
+		while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
+			max++;
+			for(int i = 0; i < agents.size(); i++) {
+				JobManager.Job job = GameMap.jobManager.getPriorityJob(i);
+					if(job != null){
+					System.err.println("ID: " + i + " Goal: " + job.goal + " Type:" + job.jobType);
+					Plan agentPlan = agents.get(i).createPlan(job);
+					if (!agentPlan.subplans.isEmpty()){
+						GameMap.addPlanToController(agentPlan);
+						
+						break;
+					}else{
+						//system.err.println("isEmpty");
+					}
+				}
+		
+		//for (int i = 0; i < agents.size(); i++) {
+		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
+		//	if (!agentPlan.subplans.isEmpty()) {
+		//		GameMap.addPlanToController(agentPlan);
 		//	}
 		//}
 		
-		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
-			if (!agentPlan.subplans.isEmpty()) {
-				GameMap.addPlanToController(agentPlan);
-			}
-		}
-		
-		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
-			if (!agentPlan.subplans.isEmpty()) {
-				GameMap.addPlanToController(agentPlan);
-			}
-		}
+		//for (int i = 0; i < agents.size(); i++) {
+		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
+		//	if (!agentPlan.subplans.isEmpty()) {
+		//		GameMap.addPlanToController(agentPlan);
+		//	}
+		//}
 
 		GameMap.printMasterPlan();
 		//System.out.println( "[Move(E)]" );
