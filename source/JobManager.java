@@ -29,17 +29,17 @@ public class JobManager {
 		//Correct color
 		//System.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
 		boolean color = job.color == GameMap.colors.get((char)(agentID + '0'));
-		System.err.println("preCond.size() = " + job.preConds.size());
+		//System.err.println("preCond.size() = " + job.preConds.size());
 		for (int i = 0; i < job.preConds.size(); i++) {
 			PreCondition preC = job.preConds.get(i);
 			
 			//Jobs
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				
-				if(preC.jobs.size() > 0){
-					System.err.println("preC.size() = " + preC.jobs.size() + 
-							"\nJobType = " + preC.jobs.get(j).getJobType());
-				}
+				//if(preC.jobs.size() > 0){
+				//	System.err.println("preC.size() = " + preC.jobs.size() + 
+				//			"\nJobType = " + preC.jobs.get(j).getJobType());
+				//}
 				
 				if (preC.agentID == agentID) {
 					//System.err.println("Going to for loop");

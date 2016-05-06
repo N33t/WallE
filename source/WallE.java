@@ -12,6 +12,7 @@ import java.util.List;
 import source.GameMap;
 import source.Agent;
 import source.Position;
+import source.Storage;
 
 
 public class WallE {
@@ -28,7 +29,10 @@ public class WallE {
 		//Create and read the map
 		GameMap theMap = GameMap.getInstance();
 		theMap.read(serverMessages);
-
+	
+		GameMap.storage = new Storage(theMap.walls, theMap.boxes);
+		GameMap.storage.printMap(0);
+		
 		//Create agents
 		ArrayList<Agent> agents = new ArrayList<Agent>();
 
@@ -47,9 +51,7 @@ public class WallE {
 		//While loop to distribute jobs to agents
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
-//		for (int i = 0; i < agents.size(); i++) {
-//			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
-		//int max = 0;
+		int max = 0;
 		//while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
 		//	max++;
 		//	final JobManager.Job job = GameMap.jobManager.getPriorityJob();
