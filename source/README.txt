@@ -10,21 +10,8 @@ Current implementation goals :-
 	-> Plan Maker
 		-> More intelligent (Nikolaj)
 			-> Add possibility for all types of jobs
-		-> Re-planner
-		-> Clean up (Nikolaj)
 		-> Add jobs between box and goal (currently only obstructions between agent and box are added).
-		-> fix MAsimple4.lvl
-			-> Use storage
-		-> Start using new job planner.
-		
-	-> Main (plan-maker?)
-		-> Make plans until entire level is solved. Don't just create one.
-		-> Final plan-evaluation. Evaluate all plans (penalty points for some bad plans?) (Djoni)
-		
-	-> GameMap
-		-> jobs
-			-> Heuristic for agents. Give most appropriate job to agent
-		-> Function to delete plans
+		-> Start using the new re-planner.
 		
 ------------------How to run
 
