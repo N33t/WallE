@@ -694,6 +694,14 @@ public class Agent {
 					}
 					
 				//Move box to desired position
+<<<<<<< HEAD
+					//Find nearest storage! Returns position
+					//Position storagePosition = new Position(10,4); //TODO: Use storage system
+					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time, this.id); //TODO Why -1? Fix!
+					//System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
+					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
+					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
+=======
 					//Find nearest storage					
 					Position storagePosition = quickStoreBox(job.path, job.jobPos, endNode.time);
 					if (storagePosition == null) {
@@ -707,6 +715,7 @@ public class Agent {
 						return thePlan;
 					}
 					
+>>>>>>> origin/master
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 					
@@ -752,7 +761,10 @@ public class Agent {
 				//Agent is in the way and needs to move out of the way
 				//Position desiredPosition;
 				//Find our desired position
-				Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime);
+					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
+					//int startTime; //Fix
+					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime, this.id);
+
 				if (storagePosition == null) {
 					storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 				}
@@ -764,6 +776,7 @@ public class Agent {
 						return thePlan;
 					}
 					
+>>>>>>> origin/master
 				//Path to the position
 					TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 					Position agentEndPosition = new Position(-1,-1);
