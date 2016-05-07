@@ -112,10 +112,11 @@ public class Storage {
 		
 		storageMap.get(time)[pos.x][pos.y] = boxChar;
 		
-		if(analyseSpot(pos, time) != hallChar){
+		int t = 0;
+		
+		if(analyzeS != hallChar){
 			char[][] storageChanges = analyseSurrounding(pos, time);
 			applyChanges(pos, storageChanges, time);
-			
 			t = time + 1;
 			if(time < timeLimit){
 				while( t <= timeLimit ){
@@ -328,7 +329,11 @@ public class Storage {
     }
 	
 	private void explorePosition(node n, int x, int y, int time){
-		if(storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hallChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == softChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hardChar && !GameMap.isPositionOccupiedToTime(pos, time)){
+		
+		if((storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hallChar || 
+				storageMap.get(n.t)[n.p.x + x][n.p.y + y] == softChar || 
+				storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hardChar) && 
+				(!GameMap.isPositionOccupiedToTime(n.p, time))){
         	if (!seen[n.p.x + x][n.p.y + y]) {
         		if(n.t + 1 < timeLimit) // To add one to the time the time needs to be below the time limit
         			q.add(new node(new Position(n.p.x + x, n.p.y + y), n.t + 1));
