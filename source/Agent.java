@@ -710,10 +710,15 @@ public class Agent {
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 					
-					boxFrontier.add(new PosBoxNode(agentEndPosition, job.jobPos, storagePosition));
+					boxFrontier.add(new PosBoxNode(agentEndPosition, job.jobPos, storagePosition, startTime));
 					//System.err.println(storagePosition);
+					PosBoxNode selfOnStorageNode = new PosBoxNode(agentEndPosition, job.jobPos, storagePosition, startTime);
 					while (!boxFrontier.isEmpty()) {
 						PosBoxNode node = boxFrontier.pollFirst();
+						if (node.pos.equals(storagePosition)) {
+							//We found a way to put the agent on the storagePosition. Save it.
+							selfOnStorageNode = node;
+						}
 						if (node.boxPos.equals(storagePosition)) { //On goal?
 							resultBoxMoves = node.moves;
 							position = node.pos;
@@ -723,7 +728,11 @@ public class Agent {
 					}
 					
 					if (resultBoxMoves.isEmpty() && resultBoxMoves.isEmpty()) {
-						//system.err.println("Can't move box to goal!");
+						System.err.println("JobType b: Can't move box to storage!");
+						if (!selfOnStorageNode.moves.isEmpty()) {
+							System.err.println("But I can move myself there. Doing that");
+							resultBoxMoves = selfOnStorageNode.moves;
+						}
 					}
 					
 				//Build plan
