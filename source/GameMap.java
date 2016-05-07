@@ -396,6 +396,20 @@ public class GameMap {
 		return (boxes[pos.x][pos.y]);
 	}
 	
+	    
+    public static Position agentPositionAtTime(int ID, int time) throws Exception {
+        time++;
+        
+        if (ID >= agentPositionsTo.size()) {
+            error("GameMap.agentPositionAtTime failed. agent ID " + ID + " does not exist");    
+        }
+        try {
+            return agentPositionsTo.get(ID).get(time);
+        } catch (java.lang.IndexOutOfBoundsException e) {
+            return agentPositionsTo.get(ID).get(agentPositionsTo.get(ID).size()-1);
+        }
+    }
+	
 	public static char boxAtTime(Position pos, int time){
 		//returns the character of the box at a time position to a given time.
 		//if (time == 0) return BoxAt(pos);
