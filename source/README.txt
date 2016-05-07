@@ -10,7 +10,10 @@ Current implementation goals :-
 	-> Plan Maker
 		-> More intelligent (Nikolaj)
 			-> Add possibility for all types of jobs
+		-> Add jobs between box and goal (currently only obstructions between agent and box are added).
 		-> Start using the new re-planner.
+		-> If trying to solve b-type goal, search for boxes blocking the path and create jobs for those
+		-> Same with a-jobs.
 		-> in b-type job: If agent is moving box away from goal, find appropriate goal and set its status to unsolved.
 		
 		
