@@ -269,14 +269,29 @@ public class GameMap {
 	//return -1 if the cell will never be free
 	public static int cellFreeIn(int currentTime, Position pos){
 		if (walls[pos.x][pos.y]) return -1;
-		int time = 0;
-		for(int t = currentTime; t < timeController.size(); t++){
-			
-			if(!isPositionOccupiedToTime(pos, t)) {
-				////system.err.println(pos + "is not occupied to " + t);
-				return time;
+		//int time = 0;
+		//for(int t = currentTime; t < timeController.size(); t++){
+		//	
+		//	if(!isPositionOccupiedToTime(pos, t)) {
+		//		////system.err.println(pos + "is not occupied to " + t);
+		//		return time;
+		//	}
+		//	time++;
+		//}
+		//return -1;
+		
+		int maxTime = 0;
+		for (int i = 0; i < boxPositionsTo.size(); i++) {
+			maxTime = maxTime < boxPositionsTo.get(i).size() ? boxPositionsTo.get(i).size() : maxTime;
+		}
+		for (int i = 0; i < agentPositionsTo.size(); i++) {
+			maxTime = maxTime < agentPositionsTo.get(i).size() ? agentPositionsTo.get(i).size() : maxTime;
+		}
+		int returnValue = -1;
+		for (int i = currentTime; i < maxTime; i++) {
+			if (!isPositionOccupiedToTime(pos, i)) {
+				return i-currentTime;
 			}
-			time++;
 		}
 		return -1;
 	}

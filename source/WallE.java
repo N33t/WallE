@@ -53,10 +53,10 @@ public class WallE {
 		int lastAgentToSolveAJob = 0;
 		int max = 0;
 		while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
-			max++;
+			//max++;
 			for(int i = 0; i < agents.size(); i++) {
 				JobManager.Job job = GameMap.jobManager.getPriorityJob(i);
-					if(job != null){
+				if(job != null){
 					System.err.println("ID: " + i + " Goal: " + job.goal + " Type:" + job.jobType);
 					Plan agentPlan = agents.get(i).createPlan(job);
 					if (!agentPlan.subplans.isEmpty()){
@@ -64,11 +64,15 @@ public class WallE {
 						
 						break;
 					}else{
-						//system.err.println("isEmpty");
+						//System.err.println("isEmpty");
 					}
+				} else {
+					//System.err.println("Null job");
 				}
 			}
 		}
+		
+		//System.err.println("Done, jobs= " + GameMap.jobManager.jobs.size() + ", goals?" + GameMap.jobManager.goalsFulfilled());
 		
 		//for (int i = 0; i < agents.size(); i++) {
 		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
