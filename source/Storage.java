@@ -108,9 +108,11 @@ public class Storage {
 		if(time > timeLimit)
 			addXMaps(time - timeLimit);
 		
-		storageMap.get(time)[pos.x][pos.y] = boxChar;
-		char[][] storageChanges = analyseSurrounding(pos, time);
-		applyChanges(pos, storageChanges, time);
+		if(analyseSpot(pos, time) != hallChar){
+			storageMap.get(time)[pos.x][pos.y] = boxChar;
+			char[][] storageChanges = analyseSurrounding(pos, time);
+			applyChanges(pos, storageChanges, time);
+		}
 		
 		int t = time + 1;
 		if(time < timeLimit){
