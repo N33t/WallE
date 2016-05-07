@@ -104,20 +104,26 @@ public class Storage {
 	//Reserves a storage spot until box is placed and updates storage map to the time
 	//Also creates new copies of the latest map up until the time the box is stored
 	public void storeBox(Position pos, int time){
+		char analyzeS = analyseSpot(pos, time);
+		storageMap.get(time)[pos.x][pos.y] = boxChar;
 		
 		if(time > timeLimit)
 			addXMaps(time - timeLimit);
 		
 		storageMap.get(time)[pos.x][pos.y] = boxChar;
-		char[][] storageChanges = analyseSurrounding(pos, time);
-		applyChanges(pos, storageChanges, time);
 		
-		int t = time + 1;
-		if(time < timeLimit){
-			while( t <= timeLimit ){
-				storageMap.get(t)[pos.x][pos.y] = boxChar;
-				applyChanges(pos, storageChanges, t);
-				t++;
+		int t = 0;
+		
+		if(analyzeS != hallChar){
+			char[][] storageChanges = analyseSurrounding(pos, time);
+			applyChanges(pos, storageChanges, time);
+			t = time + 1;
+			if(time < timeLimit){
+				while( t <= timeLimit ){
+					storageMap.get(t)[pos.x][pos.y] = boxChar;
+					applyChanges(pos, storageChanges, t);
+					t++;
+				}
 			}
 		}
 		
@@ -323,7 +329,11 @@ public class Storage {
     }
 	
 	private void explorePosition(node n, int x, int y, int time){
-		if(storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hallChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == softChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hardChar){
+		
+		if((storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hallChar || 
+				storageMap.get(n.t)[n.p.x + x][n.p.y + y] == softChar || 
+				storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hardChar) && 
+				(!GameMap.isPositionOccupiedToTime(n.p, time))){
         	if (!seen[n.p.x + x][n.p.y + y]) {
         		if(n.t + 1 < timeLimit) // To add one to the time the time needs to be below the time limit
         			q.add(new node(new Position(n.p.x + x, n.p.y + y), n.t + 1));
