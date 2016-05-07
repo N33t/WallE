@@ -640,10 +640,9 @@ public class Agent {
 						}
 						
 					//Create list of moves for creating plan. Also create bounds
-						//thePlan = buildPlan(resultInitialMoves, resultBoxMoves);
 						thePlan = buildPlan(resultMoves, resultBoxMoves); //actualMoves
-					//system.err.println("Returning goal-plan for agent " + id);
-					//system.err.println("pos = " + position + ", time = " + time);
+					System.err.println("Returning goal-plan for agent " + id);
+					//System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
 					GameMap.storage.destoreBox(boxPosition, endMoveTime);
 					GameMap.storage.storeBox(job.jobPos, time);
@@ -695,13 +694,12 @@ public class Agent {
 					}
 					
 				//Move box to desired position
-					//Find nearest storage! Returns position
-					//Position storagePosition = new Position(10,4); //TODO: Use storage system
-					//Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time);
+					//Find nearest storage					
 					Position storagePosition = quickStoreBox(job.path, job.jobPos, endNode.time);
-					//System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
-					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
-					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
+					if (storagePosition == null) {
+						storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
+					}
+					
 					//Do initial
 					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, endNode.time);
 					if (initialBox.preC != null) {
@@ -743,13 +741,12 @@ public class Agent {
 					
 			} else if (job.jobType == 'a') {
 				//Agent is in the way and needs to move out of the way
-				//error("jobType a not supported yet. Storage system needed.");
 				//Position desiredPosition;
 				//Find our desired position
-					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
-					//int startTime; //Fix
-					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime);
-					//Position storagePosition = new Position(4,2);//GameMap.storage.getNearestStorage(job.jobPos, startTime);
+				Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime);
+				if (storagePosition == null) {
+					storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
+				}
 					
 				//Do initial
 					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, startTime);
