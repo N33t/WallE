@@ -490,6 +490,7 @@ public class Agent {
 								//system.err.println("job: g, agent pathed initial to box");
 								resultInitialMoves = node.moves;
 								agentInitialEndPosition = node.pos;
+								node.path.add(node.pos);
 								endNode = node;
 								break;
 							}
