@@ -301,8 +301,8 @@ public class Storage {
 
         while (!q.isEmpty()) {
             node n = q.remove();
-            System.err.println("Position of n: " + n.p.toString());
-            System.err.println(n.p.toString() + " to time " + n.t);
+            //System.err.println("Position of n: " + n.p.toString());
+            //System.err.println(n.p.toString() + " to time " + n.t);
             if(storageMap.get(n.t)[n.p.x][n.p.y] == hardChar){
             	System.err.println("Hard storage found at " + "(" + n.p.x + ", " + n.p.y + ") to time - " + n.t);
             	return n.p;

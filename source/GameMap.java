@@ -328,7 +328,7 @@ public class GameMap {
 				System.out.println(cmd);
 				System.out.flush();
 			}
-			if(count >= agentsAmount || time >= 50)
+			if(count >= agentsAmount || time >= 50000)
 					done = true;
 			time++;
 			for(int t = 0; t < agentsAmount; t++)

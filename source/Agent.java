@@ -96,8 +96,10 @@ public class Agent {
 			this.boxPos = boxPos;
 			this.time = time;
 			this.explored = explored;
-			this.boxJobs = boxJobs;
-			this.agentJobs = agentJobs;
+			this.boxJobs = new ArrayList<Position>();
+			this.boxJobs.addAll(boxJobs);
+			this.agentJobs = new ArrayList<Position>();
+			this.agentJobs.addAll(agentJobs);
 			this.path = path;
 		}
 		
@@ -233,7 +235,8 @@ public class Agent {
 	private boolean isLegalPull(Position agentPos, Position boxPos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(agentPos, dir);
 		//return GameMap.isCellFree(newPos) && !boxPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
-		return !boxPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
+		//System.err.println("LegalPull" + newPos + ", occ=" + GameMap.isPositionOccupiedToTime(newPos, time) + "agentAtTime = " + GameMap.agentAtTime(newPos, time));
+		return !boxPos.equals(newPos) && (!GameMap.isPositionOccupiedToTime(newPos, time) || GameMap.agentAtTime(newPos, time) == '0' + id);
 	}
 	
 	private TreeSet<PosNode> makeMove(TreeSet<PosNode> frontier, PosNode node, char dir) throws Exception {
@@ -294,7 +297,7 @@ public class Agent {
 		Position newPos = newPosInDirection(node.pos, dir);
 		tmp2.addAll(node.explored);
 		tmp2.add(newPos);
-		if (isLegalPull(node.pos, node.boxPos, dir, time) && !node.explored.contains(newPos)) {
+		if (isLegalPull(node.pos, node.boxPos, dir, node.time) && !node.explored.contains(newPos)) {
 			tmp.addAll(node.moves);
 			char boxDir = positionsToDir(node.pos, node.boxPos);
 			tmp.add(new Type(node.pos, newPos, node.boxPos, node.pos, TypeNum.PUL, dir, boxDir));
@@ -461,18 +464,22 @@ public class Agent {
 		}
 	}
 	
-	private InitialExploreNode initialRouting(Position position, Position endPosition, int startTime) throws Exception {
+	private InitialExploreNode initialRouting(Position startPosition, Position endPosition, int startTime) throws Exception {
 		InitialExploreNode returnNode = new InitialExploreNode();
 		TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 		Position agentInitialEndPosition = new Position(-1,-1);
 		ArrayList<Type> resultInitialMoves = new ArrayList<Type>();
 		ArrayList<Position> ex = new ArrayList<Position>();
-		ex.add(position);
-		frontier.add(new PosNode(position, endPosition, ex, startTime));
+		ex.add(startPosition);
+		frontier.add(new PosNode(startPosition, endPosition, ex, startTime));
 		PosNode endNode = new PosNode(new Position(-1,-1));
+		
+		//System.err.println("StartPos = " + startPosition);
+		//System.err.println("endPos = " + endPosition);
+		
 		while (!frontier.isEmpty()) {
 			PosNode node = frontier.pollFirst();
-			//System.err.println("Check node: " + node.pos);
+			//System.err.println("Check node: " + node.pos + ", node.agentJobs = " + node.agentJobs);
 			if (node.pos.nextTo(endPosition)) { //Next to box?
 				//system.err.println("job: g, agent pathed initial to box");
 				resultInitialMoves = node.moves;
@@ -483,26 +490,29 @@ public class Agent {
 			}
 			////system.err.println((GameMap.boxes[node.pos.x][node.pos.y] == 0));
 			////system.err.println("Box on " + node.pos + " at time " + time + "?" + (char) (GameMap.boxAtTime(node.pos, node.time)));
-			if (GameMap.boxAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && !node.pos.equals(position)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
+			if (GameMap.boxAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && !node.pos.equals(startPosition)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
 				////system.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
 				////system.err.println("box-block for job found");
 				node.boxJobs.add(node.pos);
 			}
 			//System.err.println("time=" + node.time + " agentAtTime=" + GameMap.agentAtTime(node.pos, node.time) + ", cellFreeIn = " + GameMap.cellFreeIn(node.time, node.pos));
-			if (GameMap.agentAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && GameMap.agentAtTime(node.pos, node.time) != '0' + id && !node.pos.equals(position)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
+			if (GameMap.agentAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && GameMap.agentAtTime(node.pos, node.time) != '0' + id && !node.pos.equals(startPosition)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
 				////system.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
-				////system.err.println("agent-block for job found");
+				//System.err.println("agent-block for job found" + node.pos);
 				node.agentJobs.add(node.pos);
 			}
 			frontier = initialExplore(frontier, node);
 		}
-		////system.err.println("length of boxJobs=" + endNode.boxJobs.size());
+		//System.err.println("length of boxJobs=" + endNode.boxJobs.size());
 		
 		if ((!endNode.boxJobs.isEmpty() || !endNode.agentJobs.isEmpty()) && agentInitialEndPosition != new Position(-1,-1)) { // 
-			//system.err.println("Found path to box, but it is blocked. Creating jobs!");
+			System.err.println("Found path to box, but it is blocked. Creating jobs!");
+			//System.err.println("length of boxJobs=" + endNode.boxJobs.size());
+			//System.err.println("agentJobs=" + endNode.agentJobs);
+			//System.err.println("Mypath = " + endNode.path);
 			//Create Precondition.
 			ArrayList<JobManager.Job> preCJobs = new ArrayList<JobManager.Job>();
-			System.err.println("Creating jobs, path = " + endNode.path + ", agentInitialEndPosition= " + agentInitialEndPosition);
+			//System.err.println("Creating jobs, path = " + endNode.path + ", agentInitialEndPosition= " + agentInitialEndPosition);
 			for (int i = 0; i < endNode.boxJobs.size(); i++) {
 				//JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxes[endNode.boxJobs.get(i).x][endNode.boxJobs.get(i).y]), endNode.path);
 				JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxAtTime(endNode.boxJobs.get(i), endNode.time)), endNode.path);
@@ -536,6 +546,8 @@ public class Agent {
 			Boolean boxFound = false;
 			
 			String preCColor = "";
+			
+			System.err.println("Starting Job. My position = " + position);
 			
 			if (job.jobType == 'g') {
 				//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
@@ -604,23 +616,21 @@ public class Agent {
 							error("Can't move to box!");
 						}
 						
-					//Find path that moves box on top of goal. (We assume we are next to box initially).
 					//Can we path from box to goal?
 						InitialExploreNode initialBox = initialRouting(boxPosition, job.jobPos, endMoveTime);
 						if (initialBox.preC != null) {
 							job.preConds.add(initialBox.preC);
 							return thePlan;
 						}
-					//TODO: Do the same "initial path" thing to figure out if we need to create jobs.
+					//Find path that moves box on top of goal. (We assume we are next to box initially).
 						TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;
 						ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 						
 						boxFrontier.add(new PosBoxNode(agentEndPosition, boxPosition, job.jobPos, endMoveTime));
 						
-						
-						
 						while (!boxFrontier.isEmpty()) {
 							PosBoxNode node = boxFrontier.pollFirst();
+							System.err.println("GoalChecking node " + node.pos);
 							if (node.boxPos.equals(job.jobPos)) { //On goal?
 								resultBoxMoves = node.moves;
 								position = node.pos;
@@ -644,8 +654,8 @@ public class Agent {
 					System.err.println("Returning goal-plan for agent " + id);
 					//System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
-					GameMap.storage.destoreBox(boxPosition, endMoveTime);
-					GameMap.storage.storeBox(job.jobPos, time);
+//					GameMap.storage.destoreBox(boxPosition, endMoveTime);
+//					GameMap.storage.storeBox(job.jobPos, time);
 					
 				} else {
 					//job.preConds(0).isSolvable = false;
@@ -693,21 +703,16 @@ public class Agent {
 						//system.err.println("Can't move to box!");
 					}
 					
+				System.err.println("pathed to box.");// EndPos = " + agentEndPosition + ", path = " + endNode.path);
+					
 				//Move box to desired position
-<<<<<<< HEAD
-					//Find nearest storage! Returns position
-					//Position storagePosition = new Position(10,4); //TODO: Use storage system
-					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time, this.id); //TODO Why -1? Fix!
-					//System.err.println("endPos = " + agentEndPosition + ", boxPos " + job.jobPos);
-					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
-					//Position storagePosition = getNearestStorage(agentEndPosition, time+resultMoves.size());
-=======
 					//Find nearest storage					
-					Position storagePosition = quickStoreBox(job.path, job.jobPos, endNode.time);
+					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, endNode.time, id);
 					if (storagePosition == null) {
+						System.err.println("Backup storage");
 						storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					}
-					
+	
 					//Do initial
 					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, endNode.time);
 					if (initialBox.preC != null) {
@@ -715,7 +720,6 @@ public class Agent {
 						return thePlan;
 					}
 					
->>>>>>> origin/master
 					TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());
 					ArrayList<Type> resultBoxMoves = new ArrayList<Type>();
 					
@@ -724,8 +728,10 @@ public class Agent {
 					PosBoxNode selfOnStorageNode = new PosBoxNode(agentEndPosition, job.jobPos, storagePosition, startTime);
 					while (!boxFrontier.isEmpty()) {
 						PosBoxNode node = boxFrontier.pollFirst();
+						//System.err.println("checking boxNode. " + node.pos);
 						if (node.pos.equals(storagePosition)) {
 							//We found a way to put the agent on the storagePosition. Save it.
+							//System.err.println("Saving temp node");
 							selfOnStorageNode = node;
 						}
 						if (node.boxPos.equals(storagePosition)) { //On goal?
@@ -738,6 +744,7 @@ public class Agent {
 					
 					if (resultBoxMoves.isEmpty() && resultBoxMoves.isEmpty()) {
 						System.err.println("JobType b: Can't move box to storage!");
+						//System.err.println("solfOnStorageNode.moves = " + selfOnStorageNode.moves);
 						if (!selfOnStorageNode.moves.isEmpty()) {
 							System.err.println("But I can move myself there. Doing that");
 							resultBoxMoves = selfOnStorageNode.moves;
@@ -754,8 +761,8 @@ public class Agent {
 						System.err.println("boxMove plan destroys goal. Update relevant job. FIX!");
 					}
 					
-					GameMap.storage.destoreBox(job.jobPos, endNode.time);
-					GameMap.storage.storeBox(storagePosition, time);
+//					GameMap.storage.destoreBox(job.jobPos, endNode.time);
+//					GameMap.storage.storeBox(storagePosition, time);
 					
 			} else if (job.jobType == 'a') {
 				//Agent is in the way and needs to move out of the way
@@ -764,10 +771,9 @@ public class Agent {
 					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					//int startTime; //Fix
 					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime, this.id);
-
-				if (storagePosition == null) {
-					storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
-				}
+					if (storagePosition == null) {
+						storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
+					}
 					
 				//Do initial
 					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, startTime);
@@ -776,7 +782,6 @@ public class Agent {
 						return thePlan;
 					}
 					
->>>>>>> origin/master
 				//Path to the position
 					TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 					Position agentEndPosition = new Position(-1,-1);
