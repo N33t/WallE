@@ -468,7 +468,7 @@ public class Agent {
 		}
 	}
 	
-	private InitialExploreNode initialRouting(Position startPosition, Position endPosition, JobManager.Job parentJob) throws Exception {
+	private InitialExploreNode initialRouting(Position startPosition, Position endPosition, JobManager.Job parentJob, boolean box) throws Exception {
 		int startTime = Integer.MAX_VALUE;
 		InitialExploreNode returnNode = new InitialExploreNode();
 		TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
@@ -479,6 +479,16 @@ public class Agent {
 		frontier.add(new PosNode(startPosition, endPosition, ex, startTime));
 		PosNode endNode = new PosNode(new Position(-1,-1));
 		
+		//int obstacleMap[MAX_COLUMN][MAX_ROW];
+		//for (int i = 0; i < MAX_COLUMN; i++) {
+		//	for (int j = 0; j < MAX_ROW; j++) {
+		//		if (GameMap.walls[i][j]) {
+		//			obstacleMap[i][j] = -1;
+		//		} else {
+		//			obstacleMap[i][j] = Integer.MAX_VALUE;
+		//		}
+		//	}
+		//}
 		
 		
 		//System.err.println("StartPos = " + startPosition);
@@ -486,36 +496,33 @@ public class Agent {
 		
 		while (!frontier.isEmpty()) {
 			PosNode node = frontier.pollFirst();
-			//System.err.println("Check node: " + node.pos + ", node.agentJobs = " + node.agentJobs);
-			if (node.pos.nextTo(endPosition)) { //Next to box?
-				//system.err.println("job: g, agent pathed initial to box");
-				resultInitialMoves = node.moves;
-				agentInitialEndPosition = node.pos;
-				node.path.add(node.pos);
-				endNode = node;
-				break;
-			}
-			////system.err.println((GameMap.boxes[node.pos.x][node.pos.y] == 0));
-			//System.err.println("Box on " + node.pos + " at time " + time + "?" + (char) (GameMap.boxAtTime(node.pos, node.time)));
 			if (GameMap.boxAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && !node.pos.equals(startPosition)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
-				////system.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
-				////system.err.println("box-block for job found");
 				node.boxJobs.add(node.pos);
 			}
-			//System.err.println("time=" + node.time + " agentAtTime=" + GameMap.agentAtTime(node.pos, node.time) + ", cellFreeIn = " + GameMap.cellFreeIn(node.time, node.pos));
-			
 			
 			if (GameMap.agentAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && GameMap.agentAtTime(node.pos, node.time) != '0' + id && !node.pos.equals(startPosition)) {
-				////system.err.println("cellFree= " + GameMap.cellFreeIn(0, node.pos));
-				//System.err.println("agent-block for job found" + node.pos);
 				node.agentJobs.add(node.pos);
 			}
+			
+			if ((node.pos.nextTo(endPosition) && !box) || (node.pos.equals(endPosition) && box)) { //Next to box or box on goal?
+				//system.err.println("job: g, agent pathed initial to box");
+				if (endNode.pos.equals(new Position(-1,-1)) || node.boxJobs.size() + node.agentJobs.size() < endNode.boxJobs.size() + endNode.agentJobs.size()) {
+					resultInitialMoves = node.moves;
+					agentInitialEndPosition = node.pos;
+					node.path.add(node.pos);
+					endNode = node;
+					//System.err.println("node length=" + node.boxJobs.size() + "," + node.agentJobs.size());
+					//System.err.println("EndNode length=" + endNode.boxJobs.size() + "," + endNode.agentJobs.size());
+				}
+				//break;
+			}
+			
 			frontier = initialExplore(frontier, node);
 		}
-		//System.err.println("length of boxJobs=" + endNode.boxJobs.size());
+		//System.err.println("length of Jobs=" + endNode.boxJobs.size() + "," + endNode.agentJobs.size());
 		
 		if ((!endNode.boxJobs.isEmpty() || !endNode.agentJobs.isEmpty()) && agentInitialEndPosition != new Position(-1,-1)) { // 
-			System.err.println("Found path to box, but it is blocked. Creating jobs!");
+			System.err.println("Found path, but it is blocked. Creating jobs!");
 			System.err.println("boxJobs=" + endNode.boxJobs);
 			System.err.println("agentJobs=" + endNode.agentJobs);
 			//System.err.println("Mypath = " + endNode.path);
@@ -541,6 +548,7 @@ public class Agent {
 		//else if ((endNode.boxJobs.isEmpty() || endNode.agentJobs.isEmpty()) && agentInitialEndPosition.equals(new Position(-1,-1))) {
 		//	error("Didn't initial path, but no jobs created");
 		//}
+		//System.err.println("Initial Returning");
 		returnNode.node = endNode;
 		return returnNode;
 	}
@@ -590,7 +598,7 @@ public class Agent {
 					// If we cannot find a path to our box, create job for alle the boxes that blocked paths.
 					System.err.println("type: g: box! " + boxPosition);
 					//Do initial
-						InitialExploreNode initial = initialRouting(position, boxPosition, job);
+						InitialExploreNode initial = initialRouting(position, boxPosition, job, false);
                         if (initial.preC != null) {
                             job.preConds.add(initial.preC);
 							return thePlan;
@@ -632,7 +640,7 @@ public class Agent {
 						}
 						
 					//Can we path from box to goal?
-						InitialExploreNode initialBox = initialRouting(boxPosition, job.jobPos, job);
+						InitialExploreNode initialBox = initialRouting(boxPosition, job.jobPos, job, true);
 						if (initialBox.preC != null) {
 							job.preConds.add(initialBox.preC);
 							return thePlan;
@@ -645,6 +653,7 @@ public class Agent {
 						
 						while (!boxFrontier.isEmpty()) {
 							PosBoxNode node = boxFrontier.pollFirst();
+							if(node.time > 1000) error("Can't move box to goal");
 							//System.err.println("GoalChecking node " + node.pos);
 							if (node.boxPos.equals(job.jobPos)) { //On goal?
 								resultBoxMoves = node.moves;
@@ -684,7 +693,7 @@ public class Agent {
 				//Figure out what desired position we want to move it to
 				System.err.println("type: b: box=" + job.jobPos);
 				//Do initial
-                    InitialExploreNode initial = initialRouting(position, job.jobPos,job);
+                    InitialExploreNode initial = initialRouting(position, job.jobPos,job, false);
                     if (initial.preC != null) {
                         job.preConds.add(initial.preC);
                         return thePlan;
@@ -734,7 +743,7 @@ public class Agent {
 					}
 	
 					//Do initial
-					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, job);
+					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, job, true);
 					if (initialBox.preC != null) {
 						job.preConds.add(initialBox.preC);
 						return thePlan;
@@ -779,6 +788,8 @@ public class Agent {
 					job.solved = true;
 					job.preConditionFor.Priority = job.preConditionFor.Priority + 1;
 			
+					//System.err.println("BPlan = " + resultMoves + resultBoxMoves);
+			
 					//if (GameMap.goals[job.jobPos.x][job.jobPos.y] != (char)0) {
 					//	System.err.println("boxMove plan destroys goal. Update relevant job. FIX!");
 					//}
@@ -795,17 +806,25 @@ public class Agent {
 					
 			} else if (job.jobType == 'a') {
 				//Agent is in the way and needs to move out of the way
-				//Position desiredPosition;
+				//Check if agent has moved out of the way since the job was created
+				if (position != job.jobPos && !job.path.contains(position)) {
+					System.err.println("Moved away already");
+					job.solved = true;
+					return thePlan;
+				}
+				
+				System.err.println("Type a: Path=" + job.path);
+				
 				//Find our desired position
 					//Position storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					//int startTime; //Fix
 					Position storagePosition = GameMap.storage.getNearestStorage(job.jobPos, startTime, this.id);
-					if (storagePosition == null) {
+					if (storagePosition == null || job.path.contains(storagePosition)) {
 						storagePosition = quickStoreBox(job.path, job.jobPos, startTime);
 					}
 					
 				//Do initial
-					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, job);
+					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, job, true);
 					if (initial.preC != null) {
 						job.preConds.add(initial.preC);
 						return thePlan;
@@ -823,6 +842,7 @@ public class Agent {
 						if (node.pos.equals(storagePosition)) { //On desired position?
 							resultMoves = node.moves;
 							agentEndPosition = node.pos;
+							position = node.pos;
 							break;
 						}
 						
