@@ -552,6 +552,10 @@ public class Agent {
 		
 		while (!frontier.isEmpty()) {
 			PosNode node = frontier.pollFirst();
+			if (!(node.boxJobs.size() + node.agentJobs.size() < obstacleMap[node.pos.x][node.pos.y])) {
+				continue;
+			}
+			//System.err.println("time=" + node.time + ", pos= " + node.pos);
 			if (GameMap.boxAtTime(node.pos, node.time) != (char)0 && GameMap.cellFreeIn(node.time, node.pos) == -1 && !node.pos.equals(startPosition)) { //GameMap.boxes[node.pos.x][node.pos.y] != 0
 				node.boxJobs.add(node.pos);
 			}
@@ -561,7 +565,7 @@ public class Agent {
 			}
 			
 			if ((node.pos.nextTo(endPosition) && !box) || (node.pos.equals(endPosition) && box)) { //Next to box or box on goal?
-				System.err.println("job: g, agent pathed initial to box");
+				//System.err.println("job: g, agent pathed initial to box");
 				if (endNode.pos.equals(new Position(-1,-1)) || node.boxJobs.size() + node.agentJobs.size() < endNode.boxJobs.size() + endNode.agentJobs.size()) {
 					resultInitialMoves = node.moves;
 					agentInitialEndPosition = node.pos;
@@ -572,6 +576,8 @@ public class Agent {
 				}
 				//break;
 			}
+			
+			obstacleMap[node.pos.x][node.pos.y] = node.boxJobs.size() + node.agentJobs.size();
 			
 			frontier = initialExplore(frontier, node);
 		}
@@ -677,7 +683,7 @@ public class Agent {
 							////////System.err.err.err.println("Check node: " + node.pos);
 							if (node.pos.nextTo(boxPosition)) { //Next to box?
 								//////System.err.err.err.println("End pos = " + node.pos.toString() + " boxPos = " + boxPosition.toString());
-								//////System.err.err.err.println("Box!");
+								System.err.println("Box!");
 								resultMoves = node.moves;
 								agentEndPosition = node.pos;
 								endMoveTime = node.time;	
@@ -702,6 +708,9 @@ public class Agent {
 						if (initialBox.preC != null) {
 							job.preConds.add(initialBox.preC);
 							return thePlan;
+						}
+						if (job.jobPos.equals(new Position(50,16))) {
+							System.err.println("Done initial");
 						}
 					//Find path that moves box on top of goal. (We assume we are next to box initially).
 						TreeSet<PosBoxNode> boxFrontier = new TreeSet< PosBoxNode >(new PosBoxNodeComp());;

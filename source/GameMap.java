@@ -201,8 +201,12 @@ public class GameMap {
 		//	
 		//}
 		
-		time++; //Offset to make it correct
+		//System.err.println("occ given " + p);
 		
+		time++; //Offset to make it correct
+		if (p.x == -1 || p.y == -1 || p.x >= MAX_COLUMN || p.y >= MAX_ROW) {
+			return true;
+		}
 		if (walls[p.x][p.y]) return true;
 		
 		////System.err.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
@@ -295,7 +299,7 @@ public class GameMap {
 			currentPlan[i] = 0;
 		}
 		int asdf = 0;
-		while(!done && asdf < 500){
+		while(!done){
 			asdf++;
 			count = 0;
 			cmd = "[";
@@ -315,6 +319,7 @@ public class GameMap {
 				else {
 					cmd += "NoOp";
 					cmd += ",";	
+					count++;
 				}
 			}
 			
