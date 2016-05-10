@@ -24,7 +24,7 @@ public class WallE {
 	public static void main( String[] args ) throws Exception {
 		BufferedReader serverMessages = new BufferedReader( new InputStreamReader( System.in ) );
 		// Use stderr to print to console
-		//system.err.println( "WallE initializing." );
+		////System.err.err.println( "WallE initializing." );
 
 		//Create and read the map
 		GameMap theMap = GameMap.getInstance();
@@ -46,8 +46,8 @@ public class WallE {
 				}
 			}
 		}
-		//system.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
-		//system.err.println("We have " + agents.size() + " agents.");
+		////System.err.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
+		////System.err.err.println("We have " + agents.size() + " agents.");
 		//While loop to distribute jobs to agents
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
@@ -64,15 +64,15 @@ public class WallE {
 						
 						continue;
 					}else{
-						//System.err.println("isEmpty");
+						////System.err.err.println("isEmpty");
 					}
 				} else {
-					//System.err.println("Null job");
+					////System.err.err.println("Null job");
 				}
 			}
 		}
 		
-		//System.err.println("Done, jobs= " + GameMap.jobManager.jobs.size() + ", goals?" + GameMap.jobManager.goalsFulfilled());
+		////System.err.err.println("Done, jobs= " + GameMap.jobManager.jobs.size() + ", goals?" + GameMap.jobManager.goalsFulfilled());
 		
 		//for (int i = 0; i < agents.size(); i++) {
 		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
@@ -89,10 +89,10 @@ public class WallE {
 		//}
 
 		GameMap.printMasterPlan();
-		//System.out.println( "[Move(E)]" );
-		//System.out.flush();
-		//System.out.println( "[Pull(W,E)]" );
-		//System.out.flush();
+		////System.err.out.println( "[Move(E)]" );
+		////System.err.out.flush();
+		////System.err.out.println( "[Pull(W,E)]" );
+		////System.err.out.flush();
 		String response = serverMessages.readLine();
 	}
 }
