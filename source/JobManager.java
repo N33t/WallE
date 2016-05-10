@@ -36,9 +36,9 @@ public class JobManager {
 	
 	private static boolean agentFulfillsPreConditions(Job job, int agentID) {
 		//Correct color
-		////system.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
+		//////System.err.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
 		boolean color = job.color == GameMap.colors.get((char)(agentID + '0'));
-		//System.err.println("preCond.size() = " + job.preConds.size());
+		////System.err.err.println("preCond.size() = " + job.preConds.size());
 		for (int i = 0; i < job.preConds.size(); i++) {
 			PreCondition preC = job.preConds.get(i);
 			
@@ -46,19 +46,19 @@ public class JobManager {
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				
 				//if(preC.jobs.size() > 0){
-				//	System.err.println("preC.size() = " + preC.jobs.size() + 
+				//	//System.err.err.println("preC.size() = " + preC.jobs.size() + 
 				//			"\nJobType = " + preC.jobs.get(j).getJobType());
 				//}
 				
 				if (preC.agentID == agentID) {
-					////system.err.println("Going to for loop");
+					//////System.err.err.println("Going to for loop");
 					for (int k = 0; k < preC.jobs.size(); k++) {
 						if (!preC.jobs.get(k).solved) {
-							////system.err.println("Returning False");
+							//////System.err.err.println("Returning False");
 							return false;
 						}
 					}
-					////system.err.println("Ended for loop");
+					//////System.err.err.println("Ended for loop");
 				}
 			}
 		}
@@ -66,18 +66,18 @@ public class JobManager {
 	}
 	
 	private static Job preCondJob(Job job, int agentID) {
-		////system.err.println(agentID + " preconds? " + agentFulfillsPreConditions(job, agentID));
-		////system.err.println(job);
+		//////System.err.err.println(agentID + " preconds? " + agentFulfillsPreConditions(job, agentID));
+		//////System.err.err.println(job);
 		if (!job.solved && agentFulfillsPreConditions(job, agentID)) {
 			return job;
 		}
 		for (int i = 0; i < job.preConds.size(); i++) {
 			Job returnedJob;
 			PreCondition preC = job.preConds.get(i);
-			////system.err.println("size = " + preC.jobs.size());
+			//////System.err.err.println("size = " + preC.jobs.size());
 			for (int j = 0; j < preC.jobs.size(); j++) {
 				returnedJob = preCondJob(preC.jobs.get(j), agentID);
-				////system.err.println("ReturnedJob = " + returnedJob);
+				//////System.err.err.println("ReturnedJob = " + returnedJob);
 				if (returnedJob != null) return returnedJob;
 			}
 		}
@@ -87,13 +87,13 @@ public class JobManager {
 	
 	//Returns job to agent
 	public static Job getPriorityJob(int agentID){
-		////system.err.println("We have " + jobs.size() + " jobs.");
+		//////System.err.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
 		Job jobGet = null;
 		Job returnJob = null;
 		for (int i = 0; i < jobs.size(); i++) {
 			jobGet = preCondJob(jobs.get(i), agentID);
-			//System.err.println("Here");
+			////System.err.err.println("Here");
 			if (jobGet != null) {
 				if (returnJob == null || jobGet.Priority > returnJob.Priority) {
 					returnJob = jobGet;
@@ -101,22 +101,22 @@ public class JobManager {
 			}
 		}
 		if (returnJob != null) {
-			//System.err.println("Returning job for" + agentID);
+			////System.err.err.println("Returning job for" + agentID);
 			return returnJob;
 		}
-		//System.err.println("Returning null for " + agentID);
+		////System.err.err.println("Returning null for " + agentID);
 		return null;
 	}
 	
 
 	public static Job getPriorityJobOLD(int agentID){
-		////system.err.println("We have " + jobs.size() + " jobs.");
+		//////System.err.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
 		Job jobGet = null;
 		for (int i = 0; i < jobs.size(); i++) {
 			jobGet = preCondJob(jobs.get(i), agentID);
 			if (jobGet != null && jobGet.jobType == 'b') {
-				////system.err.println("Has " + jobGet.jobType + " job");
+				//////System.err.err.println("Has " + jobGet.jobType + " job");
 				return jobGet;
 			}
 		}
@@ -141,10 +141,10 @@ public class JobManager {
 	}
 	
 	public static Job getPriorityJob(){
-		////system.err.println("We have " + jobs.size() + " jobs.");
+		//////System.err.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
 		Job jobGet = null;
-		//system.err.println("jobs.sice() = " + jobs.size());
+		////System.err.err.println("jobs.sice() = " + jobs.size());
 		for (int i = 0; i < jobs.size(); i++) {		
 			jobGet = preCondJob(jobs.get(i),0);
 			if(jobGet != null){

@@ -36,12 +36,12 @@ public class Storage {
 	public Storage(boolean walls[][], char boxes[][]){
 		timeLimit = 0;
 		xSize = walls.length;
-		ySize = walls[0].length;
+		ySize = walls[0].length - 1;
 		
 		storageMap = new ArrayList<char[][]>();
 		storageMap.add(new char[xSize][ySize]);
 		
-		System.err.println("X Size - " + xSize + ", Y Size - " + ySize);
+		//System.err.err.println("X Size - " + xSize + ", Y Size - " + ySize);
 		
 		for(int y = 0; y < ySize; y++){
 			for(int x = 0; x < xSize; x++){
@@ -58,7 +58,7 @@ public class Storage {
 				SquareBlocked[0] = ((y - 1) < 0 || walls[x][y-1]) ? true : false;
 				DiamondBlocked[1] = ((x + 1) >= xSize || (y - 1) < 0 || walls[x+1][y-1]) ? true : false;
 				
-				//System.err.println(x);
+				////System.err.err.println(x);
 				
 				//Middle row
 				SquareBlocked[1] = ((x - 1) < 0 || walls[x-1][y]) ? true : false;
@@ -139,7 +139,7 @@ public class Storage {
 			addXMaps(time - timeLimit);
 		
 		if(storageMap.get(time)[pos.x][pos.y] != 'B'){
-			System.err.println("Attempting to destore box not in storage zone, null action");
+			//System.err.err.println("Attempting to destore box not in storage zone, null action");
 			return;
 		}
 		
@@ -232,8 +232,13 @@ public class Storage {
 	}
 		
 	public boolean spotOccupied(int x, int y, int t){
+		//System.err.println("t,x,y= " + t + "," + x + "," + y + " - " + storageMap.get(t)[x][y]);
+		try {
 		if(storageMap.get(t)[x][y] == nullChar || storageMap.get(t)[x][y] == boxChar || storageMap.get(t)[x][y] == resChar)
 			return true;
+		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+			return false;
+		}
 		return false;
 	}
 	
@@ -261,11 +266,15 @@ public class Storage {
 	//Returns null if no storage could be found from position, returns a soft storage if no hard storage could be found
 	public Position getNearestStorage(Position p, int time, int id){
 		
+		
+		
 		if(time > timeLimit)
 			addXMaps(time - timeLimit);
 		
+		//printMap(time);
+		
 		if(p.x > xSize || p.x < 0 || p.y > ySize || p.y < 0)
-			System.err.println("Nearest storage request on out of bounds position");
+			//System.err.err.println("Nearest storage request on out of bounds position");
 		
 		//If a wall is found or a null space returns null
 		if(storageMap.get(time)[p.x][p.y] == hardChar){
@@ -298,8 +307,8 @@ public class Storage {
         seen[p.x][p.y] = true;
         while (!q.isEmpty()) {
             node n = q.remove();
-            //System.err.println("Position of n: " + n.p.toString());
-            //System.err.println(n.p.toString() + " to time " + n.t);
+            ////System.err.err.println("Position of n: " + n.p.toString());
+            ////System.err.err.println(n.p.toString() + " to time " + n.t);
             if(storageMap.get(n.t)[n.p.x][n.p.y] == hardChar){
             	System.err.println("Hard storage found at " + "(" + n.p.x + ", " + n.p.y + ") to time - " + n.t);
             	return n.p;
@@ -315,7 +324,7 @@ public class Storage {
         }
         
         if(firstSeenSoftStorage != null){
-        	System.err.println("Soft storage found");
+        	//System.err.err.println("Soft storage found");
         	return firstSeenSoftStorage;
         }
         
