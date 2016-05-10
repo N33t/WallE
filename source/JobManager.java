@@ -101,10 +101,10 @@ public class JobManager {
 			}
 		}
 		if (returnJob != null) {
-			System.err.println("Returning job for" + agentID);
+			//System.err.println("Returning job for" + agentID);
 			return returnJob;
 		}
-		System.err.println("Returning null for " + agentID);
+		//System.err.println("Returning null for " + agentID);
 		return null;
 	}
 	

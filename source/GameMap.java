@@ -107,33 +107,15 @@ public class GameMap {
 						break;
 					} 
 				}
-				for (int j = 0; j < agentPositionsTo.size(); j++) {
-					//Find agent moving
-						////system.err.println("size=" + agentPositionsTo.get(j).size());
-						////system.err.println("list=" + agentPositionsTo.get(j));
-						//Position p = agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1);
-						//Position m = move.type.l1;
-						////system.err.println("p=" + p + ", m= " + m);
-						//boolean ting = p.equals(m);
-						//if (move.time == 0 && move.type.type == TypeNum.NOP) {
-						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
-						//	agentPositionsTo.get(j).set(move.time, move.type.l1);
-						//} else if (move.time == 0) {
-						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
-						//	agentPositionsTo.get(j).set(move.time, move.type.l2);
-						//} else 
-						if (move.type.type == TypeNum.NOP) {
-							////system.err.println("Noop");
-							agentPositionsFrom.get(j).add(move.type.l1);
-							agentPositionsTo.get(j).add(move.type.l1);
-							break;
-						} else if (agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1).equals(move.type.l1)) {
-							//Add new move to list
-							////system.err.println("Move");
-							agentPositionsFrom.get(j).add(move.type.l1);
-							agentPositionsTo.get(j).add(move.type.l2);
-							break;
-						}
+
+				if (move.type.type == TypeNum.NOP) {
+					////system.err.println("Noop");
+					agentPositionsFrom.get(plan.id).add(move.type.l1);
+					agentPositionsTo.get(plan.id).add(move.type.l1);
+				} else {
+					//Add new move to list
+					agentPositionsFrom.get(plan.id).add(move.type.l1);
+					agentPositionsTo.get(plan.id).add(move.type.l2);
 				}
 				
 				////system.err.println("boxFrom:" + boxPositionsFrom + "\nboxTo" + boxPositionsTo);

@@ -228,7 +228,10 @@ public class Agent {
 	
 	private boolean isLegalPush(Position agentPos, Position boxPos, char dir, int time) throws Exception {
 		Position newPos = newPosInDirection(boxPos, dir);
-		//return GameMap.isCellFree(newPos) && !agentPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
+		//if (id == 0){
+		//	System.err.println("is " + newPos + " occ? " + GameMap.isPositionOccupiedToTime(newPos, time));
+		//	System.err.println(GameMap.agentPositionsTo.get(1));
+		//}
 		return !agentPos.equals(newPos) && !GameMap.isPositionOccupiedToTime(newPos, time);
 	}
 	
@@ -784,7 +787,7 @@ public class Agent {
 					GameMap.storage.storeBox(storagePosition, time);
 
 				//Update job if needed
-				System.err.println("goal=" + GameMap.goals[job.jobPos.x][job.jobPos.y] + ", box=" + Character.toUpperCase(GameMap.boxAtTime(job.jobPos, startTime)));
+				//System.err.println("goal=" + GameMap.goals[job.jobPos.x][job.jobPos.y] + ", box=" + Character.toUpperCase(GameMap.boxAtTime(job.jobPos, startTime)));
 					if (GameMap.goals[job.jobPos.x][job.jobPos.y] == Character.toLowerCase(GameMap.boxAtTime(job.jobPos, startTime))) {
 						System.err.println("Updating goal job");
 						GameMap.jobManager.updateGoalJob(job.jobPos);
