@@ -312,7 +312,9 @@ public class GameMap {
 		{
 			currentPlan[i] = 0;
 		}
-		while(!done){
+		int asdf = 0;
+		while(!done && asdf < 50){
+			asdf++;
 			count = 0;
 			cmd = "[";
 			
@@ -339,7 +341,7 @@ public class GameMap {
 			if (cmd.length() == 1) {
 				done = true;
 			} else {
-				//system.err.println(cmd);
+				System.err.println(cmd);
 				System.out.println(cmd);
 				System.out.flush();
 			}

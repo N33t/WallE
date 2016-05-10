@@ -25,6 +25,15 @@ public class JobManager {
 		return allSolved;
 	}
 	
+	public void updateGoalJob(Position pos) {
+		for (Job job : jobs) {
+			if (job.jobPos.equals(pos) && job.jobType == 'g' && job.solved == true) {
+				job.solved = false;
+				break;
+			}
+		}
+	}
+	
 	private static boolean agentFulfillsPreConditions(Job job, int agentID) {
 		//Correct color
 		////system.err.println("jobColor = " + job.color + "Map color = " + GameMap.colors.get((char)(agentID + '0')));
@@ -44,7 +53,7 @@ public class JobManager {
 				if (preC.agentID == agentID) {
 					////system.err.println("Going to for loop");
 					for (int k = 0; k < preC.jobs.size(); k++) {
-						if (!preC.jobs.get(i).solved) {
+						if (!preC.jobs.get(k).solved) {
 							////system.err.println("Returning False");
 							return false;
 						}
@@ -80,13 +89,22 @@ public class JobManager {
 	public static Job getPriorityJob(int agentID){
 		////system.err.println("We have " + jobs.size() + " jobs.");
 		//return jobs.poll();
-		Job jobGet;
+		Job jobGet = null;
+		Job returnJob = null;
 		for (int i = 0; i < jobs.size(); i++) {
 			jobGet = preCondJob(jobs.get(i), agentID);
+			//System.err.println("Here");
 			if (jobGet != null) {
-				return jobGet;
+				if (returnJob == null || jobGet.Priority > returnJob.Priority) {
+					returnJob = jobGet;
+				}
 			}
 		}
+		if (returnJob != null) {
+			System.err.println("Returning job for" + agentID);
+			return returnJob;
+		}
+		System.err.println("Returning null for " + agentID);
 		return null;
 	}
 	
@@ -144,7 +162,7 @@ public class JobManager {
 	//Job class responsible for 
 	class Job {
 		
-		private int Priority = 0;
+		public int Priority = 0;
 		
 		public static final int LOW_PRIORITY = 1;
 		public static final int MID_PRIORITY = 2;
@@ -165,16 +183,18 @@ public class JobManager {
 		public char goal = 0;
 		
 		public ArrayList<PreCondition> preConds;
+		public Job preConditionFor;
 		
 		public boolean solved = false;
 		
-		public Job(int Priority, char jobType, Position p1, String color, ArrayList<Position> path){
+		public Job(int Priority, char jobType, Position p1, String color, ArrayList<Position> path, Job parentJob){
 			this.Priority = Priority;
 			this.jobType = jobType;
 			this.jobPos = p1;
 			preConds = new ArrayList<PreCondition>();
 			this.color = color;
 			this.path = path;
+			this.preConditionFor = parentJob;
 		}
 		
 		public Job(int Priority, char jobType, Position p1, ArrayList<PreCondition> preConds, String color){

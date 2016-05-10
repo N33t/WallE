@@ -62,7 +62,7 @@ public class WallE {
 					if (!agentPlan.subplans.isEmpty()){
 						GameMap.addPlanToController(agentPlan);
 						
-						break;
+						continue;
 					}else{
 						//System.err.println("isEmpty");
 					}

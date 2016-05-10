@@ -98,14 +98,13 @@ public class Storage {
 	//Reserves a storage spot until box is placed and updates storage map to the time
 	//Also creates new copies of the latest map up until the time the box is stored
 	public void storeBox(Position pos, int time){
-		char analyzeS = analyseSpot(pos, time);
-		storageMap.get(time)[pos.x][pos.y] = boxChar;
-
+		
 		if(time > timeLimit)
 			addXMaps(time - timeLimit);
-		
+		char analyzeS = analyseSpot(pos, time);
 		storageMap.get(time)[pos.x][pos.y] = boxChar;
-		        int t = 0;
+		
+		int t = 0;
         
         if(analyzeS != hallChar){
 			char[][] storageChanges = analyseSurrounding(pos, time);

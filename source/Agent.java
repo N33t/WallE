@@ -465,7 +465,8 @@ public class Agent {
 		}
 	}
 	
-	private InitialExploreNode initialRouting(Position startPosition, Position endPosition, int startTime) throws Exception {
+	private InitialExploreNode initialRouting(Position startPosition, Position endPosition, JobManager.Job parentJob) throws Exception {
+		int startTime = Integer.MAX_VALUE;
 		InitialExploreNode returnNode = new InitialExploreNode();
 		TreeSet<PosNode> frontier = new TreeSet< PosNode >(new PosNodeComp());;
 		Position agentInitialEndPosition = new Position(-1,-1);
@@ -474,6 +475,8 @@ public class Agent {
 		ex.add(startPosition);
 		frontier.add(new PosNode(startPosition, endPosition, ex, startTime));
 		PosNode endNode = new PosNode(new Position(-1,-1));
+		
+		
 		
 		//System.err.println("StartPos = " + startPosition);
 		//System.err.println("endPos = " + endPosition);
@@ -518,12 +521,12 @@ public class Agent {
 			//System.err.println("Creating jobs, path = " + endNode.path + ", agentInitialEndPosition= " + agentInitialEndPosition);
 			for (int i = 0; i < endNode.boxJobs.size(); i++) {
 				//JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxes[endNode.boxJobs.get(i).x][endNode.boxJobs.get(i).y]), endNode.path);
-				JobManager.Job theJob = GameMap.jobManager.new Job(0,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxAtTime(endNode.boxJobs.get(i), endNode.time)), endNode.path);
+				JobManager.Job theJob = GameMap.jobManager.new Job(2,'b', endNode.boxJobs.get(i), GameMap.colors.get(GameMap.boxAtTime(endNode.boxJobs.get(i), endNode.time)), endNode.path, parentJob);
 				preCJobs.add(theJob); //TODO: Fix priority and char?
 				////system.err.println("col " + theJob.color);
 			}
 			for (int i = 0; i < endNode.agentJobs.size(); i++) {
-				JobManager.Job theJob = GameMap.jobManager.new Job(0,'a', endNode.agentJobs.get(i), GameMap.colors.get(GameMap.agentAtTime(endNode.agentJobs.get(i), endNode.time)), endNode.path);
+				JobManager.Job theJob = GameMap.jobManager.new Job(2,'a', endNode.agentJobs.get(i), GameMap.colors.get(GameMap.agentAtTime(endNode.agentJobs.get(i), endNode.time)), endNode.path, parentJob);
 				preCJobs.add(theJob); //TODO: Fix priority and char?
 			}
 			////system.err.println("preCJobs = " + preCJobs.size());
@@ -556,7 +559,7 @@ public class Agent {
 			System.err.println("Starting Job. My position = " + position);
 			
 			if (job.jobType == 'g') {
-				System.err.println("goal Pos=" + job.jobPos);
+				System.err.println("goal Pos=" + job.jobPos + ", pri=" + job.Priority);
 				//Find box that can be used (Currently only finds one. Doesn't find best (closest) box (still only eucledian distance available. Chosen best box can still be bad).)
 				Position boxPosition = new Position(-1,-1);
 				//system.err.println("Agent " + id + " Job Start time= " + startTime);
@@ -584,7 +587,7 @@ public class Agent {
 					// If we cannot find a path to our box, create job for alle the boxes that blocked paths.
 					System.err.println("type: g: box! " + boxPosition);
 					//Do initial
-						InitialExploreNode initial = initialRouting(position, boxPosition, startTime);
+						InitialExploreNode initial = initialRouting(position, boxPosition, job);
                         if (initial.preC != null) {
                             job.preConds.add(initial.preC);
 							return thePlan;
@@ -626,7 +629,7 @@ public class Agent {
 						}
 						
 					//Can we path from box to goal?
-						InitialExploreNode initialBox = initialRouting(boxPosition, job.jobPos, endMoveTime);
+						InitialExploreNode initialBox = initialRouting(boxPosition, job.jobPos, job);
 						if (initialBox.preC != null) {
 							job.preConds.add(initialBox.preC);
 							return thePlan;
@@ -664,8 +667,8 @@ public class Agent {
 					System.err.println("Returning goal-plan for agent " + id);
 					System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
-//					GameMap.storage.destoreBox(boxPosition, endMoveTime);
-//					GameMap.storage.storeBox(job.jobPos, time);
+					GameMap.storage.destoreBox(boxPosition, endMoveTime);
+					GameMap.storage.storeBox(job.jobPos, time);
 					
 				} else {
 					//job.preConds(0).isSolvable = false;
@@ -678,7 +681,7 @@ public class Agent {
 				//Figure out what desired position we want to move it to
 				System.err.println("type: b: box=" + job.jobPos);
 				//Do initial
-                    InitialExploreNode initial = initialRouting(position, job.jobPos, startTime);
+                    InitialExploreNode initial = initialRouting(position, job.jobPos,job);
                     if (initial.preC != null) {
                         job.preConds.add(initial.preC);
                         return thePlan;
@@ -728,7 +731,7 @@ public class Agent {
 					}
 	
 					//Do initial
-					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, endNode.time);
+					InitialExploreNode initialBox = initialRouting(job.jobPos, storagePosition, job);
 					if (initialBox.preC != null) {
 						job.preConds.add(initialBox.preC);
 						return thePlan;
@@ -771,13 +774,21 @@ public class Agent {
 					System.err.println("Returning boxMove-plan");
 					System.err.println("pos = " + position + ", time = " + time);
 					job.solved = true;
+					job.preConditionFor.Priority = job.preConditionFor.Priority + 1;
 			
-					if (GameMap.goals[job.jobPos.x][job.jobPos.y] != (char)0) {
-						System.err.println("boxMove plan destroys goal. Update relevant job. FIX!");
-					}
+					//if (GameMap.goals[job.jobPos.x][job.jobPos.y] != (char)0) {
+					//	System.err.println("boxMove plan destroys goal. Update relevant job. FIX!");
+					//}
 					
-//					GameMap.storage.destoreBox(job.jobPos, endNode.time);
-//					GameMap.storage.storeBox(storagePosition, time);
+					GameMap.storage.destoreBox(job.jobPos, endNode.time);
+					GameMap.storage.storeBox(storagePosition, time);
+
+				//Update job if needed
+				System.err.println("goal=" + GameMap.goals[job.jobPos.x][job.jobPos.y] + ", box=" + Character.toUpperCase(GameMap.boxAtTime(job.jobPos, startTime)));
+					if (GameMap.goals[job.jobPos.x][job.jobPos.y] == Character.toLowerCase(GameMap.boxAtTime(job.jobPos, startTime))) {
+						System.err.println("Updating goal job");
+						GameMap.jobManager.updateGoalJob(job.jobPos);
+					}
 					
 			} else if (job.jobType == 'a') {
 				//Agent is in the way and needs to move out of the way
@@ -791,7 +802,7 @@ public class Agent {
 					}
 					
 				//Do initial
-					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, startTime);
+					InitialExploreNode initial = initialRouting(job.jobPos, storagePosition, job);
 					if (initial.preC != null) {
 						job.preConds.add(initial.preC);
 						return thePlan;
