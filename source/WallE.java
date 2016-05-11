@@ -12,6 +12,7 @@ import java.util.List;
 import source.GameMap;
 import source.Agent;
 import source.Position;
+import source.Storage;
 
 
 public class WallE {
@@ -23,12 +24,15 @@ public class WallE {
 	public static void main( String[] args ) throws Exception {
 		BufferedReader serverMessages = new BufferedReader( new InputStreamReader( System.in ) );
 		// Use stderr to print to console
-		System.err.println( "WallE initializing." );
+		////System.err.err.println( "WallE initializing." );
 
 		//Create and read the map
 		GameMap theMap = GameMap.getInstance();
 		theMap.read(serverMessages);
-
+	
+		GameMap.storage = new Storage(theMap.walls, theMap.boxes);
+		GameMap.storage.printMap(0);
+		
 		//Create agents
 		ArrayList<Agent> agents = new ArrayList<Agent>();
 
@@ -42,57 +46,53 @@ public class WallE {
 				}
 			}
 		}
-		System.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
-		System.err.println("We have " + agents.size() + " agents.");
+		////System.err.err.println("agentsAmount " + theMap.agentsAmount + " agents.");
+		////System.err.err.println("We have " + agents.size() + " agents.");
 		//While loop to distribute jobs to agents
 		int nextJob = 0;
 		int lastAgentToSolveAJob = 0;
-		//while(!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0){
-		//	
-		//	final JobManager.Job job = GameMap.jobManager.getPriorityJob(lastAgentToSolveAJob, nextJob);
-		//	for (int i = lastAgentToSolveAJob; i < agents.size(); i++){
-		//		Plan agentPlan = agents.get(i).createPlan(job);
-		//		//If agent succesfully creates a plan for the job add job to controller and get new job
-		//		if (!agentPlan.subplans.isEmpty()){
-		//			GameMap.addPlanToController(agentPlan);
-		//			lastAgentToSolveAJob = i + 1;
-		//			nextJob = 0;
-		//			break;
-		//		}/*else{
-		//			assignNewJobs(i, agents);
-		//		}
-		//		job = GameMap.jobManager.getPriorityJob(id);*/
-		//		if(i == agents.size() - 1)
-		//			i = 0;
-		//		
-		//		//No agents could solve the job yet
-		//		if(i == lastAgentToSolveAJob - 1){
-		//			nextJob++;
-		//			break;
-		//		}
+		int max = 0;
+		while((!GameMap.jobManager.goalsFulfilled() || GameMap.jobManager.jobs.size() == 0) && max < 5){
+			//max++;
+			for(int i = 0; i < agents.size(); i++) {
+				JobManager.Job job = GameMap.jobManager.getPriorityJob(i);
+				if(job != null){
+					System.err.println("ID: " + i + " Goal: " + job.goal + " Type:" + job.jobType);
+					Plan agentPlan = agents.get(i).createPlan(job);
+					if (!agentPlan.subplans.isEmpty()){
+						GameMap.addPlanToController(agentPlan);
+						
+						continue;
+					}else{
+						////System.err.err.println("isEmpty");
+					}
+				} else {
+					////System.err.err.println("Null job");
+				}
+			}
+		}
+		
+		////System.err.err.println("Done, jobs= " + GameMap.jobManager.jobs.size() + ", goals?" + GameMap.jobManager.goalsFulfilled());
+		
+		//for (int i = 0; i < agents.size(); i++) {
+		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
+		//	if (!agentPlan.subplans.isEmpty()) {
+		//		GameMap.addPlanToController(agentPlan);
 		//	}
-		//	
 		//}
 		
-		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
-			if (!agentPlan.subplans.isEmpty()) {
-				GameMap.addPlanToController(agentPlan);
-			}
-		}
-		
-		for (int i = 0; i < agents.size(); i++) {
-			Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
-			if (!agentPlan.subplans.isEmpty()) {
-				GameMap.addPlanToController(agentPlan);
-			}
-		}
+		//for (int i = 0; i < agents.size(); i++) {
+		//	Plan agentPlan = agents.get(i).createPlan(GameMap.jobManager.getPriorityJobOLD(i));
+		//	if (!agentPlan.subplans.isEmpty()) {
+		//		GameMap.addPlanToController(agentPlan);
+		//	}
+		//}
 
 		GameMap.printMasterPlan();
-		//System.out.println( "[Move(E)]" );
-		//System.out.flush();
-		//System.out.println( "[Pull(W,E)]" );
-		//System.out.flush();
+		////System.err.out.println( "[Move(E)]" );
+		////System.err.out.flush();
+		////System.err.out.println( "[Pull(W,E)]" );
+		////System.err.out.flush();
 		String response = serverMessages.readLine();
 	}
 }

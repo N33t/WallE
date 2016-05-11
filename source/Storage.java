@@ -1,3 +1,5 @@
+package source;
+
 import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,15 +33,15 @@ public class Storage {
 	int timeLimit;
 	
 	//Constructor, creates a storage map of the map
-	public Storage(boolean walls[][]){
+	public Storage(boolean walls[][], char boxes[][]){
 		timeLimit = 0;
 		xSize = walls.length;
-		ySize = walls[0].length;
+		ySize = walls[0].length - 1;
 		
 		storageMap = new ArrayList<char[][]>();
 		storageMap.add(new char[xSize][ySize]);
 		
-		System.err.println("X Size - " + xSize + ", Y Size - " + ySize);
+		//System.err.err.println("X Size - " + xSize + ", Y Size - " + ySize);
 		
 		for(int y = 0; y < ySize; y++){
 			for(int x = 0; x < xSize; x++){
@@ -54,20 +56,30 @@ public class Storage {
 				//Top row
 				DiamondBlocked[0] = ((x - 1) < 0 || (y - 1) < 0 || walls[x-1][y-1]) ? true : false;
 				SquareBlocked[0] = ((y - 1) < 0 || walls[x][y-1]) ? true : false;
-				DiamondBlocked[1] = ((x + 1) > xSize || (y - 1) < 0 || walls[x+1][y-1]) ? true : false;
+				DiamondBlocked[1] = ((x + 1) >= xSize || (y - 1) < 0 || walls[x+1][y-1]) ? true : false;
+				
+				////System.err.err.println(x);
 				
 				//Middle row
 				SquareBlocked[1] = ((x - 1) < 0 || walls[x-1][y]) ? true : false;
-				SquareBlocked[2] = ((x + 1) > xSize || walls[x+1][y]) ? true : false;
+				SquareBlocked[2] = ((x + 1) >= xSize || walls[x+1][y]) ? true : false;
 				
 				//Bottom row
-				DiamondBlocked[2] = ((x - 1) < 0 || (y + 1) > ySize || walls[x-1][y+1]) ? true : false;
-				SquareBlocked[3] = ((y + 1) > ySize || walls[x][y+1]) ? true : false;
-				DiamondBlocked[3] = ((x + 1) > xSize || (y + 1) > ySize|| walls[x+1][y+1]) ? true : false;
+				DiamondBlocked[2] = ((x - 1) < 0 || (y + 1) >= ySize || walls[x-1][y+1]) ? true : false;
+				SquareBlocked[3] = ((y + 1) >= ySize || walls[x][y+1]) ? true : false;
+				DiamondBlocked[3] = ((x + 1) >= xSize || (y + 1) >= ySize|| walls[x+1][y+1]) ? true : false;
 				
 				
 				storageMap.get(0)[x][y] = analyse(DiamondBlocked, SquareBlocked);
 				
+			}
+		}
+		
+		for(int y = 0; y < ySize; y++){
+			for(int x = 0; x < xSize; x++){
+				if (boxes[x][y] != (char)0) {
+					storeBox(new Position(x,y), 0);
+				}
 			}
 		}
 	}
@@ -76,13 +88,7 @@ public class Storage {
 	public void printMap(int time){
 		for(int y = 0; y < ySize; y++){
 			for(int x = 0; x < xSize; x++){
-				if(x == 3 && y == 7){
-					System.err.print('O');
-					System.err.print(" ");
-					continue;
-				}
-				
-					System.err.print(storageMap.get(time)[x][y]);
+				System.err.print(storageMap.get(time)[x][y]);
 				System.err.print(" ");
 			}
 			System.err.print("\n");
@@ -95,17 +101,21 @@ public class Storage {
 		
 		if(time > timeLimit)
 			addXMaps(time - timeLimit);
-		
+		char analyzeS = analyseSpot(pos, time);
 		storageMap.get(time)[pos.x][pos.y] = boxChar;
-		char[][] storageChanges = analyseSurrounding(pos, time);
-		applyChanges(pos, storageChanges, time);
 		
-		int t = time + 1;
-		if(time < timeLimit){
-			while( t <= timeLimit ){
-				storageMap.get(t)[pos.x][pos.y] = boxChar;
-				applyChanges(pos, storageChanges, t);
-				t++;
+		int t = 0;
+        
+        if(analyzeS != hallChar){
+			char[][] storageChanges = analyseSurrounding(pos, time);
+			applyChanges(pos, storageChanges, time);
+			t = time + 1;
+			if(time < timeLimit){
+				while( t <= timeLimit ){
+					storageMap.get(t)[pos.x][pos.y] = boxChar;
+					applyChanges(pos, storageChanges, t);
+					t++;
+				}
 			}
 		}
 		
@@ -129,7 +139,7 @@ public class Storage {
 			addXMaps(time - timeLimit);
 		
 		if(storageMap.get(time)[pos.x][pos.y] != 'B'){
-			System.err.println("Attempting to destore box not in storage zone, null action");
+			//System.err.err.println("Attempting to destore box not in storage zone, null action");
 			return;
 		}
 		
@@ -222,8 +232,13 @@ public class Storage {
 	}
 		
 	public boolean spotOccupied(int x, int y, int t){
+		//System.err.println("t,x,y= " + t + "," + x + "," + y + " - " + storageMap.get(t)[x][y]);
+		try {
 		if(storageMap.get(t)[x][y] == nullChar || storageMap.get(t)[x][y] == boxChar || storageMap.get(t)[x][y] == resChar)
 			return true;
+		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
+			return false;
+		}
 		return false;
 	}
 	
@@ -249,10 +264,17 @@ public class Storage {
 	//####################### PATH FINDING SECTION #######################
 	
 	//Returns null if no storage could be found from position, returns a soft storage if no hard storage could be found
-	public Position getNearestStorage(Position p, int time){
+	public Position getNearestStorage(Position p, int time, int id){
+		
+		
+		
+		if(time > timeLimit)
+			addXMaps(time - timeLimit);
+		
+		//printMap(time);
 		
 		if(p.x > xSize || p.x < 0 || p.y > ySize || p.y < 0)
-			System.err.println("Nearest storage request on out of bounds position");
+			//System.err.err.println("Nearest storage request on out of bounds position");
 		
 		//If a wall is found or a null space returns null
 		if(storageMap.get(time)[p.x][p.y] == hardChar){
@@ -260,7 +282,7 @@ public class Storage {
 			return null;
 		}
 		
-		return bfsForStorage(p, time);
+		return bfsForStorage(p, time, id);
 		
 	}
 	
@@ -277,7 +299,7 @@ public class Storage {
 		}
 	}
 	
-	private Position bfsForStorage(Position p, int time) {
+	private Position bfsForStorage(Position p, int time, int id) {
         seen = new boolean[xSize][ySize];
         q = new LinkedList<node>();
         firstSeenSoftStorage = null;
@@ -285,30 +307,38 @@ public class Storage {
         seen[p.x][p.y] = true;
         while (!q.isEmpty()) {
             node n = q.remove();
-            System.err.println(n.p.toString() + " to time " + n.t);
+            ////System.err.err.println("Position of n: " + n.p.toString());
+            ////System.err.err.println(n.p.toString() + " to time " + n.t);
             if(storageMap.get(n.t)[n.p.x][n.p.y] == hardChar){
             	System.err.println("Hard storage found at " + "(" + n.p.x + ", " + n.p.y + ") to time - " + n.t);
             	return n.p;
             }
             if(storageMap.get(n.t)[n.p.x][n.p.y] == softChar && firstSeenSoftStorage == null)
             	firstSeenSoftStorage = n.p;
-            
-            explorePosition(n, -1, 0, n.t);
-            explorePosition(n, 0, -1, n.t);
-            explorePosition(n, 1, 0, n.t);
-            explorePosition(n, 0, 1, n.t);
+            try {
+				explorePosition(n, -1, 0, n.t, id);
+				explorePosition(n, 0, -1, n.t, id);
+				explorePosition(n, 1, 0, n.t, id);
+				explorePosition(n, 0, 1, n.t, id);
+			} catch(Exception e) {}
         }
         
         if(firstSeenSoftStorage != null){
-        	System.err.println("Soft storage found");
+        	//System.err.err.println("Soft storage found");
         	return firstSeenSoftStorage;
         }
         
         return null;
     }
 	
-	private void explorePosition(node n, int x, int y, int time){
-		if(storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hallChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == softChar || storageMap.get(n.t)[n.p.x + x][n.p.y + y] == hardChar){
+	private void explorePosition(node n, int x, int y, int time, int id)throws Exception{
+        Position pos = new Position(n.p.x + x, n.p.y + y);
+
+        if((storageMap.get(n.t)[pos.x][pos.y] == hallChar || 
+                storageMap.get(n.t)[pos.x][pos.y] == softChar || 
+                storageMap.get(n.t)[pos.x][pos.y] == hardChar) && 
+                (!GameMap.isPositionOccupiedToTime(pos, time) || (GameMap.agentPositionAtTime(id, time).equals(pos)))){
+
         	if (!seen[n.p.x + x][n.p.y + y]) {
         		if(n.t + 1 < timeLimit) // To add one to the time the time needs to be below the time limit
         			q.add(new node(new Position(n.p.x + x, n.p.y + y), n.t + 1));

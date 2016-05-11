@@ -15,7 +15,7 @@ import source.Goal;
 import source.Position;
 import source.Plan;
 import source.TypeNum;
-
+import source.Storage;
 
 public class GameMap {
 	
@@ -27,8 +27,8 @@ public class GameMap {
 	public static char agents[][];
 	public static int agentsAmount;
 	public ArrayList<Goal> unsolvedGoals;
-	private static int MAX_ROW;
-	private static int MAX_COLUMN;
+	public static int MAX_ROW;
+	public static int MAX_COLUMN;
 	public static Map< Character, String > colors = new HashMap< Character, String >();
 	
 	public static ArrayList<ArrayList<Position>> boxPositionsFrom = new ArrayList<ArrayList<Position>>();
@@ -45,6 +45,7 @@ public class GameMap {
 	public static ArrayList<ArrayList<Plan>> plans;
 	
 	public static JobManager jobManager = new JobManager();
+	public static Storage storage;
 	
 	private GameMap() {
 		this.agentsAmount = 0;
@@ -65,7 +66,7 @@ public class GameMap {
 					timeController.add(new HashMap<Position, Move>());
 				
 				Move move = plan.subplans.get(i).moves.get(x);
-				//System.err.println(move);
+				//////System.err.err.println(move);
 				/*
 				* Adds moves to the HashMap
 				* These moves represents cells occupied by the agents or boxes to the time
@@ -84,7 +85,7 @@ public class GameMap {
 					timeController.get(time).put(move.type.l4, move);
 				}
 				for (int j = 0; j < boxPositionsTo.size(); j++) {
-					//System.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
+					//////System.err.err.println("Move poses=" + move.type.l3 + " and " + move.type.l4 + ". BoxPos = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 					
 					//Find box being moved
 					if (move.type.l3 != null && move.type.l4 != null && boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1).equals(move.type.l3)) {
@@ -101,48 +102,30 @@ public class GameMap {
 						boxPositionsFrom.get(j).add(move.type.l3);
 						boxPositionsTo.get(j).add(move.type.l4);
 							
-						//System.err.println("Box moved from" + move.type.l3 + ", Last = " + boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
-						//System.err.println("Box moved to" + move.type.l4 + ", Last = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
+						//////System.err.err.println("Box moved from" + move.type.l3 + ", Last = " + boxPositionsFrom.get(j).get(boxPositionsFrom.get(j).size()-1));
+						//////System.err.err.println("Box moved to" + move.type.l4 + ", Last = " + boxPositionsTo.get(j).get(boxPositionsTo.get(j).size()-1));
 						break;
 					} 
 				}
-				for (int j = 0; j < agentPositionsTo.size(); j++) {
-					//Find agent moving
-						//System.err.println("size=" + agentPositionsTo.get(j).size());
-						//System.err.println("list=" + agentPositionsTo.get(j));
-						//Position p = agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1);
-						//Position m = move.type.l1;
-						//System.err.println("p=" + p + ", m= " + m);
-						//boolean ting = p.equals(m);
-						//if (move.time == 0 && move.type.type == TypeNum.NOP) {
-						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
-						//	agentPositionsTo.get(j).set(move.time, move.type.l1);
-						//} else if (move.time == 0) {
-						//	agentPositionsFrom.get(j).set(move.time, move.type.l1);
-						//	agentPositionsTo.get(j).set(move.time, move.type.l2);
-						//} else 
-						if (move.type.type == TypeNum.NOP) {
-							//System.err.println("Noop");
-							agentPositionsFrom.get(j).add(move.type.l1);
-							agentPositionsTo.get(j).add(move.type.l1);
-							break;
-						} else if (agentPositionsTo.get(j).get(agentPositionsTo.get(j).size()-1).equals(move.type.l1)) {
-							//Add new move to list
-							//System.err.println("Move");
-							agentPositionsFrom.get(j).add(move.type.l1);
-							agentPositionsTo.get(j).add(move.type.l2);
-							break;
-						}
+
+				if (move.type.type == TypeNum.NOP) {
+					//////System.err.err.println("Noop");
+					agentPositionsFrom.get(plan.id).add(move.type.l1);
+					agentPositionsTo.get(plan.id).add(move.type.l1);
+				} else {
+					//Add new move to list
+					agentPositionsFrom.get(plan.id).add(move.type.l1);
+					agentPositionsTo.get(plan.id).add(move.type.l2);
 				}
 				
-				//System.err.println("boxFrom:" + boxPositionsFrom + "\nboxTo" + boxPositionsTo);
+				//////System.err.err.println("boxFrom:" + boxPositionsFrom + "\nboxTo" + boxPositionsTo);
 				
 				time++;	
 			}			
 		}
 		//for (int k = 0; k < boxPositionsTo.get(1).size(); k++) {
-		//	System.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
-		//	System.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
+		//	////System.err.err.println("box BT. time=" + k + ", " + boxPositionsTo.get(1).get(k));
+		//	////System.err.err.println("box BF. time=" + k + ", " + boxPositionsFrom.get(1).get(k));
 		//}
 		//evaluatePlans(plans);
 	}
@@ -188,7 +171,7 @@ public class GameMap {
 		//	//		return true;
 		//	//	}
 		//	//}
-		//	//System.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
+		//	//////System.err.err.println(GameMap.timeController.get(0).keySet().toArray()[0].equals(new Position(8,1)));
 		//} catch (java.lang.IndexOutOfBoundsException e) {
 		//	//return false;
 		//	return initialBlocked;
@@ -199,68 +182,72 @@ public class GameMap {
 		//return true;
 		
 		//if (p.equals(new Position(1,3))) {
-		//	System.err.println("1,3! time=" + time + ",fromList= " + boxPositionsFrom.get(0).size() + ", toList=" + boxPositionsTo.get(0).size());
-		//	System.err.println("fr=" + boxPositionsFrom.get(1) + ", t=" + boxPositionsTo.get(1));
+		//	////System.err.err.println("1,3! time=" + time + ",fromList= " + boxPositionsFrom.get(0).size() + ", toList=" + boxPositionsTo.get(0).size());
+		//	////System.err.err.println("fr=" + boxPositionsFrom.get(1) + ", t=" + boxPositionsTo.get(1));
 		//	
 		//	Position pos1 = time >= boxPositionsTo.get(0).size() ? boxPositionsTo.get(0).get(boxPositionsTo.get(0).size()-1) : boxPositionsTo.get(0).get(time);
 		//	Position pos2 = time >= boxPositionsFrom.get(0).size() ? boxPositionsFrom.get(0).get(boxPositionsFrom.get(0).size()-1) : boxPositionsFrom.get(0).get(time);
-		//	System.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
+		//	////System.err.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
 		//	
 		//}
 		//
 		//if (p.equals(new Position(9,3))) {
-		//	System.err.println("9,3! time=" + time + ",fromList= " + agentPositionsFrom.get(0).size() + ", toList=" + agentPositionsTo.get(0).size());
-		//	//System.err.println("fr=" + agentPositionsFrom.get(0) + ", t=" + agentPositionsTo.get(0));
+		//	////System.err.err.println("9,3! time=" + time + ",fromList= " + agentPositionsFrom.get(0).size() + ", toList=" + agentPositionsTo.get(0).size());
+		//	//////System.err.err.println("fr=" + agentPositionsFrom.get(0) + ", t=" + agentPositionsTo.get(0));
 		//	
 		//	Position pos1 = time > agentPositionsTo.get(0).size() ? agentPositionsTo.get(0).get(agentPositionsTo.get(0).size()-1) : agentPositionsTo.get(0).get(time);
 		//	Position pos2 = time > agentPositionsFrom.get(0).size() ? agentPositionsFrom.get(0).get(agentPositionsFrom.get(0).size()-1) : agentPositionsFrom.get(0).get(time);
-		//	System.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
+		//	////System.err.err.println("fromPos = " + pos2 + ", toPos = " + pos1);
 		//	
 		//}
 		
-		time++; //Offset to make it correct
+		//System.err.println("occ given " + p);
 		
+		time++; //Offset to make it correct
+		if (p.x == -1 || p.y == -1 || p.x >= MAX_COLUMN || p.y >= MAX_ROW) {
+			return true;
+		}
 		if (walls[p.x][p.y]) return true;
 		
-		//System.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+		////System.err.err.println("Asking for time" + time + ", box: " + boxPositionsFrom.get(1).get(time) + ", " + boxPositionsTo.get(1).get(time) + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
+		////System.err.err.println("Asking for time" + time + ", agent: " + agentPositionsFrom.get(1).get(time) + ", " + agentPositionsTo.get(1).get(time));
 		
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
 			try{
 				if (boxPositionsTo.get(i).get(time).equals(p)) {
-					//System.err.println("Return boxTo");
+					//////System.err.err.println("Return boxTo");
 					return true;
 				}
 				if (boxPositionsFrom.get(i).get(time).equals(p)) { 
-					//System.err.println("Return boxFrom");
+					//////System.err.err.println("Return boxFrom");
 					return true;
 				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
 				if (boxPositionsTo.get(i).get(boxPositionsTo.get(i).size()-1).equals(p)){
-					//System.err.println("Return OOB box");
+					//////System.err.err.println("Return OOB box");
 					return true;
 				}
 			}
 		}
-		
 		for (int i = 0; i < agentPositionsTo.size(); i++) {
 			try{
 				if (agentPositionsTo.get(i).get(time).equals(p)) {
-					//System.err.println("Return agentTo");
+					////System.err.err.println("Return agentTo");
 					return true;
 				}
 				
 				if (p.equals(agentPositionsFrom.get(i).get(time))) {
-					//System.err.println("Return agentTo");
+					//////System.err.err.println("Return agentTo");
 					return true;
 				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
 				if (agentPositionsTo.get(i).get(agentPositionsTo.get(i).size()-1).equals(p)) {
-					//System.err.println("Return OOB agent");
+					//////System.err.err.println("Return OOB agent");
 					return true;
 				}
 			}
 		}
-		//System.err.println("false");
+		//////System.err.err.println("false");
 		return false;
 	}
 	
@@ -268,14 +255,29 @@ public class GameMap {
 	//return -1 if the cell will never be free
 	public static int cellFreeIn(int currentTime, Position pos){
 		if (walls[pos.x][pos.y]) return -1;
-		int time = 0;
-		for(int t = currentTime; t < timeController.size(); t++){
-			
-			if(!isPositionOccupiedToTime(pos, t)) {
-				//System.err.println(pos + "is not occupied to " + t);
-				return time;
+		//int time = 0;
+		//for(int t = currentTime; t < timeController.size(); t++){
+		//	
+		//	if(!isPositionOccupiedToTime(pos, t)) {
+		//		//////System.err.err.println(pos + "is not occupied to " + t);
+		//		return time;
+		//	}
+		//	time++;
+		//}
+		//return -1;
+		
+		int maxTime = 0;
+		for (int i = 0; i < boxPositionsTo.size(); i++) {
+			maxTime = maxTime < boxPositionsTo.get(i).size() ? boxPositionsTo.get(i).size() : maxTime;
+		}
+		for (int i = 0; i < agentPositionsTo.size(); i++) {
+			maxTime = maxTime < agentPositionsTo.get(i).size() ? agentPositionsTo.get(i).size() : maxTime;
+		}
+		int returnValue = -1;
+		for (int i = currentTime; i < maxTime; i++) {
+			if (!isPositionOccupiedToTime(pos, i)) {
+				return i-currentTime;
 			}
-			time++;
 		}
 		return -1;
 	}
@@ -285,7 +287,7 @@ public class GameMap {
 	
 		for(int i = 0; i < agentsAmount; i++)
 		{
-			System.err.println("Agent " + i + " has # of plans " + plans.get(i).size());
+			////System.err.err.println("Agent " + i + " has # of plans " + plans.get(i).size());
 		}
 		boolean done = false;
 		int count = 0;
@@ -296,7 +298,9 @@ public class GameMap {
 		{
 			currentPlan[i] = 0;
 		}
+		int asdf = 0;
 		while(!done){
+			asdf++;
 			count = 0;
 			cmd = "[";
 			
@@ -315,6 +319,7 @@ public class GameMap {
 				else {
 					cmd += "NoOp";
 					cmd += ",";	
+					count++;
 				}
 			}
 			
@@ -327,22 +332,23 @@ public class GameMap {
 				System.out.println(cmd);
 				System.out.flush();
 			}
-			if(count >= agentsAmount || time >= 50)
+			if(count >= agentsAmount || time >= 50000)
 					done = true;
 			time++;
 			for(int t = 0; t < agentsAmount; t++)
 			{
 				if(plans.get(t).size() > currentPlan[t] && plans.get(t).get(currentPlan[t]).subplans.get(plans.get(t).get(currentPlan[t]).subplans.size()-1).stop < time)
 				{
-					//System.err.println("Finished a plan");
+					//////System.err.err.println("Finished a plan");
 					currentPlan[t]++;	
 				}
 			}
 			/*
 			*	TEST CODE
 			*/ 
-			if(time > 100000)
-				System.err.println("Print master plan stuck in loop");
+			if(time > 100000){
+				////System.err.err.println("Print master plan stuck in loop");
+			}
 			/*
 			*	TEST CODE
 			*/ 
@@ -394,16 +400,30 @@ public class GameMap {
 		return (boxes[pos.x][pos.y]);
 	}
 	
+	    
+    public static Position agentPositionAtTime(int ID, int time) throws Exception {
+        time++;
+        
+        if (ID >= agentPositionsTo.size()) {
+            error("GameMap.agentPositionAtTime failed. agent ID " + ID + " does not exist");    
+        }
+        try {
+            return agentPositionsTo.get(ID).get(time);
+        } catch (java.lang.IndexOutOfBoundsException e) {
+            return agentPositionsTo.get(ID).get(agentPositionsTo.get(ID).size()-1);
+        }
+    }
+	
 	public static char boxAtTime(Position pos, int time){
 		//returns the character of the box at a time position to a given time.
 		//if (time == 0) return BoxAt(pos);
 		time++; //Offset to make it correct
 		for (int i = 0; i < boxPositionsTo.size(); i++) {
-			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
-			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
+			//////System.err.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
+			//////System.err.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
 			try {
 				if (pos.equals(boxPositionsTo.get(i).get(time))) {
-					//System.err.println("Returning");
+					//////System.err.err.println("Returning");
 					return boxCharacters.get(i);
 				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
@@ -412,7 +432,7 @@ public class GameMap {
 			
 			//try {
 			//	if (pos.equals(boxPositionsFrom.get(i).get(time))) {
-			//		//System.err.println("Returning");
+			//		//////System.err.err.println("Returning");
 			//		return boxCharacters.get(i);
 			//	}
 			//} catch (java.lang.IndexOutOfBoundsException e) {
@@ -435,11 +455,11 @@ public class GameMap {
 		//returns the character of the agent at a time position to a given time.
 		time++; //Offset to make it correct
 		for (int i = 0; i < agentPositionsTo.size(); i++) {
-			//System.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
-			//System.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
+			//////System.err.err.println("boxAtTime.To. time=" + time + ", pos=" + pos + ", return = " + boxPositionsTo.get(i).get(time+1));
+			//////System.err.err.println("boxAtTime.From. time=" + time + ", pos=" + pos + ", return = " + boxPositionsFrom.get(i).get(time+1));
 			try {
 				if (pos.equals(agentPositionsTo.get(i).get(time))) {
-					//System.err.println("Returning");
+					//////System.err.err.println("Returning");
 					return agentCharacters.get(i);
 				}
 			} catch (java.lang.IndexOutOfBoundsException e) {
@@ -448,7 +468,7 @@ public class GameMap {
 			
 			//try {
 			//	if (pos.equals(boxPositionsFrom.get(i).get(time))) {
-			//		//System.err.println("Returning");
+			//		//////System.err.err.println("Returning");
 			//		return boxCharacters.get(i);
 			//	}
 			//} catch (java.lang.IndexOutOfBoundsException e) {
